@@ -1022,22 +1022,22 @@
   <!-- Hero -->
   <section class="hero">
     <div class="hero-pill">
-      <span class="hero-pill-tag">Free</span>
-      <span>Open source under Apache 2.0</span>
+      <span class="hero-pill-tag">RC.1</span>
+      <span>Developer Preview · open source under Apache 2.0</span>
     </div>
     <h1>
-      Build WordPress plugins<br>
-      <span class="accent">that feel native — and ship secure.</span>
+      Declarative WordPress plugins.<br>
+      <span class="accent">Describe it. The SDK wires it up.</span>
     </h1>
     <p class="hero-sub">
-      Real WP admin markup. Security patterns built in. CSS, React, and PHP runtimes — plus a plugin scaffold and skill files so AI agents build the same way.
+      Write one <code>plugin-sdk.json</code> describing your settings page, REST routes, and custom tables. The runtime registers every WordPress hook with capability checks, nonces, sanitisation, and JSON-schema validation built in. Your plugin code stays focused on business logic.
     </p>
     <div class="hero-actions">
-      <a href="components.html" class="btn-primary">
-        Browse components
+      <a href="docs.html" class="btn-primary">
+        Read the docs
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
-      <a href="docs.html" class="btn-ghost">Read the docs</a>
+      <a href="components.html" class="btn-ghost">Browse components</a>
       <a href="https://github.com/artificialpoets/plugin-sdk" target="_blank" rel="noopener" class="btn-ghost">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.34-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.45.11-3.03 0 0 .97-.31 3.17 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.74.11 3.03.74.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.78.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
         Star on GitHub
@@ -1134,42 +1134,208 @@
     </div>
   </section>
 
-  <!-- Three pillars -->
+  <!-- How it works: manifest + bootstrap, side by side -->
   <section class="section">
     <div class="section-header centered">
-      <p class="eyebrow">The three pillars</p>
-      <h2 class="section-title">Native design. Security by default. AI agent-ready.</h2>
+      <p class="eyebrow">How it works</p>
+      <h2 class="section-title">One JSON, one PHP bootstrap line.</h2>
       <p class="section-lead">
-        The patterns the WordPress plugin ecosystem needs in 2026, in one framework.
+        The manifest is your plugin's blueprint. The bootstrap is the entire startup code. Everything else — handlers, queries, custom UI — is your business logic.
+      </p>
+    </div>
+
+    <div class="copy-flow">
+      <div class="copy-flow-card">
+        <div class="copy-flow-card-header">
+          <span>plugin-sdk.json</span>
+          <span class="tag">Manifest</span>
+        </div>
+<pre><code><span class="punctuation">{</span>
+  <span class="yellow">"platform"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"wordpress"</span><span class="punctuation">,</span>
+  <span class="yellow">"name"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"Acme Forms"</span><span class="punctuation">,</span>
+  <span class="yellow">"slug"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"acme-forms"</span><span class="punctuation">,</span>
+
+  <span class="yellow">"settings"</span><span class="punctuation">:</span> <span class="punctuation">{</span> <span class="yellow">"page"</span><span class="punctuation">:</span> <span class="punctuation">{</span>
+    <span class="yellow">"title"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"Acme Forms"</span><span class="punctuation">,</span>
+    <span class="yellow">"capability"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"manage_options"</span><span class="punctuation">,</span>
+    <span class="yellow">"sections"</span><span class="punctuation">:</span> <span class="punctuation">[{</span>
+      <span class="yellow">"id"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"general"</span><span class="punctuation">,</span> <span class="yellow">"title"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"General"</span><span class="punctuation">,</span>
+      <span class="yellow">"fields"</span><span class="punctuation">:</span> <span class="punctuation">[{</span>
+        <span class="yellow">"id"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"api_key"</span><span class="punctuation">,</span>
+        <span class="yellow">"label"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"API Key"</span><span class="punctuation">,</span>
+        <span class="yellow">"type"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"password"</span><span class="punctuation">,</span>
+        <span class="yellow">"required"</span><span class="punctuation">:</span> <span class="keyword">true</span>
+      <span class="punctuation">}]</span>
+    <span class="punctuation">}]</span>
+  <span class="punctuation">}}</span><span class="punctuation">,</span>
+
+  <span class="yellow">"rest"</span><span class="punctuation">:</span> <span class="punctuation">{</span>
+    <span class="yellow">"namespace"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"acme-forms/v1"</span><span class="punctuation">,</span>
+    <span class="yellow">"routes"</span><span class="punctuation">:</span> <span class="punctuation">[{</span>
+      <span class="yellow">"path"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"/submissions"</span><span class="punctuation">,</span>
+      <span class="yellow">"method"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"POST"</span><span class="punctuation">,</span>
+      <span class="yellow">"capability"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"manage_options"</span><span class="punctuation">,</span>
+      <span class="yellow">"schema"</span><span class="punctuation">:</span> <span class="punctuation">{</span>
+        <span class="yellow">"type"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"object"</span><span class="punctuation">,</span>
+        <span class="yellow">"required"</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="value" style="color:#a5d6ff">"email"</span><span class="punctuation">],</span>
+        <span class="yellow">"properties"</span><span class="punctuation">:</span> <span class="punctuation">{</span> <span class="yellow">"email"</span><span class="punctuation">:</span>
+          <span class="punctuation">{</span> <span class="yellow">"type"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"string"</span><span class="punctuation">,</span>
+            <span class="yellow">"format"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"email"</span> <span class="punctuation">}}</span>
+      <span class="punctuation">}</span>
+    <span class="punctuation">}]</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span></code></pre>
+      </div>
+
+      <div class="copy-flow-card">
+        <div class="copy-flow-card-header">
+          <span>acme-forms.php</span>
+          <span class="tag">Bootstrap</span>
+        </div>
+<pre><code><span class="keyword">require_once</span> <span class="attr">__DIR__</span> <span class="punctuation">.</span> <span class="value" style="color:#a5d6ff">'/vendor/autoload.php'</span><span class="punctuation">;</span>
+
+<span class="keyword">use</span> <span class="attr">PluginSDK\WP\Plugin</span><span class="punctuation">;</span>
+<span class="keyword">use</span> <span class="attr">Acme\Forms\REST\Submissions</span><span class="punctuation">;</span>
+
+<span class="attr">add_action</span><span class="punctuation">(</span><span class="value" style="color:#a5d6ff">'plugins_loaded'</span><span class="punctuation">,</span> <span class="keyword">function</span> <span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="attr">Plugin</span>::<span class="keyword">fromManifest</span><span class="punctuation">(</span>
+        <span class="attr">__DIR__</span> <span class="punctuation">.</span> <span class="value" style="color:#a5d6ff">'/plugin-sdk.json'</span><span class="punctuation">,</span>
+        <span class="attr">__FILE__</span>
+    <span class="punctuation">)</span>
+    <span class="punctuation">-&gt;</span><span class="keyword">withRestHandler</span><span class="punctuation">(</span>
+        <span class="value" style="color:#a5d6ff">'Acme\Forms\REST\Submissions::create'</span><span class="punctuation">,</span>
+        <span class="punctuation">[</span><span class="attr">Submissions</span>::<span class="keyword">class</span><span class="punctuation">,</span> <span class="value" style="color:#a5d6ff">'create'</span><span class="punctuation">]</span>
+    <span class="punctuation">)</span>
+    <span class="punctuation">-&gt;</span><span class="keyword">boot</span><span class="punctuation">();</span>
+<span class="punctuation">});</span>
+
+<span class="lp-code-comment">/* That's it. The runtime now:
+ *   - renders the Settings → Acme Forms page,
+ *     sanitising every field on save with
+ *     capability + nonce enforced;
+ *   - registers POST /acme-forms/v1/submissions,
+ *     checks current_user_can('manage_options'),
+ *     validates the JSON body, then calls
+ *     Submissions::create($request);
+ *   - if you add database.tables[] to the
+ *     manifest, runs dbDelta on activate.
+ *
+ * Handler stays focused on business logic. */</span></code></pre>
+      </div>
+    </div>
+
+    <p class="runtimes-footer">
+      → Validates against the schema at <code>cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json</code> — VSCode + JetBrains autocomplete via the <code>$schema</code> URL.
+    </p>
+  </section>
+
+  <!-- What the runtime does -->
+  <section class="section">
+    <div class="section-header centered">
+      <p class="eyebrow">What the runtime gives you</p>
+      <h2 class="section-title">Three concrete surfaces. Wired by the manifest. Hardened by the SDK.</h2>
+      <p class="section-lead">
+        The classes below are part of <code>plugin-sdk/wp</code> (Composer). The manifest compiles to calls into them. You can use the fluent API directly when the manifest can't express what you need.
       </p>
     </div>
 
     <div class="features">
       <div class="feature">
+        <div class="feature-icon">⚙</div>
+        <h3>Settings pages</h3>
+        <p>Declare fields in the manifest. The runtime renders them inside <code>options.php</code> (so the WP nonce round-trip protects every save), runs <strong>type-aware sanitisation</strong> — email/url filter-validated, numbers clamped to min/max, selects whitelisted against options, password preserves printables — and persists the cleaned values as a single WP option.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⇆</div>
+        <h3>REST routes</h3>
+        <p>Declare routes with a JSON Schema for the body. Each request runs through <code>current_user_can()</code>, then your schema. Invalid bodies return <code>WP_Error('rest_invalid_body')</code> with the full path of every failure — <strong>your handler never sees malformed data</strong>. Thrown exceptions wrap into 500s, not white-screen the request.</p>
+      </div>
+      <div class="feature">
         <div class="feature-icon">⌘</div>
-        <h3>Native design</h3>
-        <p>Real WP admin class names — <code>.button</code>, <code>.notice</code>, <code>.wp-list-table</code>. Your plugin inherits the user's color scheme automatically (Default, Midnight, Coffee, Ocean, …). It looks like part of WordPress because it <em>is</em>.</p>
+        <h3>Migrations</h3>
+        <p>Declare tables with columns + indexes. The runtime renders dbDelta-compatible SQL with the <em>exact</em> quirks dbDelta needs (two-space <code>PRIMARY KEY  (col)</code>, <code>KEY</code> not <code>INDEX</code>) and runs it on activate, version-gated via a WP option so reactivations are no-ops.</p>
       </div>
+    </div>
+
+    <p class="runtimes-footer">
+      → Need fluent control? Same effect from PHP:
+      <code>(new Settings(...))->section(...)->field(...)->register();</code>
+    </p>
+  </section>
+
+  <!-- Scenarios — common developer journeys, one card per journey -->
+  <section class="section">
+    <div class="section-header centered">
+      <p class="eyebrow">Scenarios</p>
+      <h2 class="section-title">What you actually do, day to day.</h2>
+      <p class="section-lead">
+        Six recurring WordPress-plugin tasks. Each is either a one-line CLI invocation or a small edit to your <code>plugin-sdk.json</code>. No new patterns to learn beyond the JSON Schema.
+      </p>
+    </div>
+
+    <div class="features">
+
       <div class="feature">
-        <div class="feature-icon">🛡</div>
-        <h3>Security by default</h3>
-        <p>The boilerplate uses capability checks, nonces, sanitize on input, escape on output, and prepared SQL — the patterns plugin reviewers expect. Your AI agent gets the same via <code>skills/security.md</code>.</p>
+        <div class="feature-icon">+</div>
+        <h3>Start a new plugin</h3>
+        <p>The CLI scaffolds a working plugin with manifest, runtime bootstrap, REST handler, custom table, and Composer config:</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="value" style="color:#a5d6ff">npx</span> @plugin-sdk/cli@next create <span class="value" style="color:#a5d6ff">"Acme Forms"</span></code></pre>
       </div>
+
       <div class="feature">
-        <div class="feature-icon">✦</div>
-        <h3>AI agent-ready</h3>
-        <p>One URL — <code>cdn.wp-admincss.com/AGENTS.md</code> — feeds your coding agent the framework, the skill files, and a working scaffold. No more guessing how WordPress plugins should be structured.</p>
+        <div class="feature-icon">⊕</div>
+        <h3>Add a settings field</h3>
+        <p>Append to <code>settings.page.sections[].fields[]</code>. The runtime picks it up on next page load — renders, sanitises, persists. No new PHP.</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="punctuation">{</span> <span class="yellow">"id"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"max_per_day"</span><span class="punctuation">,</span> <span class="yellow">"label"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"Daily limit"</span><span class="punctuation">,</span>
+  <span class="yellow">"type"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"number"</span><span class="punctuation">,</span> <span class="yellow">"min"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">1</span><span class="punctuation">,</span> <span class="yellow">"max"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">10000</span> <span class="punctuation">}</span></code></pre>
       </div>
+
+      <div class="feature">
+        <div class="feature-icon">≋</div>
+        <h3>Add a REST endpoint</h3>
+        <p>Drop a route into <code>rest.routes[]</code> with a JSON Schema. Runtime runs cap check + body validation before your handler ever sees the request.</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="punctuation">{</span> <span class="yellow">"path"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"/submissions"</span><span class="punctuation">,</span> <span class="yellow">"method"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"POST"</span><span class="punctuation">,</span>
+  <span class="yellow">"capability"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"manage_options"</span><span class="punctuation">,</span>
+  <span class="yellow">"schema"</span><span class="punctuation">:</span> <span class="punctuation">{</span> <span class="lp-code-comment">/* … */</span> <span class="punctuation">}</span> <span class="punctuation">}</span></code></pre>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">▦</div>
+        <h3>Add a custom table</h3>
+        <p>Declare in <code>database.tables[]</code>. Bump the manifest's <code>version</code> to force a re-run; dbDelta computes the diff so old tables migrate cleanly.</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="punctuation">{</span> <span class="yellow">"name"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"submissions"</span><span class="punctuation">,</span>
+  <span class="yellow">"columns"</span><span class="punctuation">:</span> <span class="punctuation">[{</span> <span class="yellow">"name"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"id"</span><span class="punctuation">,</span>
+    <span class="yellow">"type"</span><span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">"BIGINT UNSIGNED"</span><span class="punctuation">,</span>
+    <span class="yellow">"primary"</span><span class="punctuation">:</span> <span class="keyword">true</span><span class="punctuation">,</span> <span class="yellow">"autoIncrement"</span><span class="punctuation">:</span> <span class="keyword">true</span> <span class="punctuation">}]</span> <span class="punctuation">}</span></code></pre>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">⌥</div>
+        <h3>Type your React frontend</h3>
+        <p>Codegen reads the manifest's REST schemas and emits a typed client. Re-run after every route change; <code>tsc</code> tells you which call sites broke.</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="value" style="color:#a5d6ff">npx</span> @plugin-sdk/cli codegen
+<span class="lp-code-comment"># → src/generated/plugin-sdk-client.ts</span>
+<span class="lp-code-comment"># import { createPluginSDKClient } from …</span></code></pre>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">∽</div>
+        <h3>Existing plugin? Just the styles</h3>
+        <p>Don't want the runtime — keep your existing structure but adopt the native WP admin look. One link tag. No build step.</p>
+<pre style="background:#0f1115;padding:10px 12px;border-radius:6px;margin:8px 0 0;font-size:11px;line-height:1.55;color:#d1d5db;overflow-x:auto"><code><span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span>
+      <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span></code></pre>
+      </div>
+
     </div>
   </section>
 
   <!-- Three runtimes — CSS / React / PHP, all rendering the same WP-native markup -->
   <section class="section">
     <div class="section-header centered">
-      <p class="eyebrow">Three runtimes</p>
-      <h2 class="section-title">Pick your level. Same markup. Same output.</h2>
+      <p class="eyebrow">Beyond the manifest</p>
+      <h2 class="section-title">Three rendering surfaces. Same WP-native HTML.</h2>
       <p class="section-lead">
-        Drop-in CSS to start. React components for sophisticated UIs. PHP helpers for server-rendered admin pages. Every package emits identical WordPress-native HTML and inherits the user's color scheme.
+        For UI the manifest can't express — custom dashboards, list tables, modals — drop down to one of three runtimes. Every package emits identical WordPress-native HTML and inherits the user's color scheme.
       </p>
     </div>
 
@@ -1230,9 +1396,9 @@
   <section class="section security-section">
     <div class="section-header centered">
       <p class="eyebrow">Security by default</p>
-      <h2 class="section-title">Capability check. Nonce. Sanitize. Escape.</h2>
+      <h2 class="section-title">Capability. Nonce. Sanitize. Escape.</h2>
       <p class="section-lead">
-        Every code example in the framework ships with the security patterns WordPress plugin reviewers expect. AI agents loading <code>skills/security.md</code> get them too.
+        When you use the manifest, the runtime applies all four for every settings save and every REST request — your handler never sees raw <code>$_POST</code> or unauthenticated traffic. The code below is what the runtime is doing under the hood; the same pattern lands in your <code>src/</code> for anything that lives outside the manifest.
       </p>
     </div>
 
@@ -1291,7 +1457,7 @@
     </div>
 
     <p class="section-footnote">
-      Database queries follow the same discipline — every <code>$wpdb</code> call uses <code>prepare()</code>. Full pattern walkthrough in <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/security.md">skills/security.md</a>.
+      Database queries follow the same discipline — every <code>$wpdb</code> call uses <code>prepare()</code>. Full pattern walkthrough in <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/platforms/wordpress/skills/security.md">platforms/wordpress/skills/security.md</a>.
     </p>
   </section>
 
@@ -1559,20 +1725,26 @@
   <section class="section compact">
     <div class="section-header centered">
       <p class="eyebrow">Get started</p>
-      <h2 class="section-title">One line. Drop it in.</h2>
+      <h2 class="section-title">One command. A working plugin.</h2>
+      <p class="section-lead">
+        The CLI scaffolds a plugin with the manifest, the runtime bootstrap, a sample REST handler, and a custom table — already wired up. <code>composer install</code> and you can activate.
+      </p>
     </div>
 
     <div class="install">
-      <div class="install-label">Add to your plugin admin page</div>
-<code><span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span> <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span></code>
+      <div class="install-label">Scaffold a new WordPress plugin</div>
+<code><span class="yellow">npx</span> @plugin-sdk/cli@next create <span class="value" style="color:#a5d6ff">"Acme Forms"</span>
+<span class="yellow">cd</span> acme-forms <span class="punctuation">&amp;&amp;</span> <span class="yellow">composer</span> install</code>
 
       <hr>
 
-      <div class="install-label">Use real WordPress admin classes</div>
-<code><span class="punctuation">&lt;</span><span class="green">div</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"wrap"</span><span class="punctuation">&gt;</span>
-  <span class="punctuation">&lt;</span><span class="green">h1</span><span class="punctuation">&gt;</span>My Plugin<span class="punctuation">&lt;/</span><span class="green">h1</span><span class="punctuation">&gt;</span>
-  <span class="punctuation">&lt;</span><span class="green">button</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"button button-primary"</span><span class="punctuation">&gt;</span>Save<span class="punctuation">&lt;/</span><span class="green">button</span><span class="punctuation">&gt;</span>
-<span class="punctuation">&lt;/</span><span class="green">div</span><span class="punctuation">&gt;</span></code>
+      <div class="install-label">Or add to an existing plugin</div>
+<code><span class="yellow">composer</span> require plugin-sdk/wp:^0.1.0-rc.1</code>
+
+      <hr>
+
+      <div class="install-label">Or just the CSS, no runtime</div>
+<code><span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span> <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span></code>
     </div>
   </section>
 
@@ -1590,36 +1762,36 @@
       <div class="lp-feature">
         <div class="lp-feature-icon">📄</div>
         <h3>AGENTS.md</h3>
-        <p>The master entry point. The framework, the anti-patterns, the security checklist. Hosted at <code>cdn.wp-admincss.com/AGENTS.md</code> — load it once, the agent has everything.</p>
+        <p>The platform entry point for WordPress. Recommended SDK flow, runtime classes, anti-patterns, security checklist. Hosted at <code>cdn.wp-admincss.com/wordpress/AGENTS.md</code> — point your agent at it once.</p>
       </div>
       <div class="lp-feature">
         <div class="lp-feature-icon">⚙</div>
-        <h3>6 skill files</h3>
-        <p>Security, database, data-modeling, enqueue, plugin-structure, i18n. Each focuses on the patterns AI agents commonly get wrong in WordPress. Load on demand.</p>
+        <h3>8 focused skills</h3>
+        <p><code>plugin-manifest</code>, security, database, data-modeling, enqueue, plugin-structure, i18n, publishing. Each closes a specific gap where agents commonly get WordPress wrong. Load on demand.</p>
       </div>
       <div class="lp-feature">
         <div class="lp-feature-icon">⌂</div>
-        <h3>Plugin boilerplate</h3>
-        <p>A working plugin scaffold — settings page, REST endpoint, custom table, lifecycle hooks. Clone, find-replace the names, ship.</p>
+        <h3>Schema autocomplete</h3>
+        <p>Point an editor at <code>cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json</code> via the manifest's <code>$schema</code> URL. VSCode + JetBrains autocomplete every field and reject typos before save.</p>
       </div>
     </div>
 
     <div class="install" style="max-width:760px;margin:0 auto">
       <div class="install-label">Drop into Cursor / Claude Code / Aider</div>
 <code><span class="lp-code-comment"># Tell your agent to use the framework</span>
-<span class="green">@docs</span> https://cdn.wp-admincss.com/AGENTS.md
+<span class="green">@docs</span> https://cdn.wp-admincss.com/wordpress/AGENTS.md
 
 <span class="lp-code-comment"># Or read into the conversation directly</span>
-<span class="yellow">curl</span> https://cdn.wp-admincss.com/AGENTS.md
-<span class="yellow">curl</span> https://cdn.wp-admincss.com/skills/security.md
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/wordpress/AGENTS.md
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/wordpress/skills/plugin-manifest.md
 
-<span class="lp-code-comment"># Then ask: "Build a WP plugin settings page following Plugin SDK"</span>
-<span class="lp-code-comment"># The agent already knows the security boundary, the markup, the conventions.</span></code>
+<span class="lp-code-comment"># Then ask: "Add a new settings field to plugin-sdk.json"</span>
+<span class="lp-code-comment"># The agent knows the manifest shape, the runtime, the security boundary.</span></code>
       <hr>
-      <div class="install-label">Or clone the boilerplate</div>
-<code><span class="yellow">gh</span> repo clone artificialpoets/plugin-sdk
-<span class="yellow">cp</span> -r plugin-sdk/boilerplates/wordpress ~/my-plugin
-<span class="yellow">cd</span> ~/my-plugin && <span class="yellow">composer</span> install</code>
+      <div class="install-label">Pin to a specific SDK version</div>
+<code><span class="lp-code-comment"># Use the versioned path for reproducibility</span>
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/wordpress/v0.1.0-rc.1/AGENTS.md
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/wordpress/v0.1.0-rc.1/skills/security.md</code>
     </div>
   </section>
 
