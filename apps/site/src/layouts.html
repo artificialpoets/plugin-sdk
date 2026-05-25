@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layouts — Plugin SDK</title>
+  <meta name="description" content="Full WordPress plugin admin templates: settings pages, list tables, dashboards, onboarding wizards. Real WP markup, ready to ship.">
+  <link rel="canonical" href="https://wp-admincss.com/layouts.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="Layouts — Plugin SDK">
+  <meta property="og:description" content="Full plugin admin templates. Settings pages, list tables, dashboards, onboarding wizards.">
+  <meta property="og:image" content="https://wp-admincss.com/og/layouts.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/layouts.html">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Layouts — Plugin SDK">
+  <meta name="twitter:description" content="Full plugin admin templates, ready to ship.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/layouts.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--wpadmin-font);
+      font-size: var(--wpadmin-font-size);
+      color: var(--wpadmin-text);
+      background: var(--wpadmin-surface);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--wpadmin-primary); }
+    a:hover { color: var(--wpadmin-primary-dark); }
+
+    code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: .92em;
+      background: var(--wpadmin-surface-alt);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--wpadmin-text);
+    }
+
+    /* Topbar styles live in styles.css (shared across all pages). */
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: calc(100vh - 56px);
+    }
+
+    /* ── Sidebar ────────────────────────────────────────────────────────── */
+    .sidebar {
+      border-right: 1px solid var(--wpadmin-border);
+      overflow-y: auto;
+      padding: 24px 0 40px;
+      background: var(--wpadmin-surface);
+    }
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+    #sidebar-list { list-style: none; }
+    .sidebar-category {
+      margin-bottom: 20px;
+    }
+    .sidebar-category-name {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      padding: 6px 24px;
+    }
+    .sidebar-sublist {
+      list-style: none;
+    }
+    .sidebar-sublist a {
+      display: block;
+      padding: 7px 24px;
+      font-size: 13px;
+      color: var(--wpadmin-text);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: background .1s, color .1s, border-color .1s;
+    }
+    .sidebar-sublist a:hover {
+      background: var(--wpadmin-surface-alt);
+      color: var(--wpadmin-primary);
+    }
+    .sidebar-sublist a.is-active {
+      background: var(--wpadmin-surface-alt);
+      color: var(--wpadmin-primary);
+      border-left-color: var(--wpadmin-primary);
+      font-weight: 500;
+    }
+    .sidebar-sublist .sublabel {
+      display: block;
+      font-size: 11px;
+      color: var(--wpadmin-text-subtle);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    /* ── Main scroll ────────────────────────────────────────────────────── */
+    .main-scroll {
+      overflow-y: auto;
+      background: var(--wpadmin-surface);
+    }
+    #main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 48px 40px 96px;
+    }
+
+    /* ── Layout doc page ────────────────────────────────────────────────── */
+    .layout-doc__header {
+      margin-bottom: 32px;
+    }
+    .layout-doc__breadcrumb {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .layout-doc h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--wpadmin-text);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .layout-doc__description {
+      font-size: 16px;
+      color: var(--wpadmin-text-subtle);
+      line-height: 1.6;
+      max-width: 720px;
+    }
+    .layout-doc__components {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+    }
+    .layout-doc__components strong {
+      color: var(--wpadmin-text);
+      font-weight: 600;
+    }
+    .layout-doc__components a {
+      color: var(--wpadmin-primary);
+      text-decoration: none;
+    }
+    .layout-doc__components a:hover { text-decoration: underline; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section-label span {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--wpadmin-border);
+    }
+
+    .layout-doc__preview-section,
+    .layout-doc__code-section {
+      margin-bottom: 40px;
+    }
+
+    /* ── Browser-framed preview (mockup style) ──────────────────────────── */
+    .browser-frame {
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--wpadmin-body-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+    }
+    .browser-frame__bar {
+      background: #f6f7f7;
+      height: 32px;
+      border-bottom: 1px solid var(--wpadmin-border);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+    }
+    .browser-frame__dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #d1d5d9;
+    }
+    .browser-frame__dot.r { background: #ed6a5e; }
+    .browser-frame__dot.y { background: #f4be4f; }
+    .browser-frame__dot.g { background: #61c554; }
+    .browser-frame__url {
+      flex: 1;
+      margin: 0 12px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: var(--wpadmin-font-mono);
+      color: var(--wpadmin-text-subtle);
+      padding: 3px 10px;
+      text-align: center;
+    }
+    .browser-frame__body {
+      padding: 24px 24px 32px;
+      max-height: 720px;
+      overflow-y: auto;
+    }
+
+    /* ── Code card (Vercel-style copy + tabs) ──────────────────────────── */
+    .code-card {
+      background: #0f1115;
+      border: 1px solid #1f2228;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .code-card__tabs {
+      display: flex;
+      background: #161a1f;
+      border-bottom: 1px solid #1f2228;
+      padding: 0 8px;
+      overflow-x: auto;
+    }
+    .code-tab {
+      flex-shrink: 0;
+      background: transparent;
+      border: 0;
+      color: #9ba1ab;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 11px 14px;
+      cursor: pointer;
+      position: relative;
+      transition: color .12s;
+    }
+    .code-tab:hover { color: #d1d5db; }
+    .code-tab.is-active { color: #fff; }
+    .code-tab.is-active::after {
+      content: "";
+      position: absolute;
+      left: 14px; right: 14px; bottom: 0;
+      height: 2px;
+      background: var(--wpadmin-primary);
+      border-radius: 1px;
+    }
+
+    .code-panel { display: none; position: relative; }
+    .code-panel.is-active { display: block; }
+    .code-panel pre {
+      margin: 0;
+      padding: 22px 24px;
+      overflow-x: auto;
+      max-height: 640px;
+    }
+    .code-panel pre code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #d1d5db;
+      background: none;
+      padding: 0;
+      white-space: pre;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      color: #9ba1ab;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .12s;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border-color: rgba(255,255,255,.14);
+    }
+    .copy-btn.is-copied {
+      color: var(--wpadmin-success);
+      background: rgba(70, 180, 80, 0.12);
+      border-color: rgba(70, 180, 80, 0.3);
+    }
+    .copy-icon { display: block; }
+    .copy-btn.is-copied .copy-icon { display: none; }
+
+    .empty-route {
+      padding: 80px 20px;
+      text-align: center;
+      color: var(--wpadmin-text-subtle);
+    }
+
+    /* ── Mini admin chrome inside preview (sidebar + admin bar) ─────────── */
+    .mini-admin {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      min-height: 480px;
+      background: var(--wpadmin-body-bg);
+    }
+    .mini-admin__sidebar {
+      background: var(--wpadmin-menu-bg);
+      padding: 10px 0;
+    }
+    .mini-admin__menu-item {
+      padding: 7px 14px;
+      font-size: 12px;
+      color: var(--wpadmin-menu-text);
+    }
+    .mini-admin__menu-item.is-active {
+      background: var(--wpadmin-menu-active-bg);
+      color: #fff;
+    }
+    .mini-admin__content {
+      padding: 18px 22px;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar toggle (mobile only) ──────────────────────────────────── */
+    .sidebar-toggle {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      align-items: center;
+      gap: 8px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--wpadmin-text);
+      cursor: pointer;
+      margin: 16px 20px 0;
+      width: fit-content;
+      font-family: inherit;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .sidebar-toggle:hover { background: var(--wpadmin-surface-alt); }
+    .sidebar-toggle svg { width: 14px; height: 14px; }
+    .sidebar-backdrop { display: none; }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: calc(100vh - 56px);
+      }
+      #main { padding: 16px 20px 64px; }
+
+      /* Sidebar becomes an off-canvas drawer that slides in from the left. */
+      .sidebar {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        width: min(320px, 85vw);
+        z-index: 60;
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+      }
+      .sidebar.is-open { transform: translateX(0); }
+
+      .sidebar-toggle { display: inline-flex; }
+      .sidebar-backdrop {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 55;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .sidebar-backdrop.is-open {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .main-scroll {
+        /* Drop the inner scroll on mobile; let the page scroll naturally. */
+        overflow: visible;
+      }
+
+      .mini-admin { grid-template-columns: 1fr; }
+      .mini-admin__sidebar { display: none; }
+    }
+  </style>
+</head>
+<body data-page="layouts">
+
+  <!-- @include header -->
+
+  <div class="layout">
+
+    <!-- Backdrop for the mobile sidebar drawer. Click closes the drawer. -->
+    <div class="sidebar-backdrop" aria-hidden="true"></div>
+
+    <aside class="sidebar" id="layouts-sidebar">
+      <ul id="sidebar-list"></ul>
+    </aside>
+
+    <main class="main-scroll">
+      <!-- Mobile-only: opens the sidebar drawer. Hidden via CSS on desktop. -->
+      <button
+        class="sidebar-toggle"
+        type="button"
+        aria-controls="layouts-sidebar"
+        aria-expanded="false"
+      >
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <line x1="2" y1="4" x2="14" y2="4"/>
+          <line x1="2" y1="8" x2="14" y2="8"/>
+          <line x1="2" y1="12" x2="14" y2="12"/>
+        </svg>
+        Layouts
+      </button>
+      <div id="main"><!-- rendered by layouts-app.js --></div>
+    </main>
+  </div>
+
+  <script type="module" src="layouts-app.js"></script>
+
+  <script>
+    /*
+     * Mobile sidebar drawer wiring. The CSS keeps the sidebar fixed
+     * off-screen on small viewports; this script handles the open/close
+     * state plus the usual escape hatches (Escape, backdrop click, in-drawer
+     * link click). Desktop is unaffected — the toggle is `display: none`.
+     */
+    (function () {
+      var toggle = document.querySelector('.sidebar-toggle');
+      var sidebar = document.getElementById('layouts-sidebar');
+      var backdrop = document.querySelector('.sidebar-backdrop');
+      if (!toggle || !sidebar || !backdrop) return;
+
+      function setOpen(open) {
+        sidebar.classList.toggle('is-open', open);
+        backdrop.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      toggle.addEventListener('click', function () {
+        setOpen(!sidebar.classList.contains('is-open'));
+      });
+      backdrop.addEventListener('click', function () { setOpen(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('is-open')) setOpen(false);
+      });
+      // Close on link click inside the sidebar (rendered async by
+      // layouts-app.js, so use event delegation).
+      sidebar.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a');
+        if (a) setOpen(false);
+      });
+    })();
+  </script>
+
+  <!-- @include footer -->
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog — Plugin SDK</title>
+  <meta name="description" content="Every release of Plugin SDK — the framework, the components, the boilerplate. Each entry has a shareable URL and a generated OG card.">
+  <link rel="canonical" href="https://wp-admincss.com/changelog.html">
+
+  <!-- Open Graph (for the feed page; per-entry pages at /changelog/<id>.html
+       have their own OG cards generated at build time). -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="Changelog — Plugin SDK">
+  <meta property="og:description" content="Every release of Plugin SDK. Each entry has a shareable URL and a generated OG card.">
+  <meta property="og:image" content="https://wp-admincss.com/og/changelog.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/changelog.html">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Changelog — Plugin SDK">
+  <meta name="twitter:description" content="Every release of Plugin SDK, with shareable per-entry URLs.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/changelog.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--wpadmin-font);
+      font-size: var(--wpadmin-font-size);
+      color: var(--wpadmin-text);
+      background: var(--wpadmin-surface);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--wpadmin-primary); }
+    a:hover { color: var(--wpadmin-primary-dark); }
+    code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: .92em;
+      background: var(--wpadmin-surface-alt);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--wpadmin-text);
+    }
+
+    /* Topbar styles live in styles.css (shared across all pages). */
+
+    /* ── Page header ────────────────────────────────────────────────────── */
+    .page-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 80px 24px 48px;
+      text-align: center;
+    }
+    .page-header .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-primary);
+      margin-bottom: 14px;
+    }
+    .page-header h1 {
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #14181f;
+      margin-bottom: 14px;
+    }
+    .page-header p {
+      font-size: 17px;
+      color: var(--wpadmin-text-subtle);
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ── Entry list ─────────────────────────────────────────────────────── */
+    .entries {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    .entry {
+      position: relative;
+      scroll-margin-top: 88px;
+    }
+    .entry.is-active::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: -16px;
+      bottom: 4px;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--wpadmin-primary);
+    }
+
+    .entry-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 16px;
+    }
+    .entry-meta .avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: var(--wpadmin-surface-alt);
+    }
+    .entry-meta .avatar img,
+    .entry-meta .avatar svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .entry-meta .author-name {
+      color: var(--wpadmin-text);
+      font-weight: 500;
+    }
+    .entry-meta .dot { color: var(--wpadmin-border); }
+    .entry-meta .version-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--wpadmin-surface-alt);
+      border-radius: 999px;
+      font-family: var(--wpadmin-font-mono);
+      font-size: 11px;
+      color: var(--wpadmin-primary);
+      font-weight: 600;
+    }
+
+    .entry h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--wpadmin-text);
+      margin-bottom: 14px;
+    }
+    .entry h2 a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .entry h2 a:hover { color: var(--wpadmin-primary); }
+
+    .entry-body {
+      font-size: 15px;
+      color: var(--wpadmin-text);
+      line-height: 1.65;
+    }
+    .entry-body p { margin-bottom: 12px; }
+    .entry-body p:last-child { margin-bottom: 0; }
+    .entry-body ul { margin: 12px 0 12px 20px; }
+    .entry-body li { margin-bottom: 6px; }
+    .entry-body strong { color: var(--wpadmin-text); font-weight: 600; }
+    .entry-body h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+      margin: 20px 0 8px;
+    }
+
+    .entry-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .entry-tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--wpadmin-surface-alt);
+      color: var(--wpadmin-text-subtle);
+      font-weight: 500;
+    }
+
+    /* ── Share section ─────────────────────────────────────────────────── */
+    .entry-share {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--wpadmin-border);
+    }
+    .entry-share-summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .entry-share-summary strong {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      font-weight: 600;
+    }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--wpadmin-text);
+      font-family: inherit;
+      transition: background .12s, border-color .12s;
+    }
+    .share-btn:hover {
+      background: var(--wpadmin-surface-alt);
+      border-color: #a7aaad;
+    }
+    .share-btn.is-copied {
+      background: rgba(70, 180, 80, 0.1);
+      border-color: var(--wpadmin-success);
+      color: var(--wpadmin-success);
+    }
+    .share-btn svg { width: 12px; height: 12px; }
+
+    .og-preview {
+      margin-top: 16px;
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--wpadmin-body-bg);
+      max-width: 600px;
+    }
+    /* OG preview can render as a raster <img> (PNG, the production case) or
+     * an inline <svg> (when the client generates it on the fly via
+     * renderOgSvg). Both need width:100% + height:auto to preserve the
+     * 1200×630 aspect ratio inside the 600px max-width container. */
+    .og-preview img,
+    .og-preview svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1200 / 630;
+    }
+    .og-preview-caption {
+      padding: 10px 14px;
+      font-size: 11px;
+      color: var(--wpadmin-text-subtle);
+      border-top: 1px solid var(--wpadmin-border);
+      background: var(--wpadmin-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Empty state for unknown hash */
+    .empty {
+      max-width: 720px;
+      margin: 80px auto;
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--wpadmin-text-subtle);
+    }
+
+    @media (max-width: 600px) {
+      .page-header { padding: 56px 20px 32px; }
+      .entries { padding: 0 20px 80px; gap: 36px; }
+      .entry h2 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body data-page="changelog">
+
+  <!-- @include header -->
+
+  <section class="page-header">
+    <p class="eyebrow">Bitácora</p>
+    <h1>Changelog</h1>
+    <p>Every release of Plugin SDK — the framework, the components, the boilerplate. Each entry has a shareable URL and a generated OG card.</p>
+  </section>
+
+  <main class="entries" id="entries"></main>
+
+  <script type="module" src="changelog-app.js"></script>
+
+  <!-- @include footer -->
+</body>
+</html>

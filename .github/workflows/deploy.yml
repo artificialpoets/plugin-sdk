@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-wp-admincss-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
+      url: ${{ github.ref == 'refs/heads/main' && 'https://wp-admincss.com' || 'https://dev.wp-admincss-site.pages.dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # main pushes deploy as the production "main" branch on Pages;
+          # dev pushes get a per-branch preview deployment with its own URL.
+          command: pages deploy apps/site/dist --project-name=wp-admincss-site --branch=${{ github.ref_name }}
+
+      - name: Smoke check (production only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          set -e
+          for path in / /docs.html /components.html /layouts.html /changelog.html; do
+            CODE=$(curl -sIk --max-time 10 "https://wp-admincss.com$path" | head -1 | awk '{print $2}')
+            echo "$path -> $CODE"
+            # Pages 308-redirects .html → clean URL; both are acceptable
+            if [ "$CODE" != "200" ] && [ "$CODE" != "308" ]; then exit 1; fi
+          done

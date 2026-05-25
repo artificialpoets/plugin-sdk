@@ -1,0 +1,186 @@
+/*
+ * Plugin SDK — Token Foundation
+ * CSS custom properties that extend WordPress Admin's design system.
+ *
+ * Color schemes respond to WP's native body classes (.admin-color-*)
+ * so your plugin inherits the user's chosen scheme automatically.
+ *
+ * Usage in your plugin CSS:
+ *   color: var(--wpadmin-primary);
+ *   background: var(--wpadmin-menu-bg);
+ */
+
+/* ─── Default (matches WP 6.x default color scheme) ─────────────────────── */
+:root {
+  /* Primary accent */
+  --wpadmin-primary:          #2271b1;
+  --wpadmin-primary-dark:     #135e96;
+  --wpadmin-primary-darker:   #0a4b78;
+  --wpadmin-focus-ring:       #4f94d4;
+
+  /* Sidebar / menu */
+  --wpadmin-menu-bg:          #1d2327;
+  --wpadmin-menu-sub-bg:      #2c3338;
+  --wpadmin-menu-text:        #a7aaad;
+  --wpadmin-menu-icon:        #a7aaad;
+  --wpadmin-menu-active-bg:   #2271b1;
+  --wpadmin-menu-hover-bg:    #2c3338;
+
+  /* Surface & layout */
+  --wpadmin-body-bg:          #f0f0f1;
+  --wpadmin-surface:          #fff;
+  --wpadmin-surface-alt:      #f6f7f7;
+  --wpadmin-border:           #c3c4c7;
+  --wpadmin-radius:           4px;
+
+  /* Typography */
+  --wpadmin-text:             #3c434a;
+  --wpadmin-text-subtle:      #646970;
+  --wpadmin-font:             -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                              Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  --wpadmin-font-mono:        Consolas, Monaco, monospace;
+  --wpadmin-font-size:        14px;
+  --wpadmin-line-height:      1.4;
+
+  /* Spacing scale */
+  --wpadmin-space-1:          4px;
+  --wpadmin-space-2:          8px;
+  --wpadmin-space-3:          12px;
+  --wpadmin-space-4:          16px;
+  --wpadmin-space-5:          20px;
+  --wpadmin-space-6:          24px;
+  --wpadmin-space-8:          32px;
+  --wpadmin-space-10:         40px;
+  --wpadmin-space-12:         48px;
+
+  /* Status colors — consistent across all schemes */
+  --wpadmin-success:          #46b450;
+  --wpadmin-success-bg:       #edfaef;
+  --wpadmin-error:            #d63638;
+  --wpadmin-error-bg:         #fcf0f1;
+  --wpadmin-warning:          #dba617;
+  --wpadmin-warning-bg:       #fcf9e8;
+  --wpadmin-info:             #72aee6;
+  --wpadmin-info-bg:          #e5f5fa;
+}
+
+/* ─── WP Admin color schemes ─────────────────────────────────────────────── */
+/* Applied automatically when WP adds these classes to <body>.               */
+/* You can also add them to any ancestor element for isolated theming.       */
+
+.admin-color-default {
+  --wpadmin-primary:          #2271b1;
+  --wpadmin-primary-dark:     #135e96;
+  --wpadmin-primary-darker:   #0a4b78;
+  --wpadmin-focus-ring:       #4f94d4;
+  --wpadmin-menu-bg:          #1d2327;
+  --wpadmin-menu-sub-bg:      #2c3338;
+  --wpadmin-menu-text:        #a7aaad;
+  --wpadmin-menu-icon:        #a7aaad;
+  --wpadmin-menu-active-bg:   #2271b1;
+  --wpadmin-menu-hover-bg:    #2c3338;
+}
+
+.admin-color-blue {
+  --wpadmin-primary:          #096484;
+  --wpadmin-primary-dark:     #07526c;
+  --wpadmin-primary-darker:   #053f54;
+  --wpadmin-focus-ring:       #4796ac;
+  --wpadmin-menu-bg:          #1e3a4a;
+  --wpadmin-menu-sub-bg:      #1a3344;
+  --wpadmin-menu-text:        #e2ecf1;
+  --wpadmin-menu-icon:        #e2ecf1;
+  --wpadmin-menu-active-bg:   #096484;
+  --wpadmin-menu-hover-bg:    #1a3344;
+}
+
+.admin-color-coffee {
+  --wpadmin-primary:          #c7a589;
+  --wpadmin-primary-dark:     #a6856d;
+  --wpadmin-primary-darker:   #876854;
+  --wpadmin-focus-ring:       #c7a589;
+  --wpadmin-menu-bg:          #1a1a1a;
+  --wpadmin-menu-sub-bg:      #2b2b2b;
+  --wpadmin-menu-text:        #c6b9aa;
+  --wpadmin-menu-icon:        #c6b9aa;
+  --wpadmin-menu-active-bg:   #c7a589;
+  --wpadmin-menu-hover-bg:    #2b2b2b;
+}
+
+.admin-color-ectoplasm {
+  --wpadmin-primary:          #a3b745;
+  --wpadmin-primary-dark:     #8a9c38;
+  --wpadmin-primary-darker:   #71802d;
+  --wpadmin-focus-ring:       #a3b745;
+  --wpadmin-menu-bg:          #413256;
+  --wpadmin-menu-sub-bg:      #3b2d50;
+  --wpadmin-menu-text:        #cbc5d2;
+  --wpadmin-menu-icon:        #cbc5d2;
+  --wpadmin-menu-active-bg:   #a3b745;
+  --wpadmin-menu-hover-bg:    #3b2d50;
+}
+
+.admin-color-midnight {
+  --wpadmin-primary:          #e14d43;
+  --wpadmin-primary-dark:     #c9413a;
+  --wpadmin-primary-darker:   #b03730;
+  --wpadmin-focus-ring:       #e14d43;
+  --wpadmin-menu-bg:          #25282b;
+  --wpadmin-menu-sub-bg:      #363b3f;
+  --wpadmin-menu-text:        #e4e6e8;
+  --wpadmin-menu-icon:        #e4e6e8;
+  --wpadmin-menu-active-bg:   #e14d43;
+  --wpadmin-menu-hover-bg:    #363b3f;
+}
+
+.admin-color-ocean {
+  --wpadmin-primary:          #9ebaa0;
+  --wpadmin-primary-dark:     #83a285;
+  --wpadmin-primary-darker:   #6a8a6c;
+  --wpadmin-focus-ring:       #9ebaa0;
+  --wpadmin-menu-bg:          #738e96;
+  --wpadmin-menu-sub-bg:      #5d7983;
+  --wpadmin-menu-text:        #f0f6f7;
+  --wpadmin-menu-icon:        #f0f6f7;
+  --wpadmin-menu-active-bg:   #9ebaa0;
+  --wpadmin-menu-hover-bg:    #5d7983;
+}
+
+.admin-color-sunrise {
+  --wpadmin-primary:          #dd823b;
+  --wpadmin-primary-dark:     #c9732e;
+  --wpadmin-primary-darker:   #b56425;
+  --wpadmin-focus-ring:       #dd823b;
+  --wpadmin-menu-bg:          #3e3e3e;
+  --wpadmin-menu-sub-bg:      #4d4d4d;
+  --wpadmin-menu-text:        #f3e9d8;
+  --wpadmin-menu-icon:        #f3e9d8;
+  --wpadmin-menu-active-bg:   #dd823b;
+  --wpadmin-menu-hover-bg:    #4d4d4d;
+}
+
+.admin-color-light {
+  --wpadmin-primary:          #2271b1;
+  --wpadmin-primary-dark:     #135e96;
+  --wpadmin-primary-darker:   #0a4b78;
+  --wpadmin-focus-ring:       #4f94d4;
+  --wpadmin-menu-bg:          #e5e5e5;
+  --wpadmin-menu-sub-bg:      #d5d5d5;
+  --wpadmin-menu-text:        #333;
+  --wpadmin-menu-icon:        #555;
+  --wpadmin-menu-active-bg:   #2271b1;
+  --wpadmin-menu-hover-bg:    #d5d5d5;
+}
+
+.admin-color-modern {
+  --wpadmin-primary:          #3858e9;
+  --wpadmin-primary-dark:     #2d48d5;
+  --wpadmin-primary-darker:   #2238c1;
+  --wpadmin-focus-ring:       #7b93f0;
+  --wpadmin-menu-bg:          #1e1e1e;
+  --wpadmin-menu-sub-bg:      #2a2a2a;
+  --wpadmin-menu-text:        #e8eaf6;
+  --wpadmin-menu-icon:        #e8eaf6;
+  --wpadmin-menu-active-bg:   #3858e9;
+  --wpadmin-menu-hover-bg:    #2a2a2a;
+}

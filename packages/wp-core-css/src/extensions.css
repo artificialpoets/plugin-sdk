@@ -1,0 +1,571 @@
+/*
+ * extensions.css — Modern WP admin patterns that aren't in WP core CSS.
+ *
+ * Naming: .wp-admin-* prefix to stay consistent with the WP class system
+ * (we don't invent a separate "wpac-" or "wpa-" namespace).
+ *
+ * All values use --wpadmin-* tokens, so these patterns inherit color schemes.
+ */
+
+/* ─── SVG Icon ──────────────────────────────────────────────────────────── */
+/* Base style for the .wp-admin-icon class emitted by <Icon> (React) and
+ * Components::icon() (PHP). Icons inherit text color via currentColor. */
+.wp-admin-icon {
+  fill: currentColor;
+  vertical-align: middle;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ─── Destructive filled button (companion to .button-link-delete) ────── */
+.button.is-destructive,
+.wp-admin-button-danger.button {
+  background: var(--wpadmin-error);
+  border-color: var(--wpadmin-error);
+  color: #fff;
+}
+.button.is-destructive:hover,
+.button.is-destructive:focus,
+.wp-admin-button-danger.button:hover,
+.wp-admin-button-danger.button:focus {
+  background: #b62a2c;
+  border-color: #b62a2c;
+  color: #fff;
+}
+
+/* ─── Modal ─────────────────────────────────────────────────────────────── */
+.wp-admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000; /* above WP admin bar (99999) */
+  padding: 20px;
+}
+.wp-admin-modal {
+  background: var(--wpadmin-surface);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .22), 0 4px 8px rgba(0, 0, 0, .08);
+  width: 100%;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wp-admin-modal.is-small  { max-width: 420px; }
+.wp-admin-modal.is-medium { max-width: 640px; }
+.wp-admin-modal.is-large  { max-width: 880px; }
+.wp-admin-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--wpadmin-border);
+}
+.wp-admin-modal__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wpadmin-text);
+  margin: 0;
+}
+.wp-admin-modal__close {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 3px;
+  color: var(--wpadmin-text-subtle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+.wp-admin-modal__close:hover {
+  background: var(--wpadmin-surface-alt);
+  color: var(--wpadmin-text);
+}
+.wp-admin-modal__body {
+  padding: 20px;
+  overflow-y: auto;
+  color: var(--wpadmin-text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.wp-admin-modal__footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--wpadmin-border);
+  background: var(--wpadmin-surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ─── DropdownMenu ──────────────────────────────────────────────────────── */
+.wp-admin-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.wp-admin-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: var(--wpadmin-surface);
+  border: 1px solid var(--wpadmin-border);
+  border-radius: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .04);
+  padding: 4px;
+  z-index: 90;
+  list-style: none;
+  margin: 0;
+}
+.wp-admin-dropdown__menu[hidden] { display: none; }
+.wp-admin-dropdown__menu.is-right { left: auto; right: 0; }
+.wp-admin-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--wpadmin-text);
+  text-decoration: none;
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.wp-admin-dropdown__item:hover,
+.wp-admin-dropdown__item:focus {
+  background: var(--wpadmin-surface-alt);
+  color: var(--wpadmin-text);
+  outline: none;
+}
+.wp-admin-dropdown__item.is-destructive { color: var(--wpadmin-error); }
+.wp-admin-dropdown__item.is-destructive:hover { background: var(--wpadmin-error-bg); }
+.wp-admin-dropdown__separator {
+  height: 1px;
+  background: var(--wpadmin-border);
+  margin: 4px 0;
+  border: 0;
+  list-style: none;
+}
+
+/* ─── Tooltip ───────────────────────────────────────────────────────────── */
+.wp-admin-tooltip {
+  position: relative;
+  display: inline-block;
+}
+.wp-admin-tooltip__content {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--wpadmin-menu-bg);
+  color: #fff;
+  padding: 5px 9px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 91;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.wp-admin-tooltip__content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--wpadmin-menu-bg);
+}
+.wp-admin-tooltip:hover .wp-admin-tooltip__content,
+.wp-admin-tooltip:focus-within .wp-admin-tooltip__content {
+  opacity: 1;
+}
+
+/* ─── Tab panels (pair with .nav-tab-wrapper) ──────────────────────────── */
+.wp-admin-tab-panel { display: none; }
+.wp-admin-tab-panel.is-active { display: block; }
+
+/* ─── Media button preview ─────────────────────────────────────────────── */
+.wp-admin-media {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wp-admin-media__preview {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--wpadmin-border);
+  border-radius: 3px;
+  background: var(--wpadmin-surface-alt) center/cover no-repeat;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Dropzone variant — dashed border, drag-drop friendly, click anywhere */
+.wp-admin-media-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px dashed var(--wpadmin-border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  background: var(--wpadmin-surface);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  position: relative;
+  font-size: 13px;
+  color: var(--wpadmin-text-subtle);
+}
+.wp-admin-media-dropzone:hover { border-color: #a7aaad; }
+.wp-admin-media-dropzone.is-dragover {
+  border-color: var(--wpadmin-primary);
+  background: rgba(34, 113, 177, .06);
+  color: var(--wpadmin-primary);
+}
+.wp-admin-media-dropzone__label {
+  flex: 1;
+}
+
+/* ─── Welcome Panel — simple/legacy form ──────────────────────────────── */
+/*
+ * WP 6.x redesigned .welcome-panel as a dark hero + white 3-column grid,
+ * expecting .welcome-panel-header + .welcome-panel-column-container as
+ * children. The simpler pattern most plugin tutorials use — a single
+ * .welcome-panel-content with title + description + CTA — inherits the
+ * dark hero styling and looks broken.
+ *
+ * We detect the simple form via :has() and restore sensible card styling.
+ * The full WP 6 dashboard structure (header + columns) is untouched.
+ */
+.welcome-panel:has(> .welcome-panel-content:only-child) {
+  background: var(--wpadmin-surface);
+  border: 1px solid var(--wpadmin-border);
+  border-radius: var(--wpadmin-radius);
+  padding: 0;
+  color: var(--wpadmin-text);
+  overflow: visible;
+  position: relative;
+}
+.welcome-panel > .welcome-panel-content:only-child {
+  min-height: 0;
+  display: block;
+  padding: 28px 32px;
+}
+.welcome-panel > .welcome-panel-content:only-child h2 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--wpadmin-text);
+  margin: 0 0 8px;
+}
+.welcome-panel > .welcome-panel-content:only-child .about-description {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--wpadmin-text-subtle);
+  margin: 0 0 18px;
+  max-width: 640px;
+}
+.welcome-panel > .welcome-panel-content:only-child p {
+  margin: 0 0 12px;
+}
+
+/* ─── Status badge ──────────────────────────────────────────────────────── */
+.wp-admin-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--wpadmin-surface-alt);
+  color: var(--wpadmin-text-subtle);
+  line-height: 1.6;
+}
+.wp-admin-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.wp-admin-status.is-active   { background: var(--wpadmin-success-bg); color: var(--wpadmin-success); }
+.wp-admin-status.is-error    { background: var(--wpadmin-error-bg);   color: var(--wpadmin-error); }
+.wp-admin-status.is-warning  { background: var(--wpadmin-warning-bg); color: #8a6914; }
+.wp-admin-status.is-info     { background: var(--wpadmin-info-bg);    color: #1d6c92; }
+
+/* ─── Stat card (dashboard widget) ─────────────────────────────────────── */
+.wp-admin-statcard {
+  background: var(--wpadmin-surface);
+  border: 1px solid var(--wpadmin-border);
+  border-radius: var(--wpadmin-radius);
+  padding: var(--wpadmin-space-5);
+}
+.wp-admin-statcard__label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--wpadmin-text-subtle);
+  margin-bottom: 4px;
+}
+.wp-admin-statcard__value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--wpadmin-text);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.wp-admin-statcard__delta {
+  font-size: 12px;
+  color: var(--wpadmin-text-subtle);
+}
+.wp-admin-statcard__delta.is-up   { color: var(--wpadmin-success); }
+.wp-admin-statcard__delta.is-down { color: var(--wpadmin-error); }
+
+/* ─── Activity feed item ───────────────────────────────────────────────── */
+.wp-admin-activity {
+  display: flex;
+  gap: var(--wpadmin-space-3);
+  padding: var(--wpadmin-space-3) 0;
+  border-bottom: 1px solid var(--wpadmin-border);
+}
+.wp-admin-activity:last-child { border-bottom: 0; }
+.wp-admin-activity__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--wpadmin-surface-alt);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wpadmin-text-subtle);
+  font-size: 13px;
+  font-weight: 600;
+}
+.wp-admin-activity__body { flex: 1; min-width: 0; }
+.wp-admin-activity__text {
+  font-size: 13px;
+  color: var(--wpadmin-text);
+  line-height: 1.5;
+}
+.wp-admin-activity__text strong { font-weight: 600; }
+.wp-admin-activity__time {
+  font-size: 12px;
+  color: var(--wpadmin-text-subtle);
+  margin-top: 2px;
+}
+
+/* ─── Empty state ──────────────────────────────────────────────────────── */
+.wp-admin-empty {
+  text-align: center;
+  padding: var(--wpadmin-space-10) var(--wpadmin-space-5);
+  color: var(--wpadmin-text-subtle);
+}
+.wp-admin-empty__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--wpadmin-surface-alt);
+  margin: 0 auto var(--wpadmin-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--wpadmin-text-subtle);
+}
+.wp-admin-empty__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--wpadmin-text);
+  margin-bottom: var(--wpadmin-space-2);
+}
+.wp-admin-empty__description {
+  font-size: 13px;
+  margin-bottom: var(--wpadmin-space-5);
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+/* ─── Toggle switch (matches Gutenberg .components-form-toggle) ────────── */
+.wp-admin-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wpadmin-space-3);
+  cursor: pointer;
+}
+.wp-admin-toggle__input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.wp-admin-toggle__track {
+  position: relative;
+  width: 36px;
+  height: 18px;
+  background: #c3c4c7;
+  border-radius: 9px;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.wp-admin-toggle__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.wp-admin-toggle__input:checked + .wp-admin-toggle__track {
+  background: var(--wpadmin-primary);
+}
+.wp-admin-toggle__input:checked + .wp-admin-toggle__track::after {
+  transform: translateX(18px);
+}
+.wp-admin-toggle__input:focus-visible + .wp-admin-toggle__track {
+  box-shadow: 0 0 0 2px var(--wpadmin-focus-ring);
+}
+.wp-admin-toggle__label {
+  font-size: 13px;
+  color: var(--wpadmin-text);
+}
+
+/* ─── Help tip (small "?" with hover) ──────────────────────────────────── */
+.wp-admin-helptip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--wpadmin-text-subtle);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: help;
+  vertical-align: middle;
+  position: relative;
+}
+.wp-admin-helptip::before { content: "?"; }
+.wp-admin-helptip:hover::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--wpadmin-menu-bg);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: var(--wpadmin-radius);
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ─── WP Pointer (callout for new features) ────────────────────────────── */
+.wp-admin-pointer {
+  position: relative;
+  background: var(--wpadmin-surface);
+  border: 1px solid var(--wpadmin-border);
+  border-radius: var(--wpadmin-radius);
+  padding: var(--wpadmin-space-5);
+  max-width: 320px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.wp-admin-pointer::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 16px;
+  width: 14px;
+  height: 14px;
+  background: var(--wpadmin-surface);
+  border-left: 1px solid var(--wpadmin-border);
+  border-bottom: 1px solid var(--wpadmin-border);
+  transform: rotate(45deg);
+}
+.wp-admin-pointer__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wpadmin-text);
+  margin-bottom: var(--wpadmin-space-2);
+}
+.wp-admin-pointer__body {
+  font-size: 13px;
+  color: var(--wpadmin-text-subtle);
+  line-height: 1.5;
+  margin-bottom: var(--wpadmin-space-4);
+}
+.wp-admin-pointer__actions {
+  display: flex;
+  gap: var(--wpadmin-space-2);
+}
+
+/* ─── Skeleton loader (placeholder while content loads) ────────────────── */
+.wp-admin-skeleton {
+  display: block;
+  background-color: var(--wpadmin-border);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, .65) 50%,
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 50% 100%;
+  background-position: -50% 0;
+  border-radius: var(--wpadmin-radius);
+  height: 12px;
+  animation: wp-admin-skeleton-shimmer 1.4s linear infinite;
+}
+.wp-admin-skeleton + .wp-admin-skeleton { margin-top: 8px; }
+.wp-admin-skeleton.is-title { height: 18px; width: 50%; }
+.wp-admin-skeleton.is-text  { width: 100%; }
+.wp-admin-skeleton.is-short { width: 60%; }
+@keyframes wp-admin-skeleton-shimmer {
+  to { background-position: 150% 0; }
+}
+
+/* ─── Spinner override (CSS-only, no image asset) ───────────────────────── */
+/*
+ * WP core's .spinner uses url(../images/spinner.gif) which doesn't ship
+ * with this package. Override with a CSS-only rotating spinner so the
+ * component works standalone. The selector matches WP's specificity.
+ */
+.spinner.is-active,
+span.spinner.is-active {
+  background: none;
+  border: 2px solid var(--wpadmin-border);
+  border-top-color: var(--wpadmin-primary);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  margin: 4px 10px 0;
+  animation: wp-admin-spinner-rotate .8s linear infinite;
+  opacity: 1;
+}
+@keyframes wp-admin-spinner-rotate {
+  to { transform: rotate(360deg); }
+}

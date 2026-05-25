@@ -1,0 +1,26 @@
+{
+  "name": "@plugin-sdk/videos",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "remotion studio",
+    "render": "remotion render PromoVideo out/promo.mp4",
+    "render:vertical": "remotion render PromoVertical out/promo-vertical.mp4"
+  },
+  "remotion": {
+    "entryPoint": "src/index.ts"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@remotion/cli": "^4.0.462",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "remotion": "^4.0.462"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.6.3"
+  }
+}

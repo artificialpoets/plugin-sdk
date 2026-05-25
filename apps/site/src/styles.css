@@ -1,0 +1,358 @@
+/*
+ * Site stylesheet — pulls in the Plugin SDK packages, then defines
+ * cross-page chrome (topbar + footer) so each page doesn't redeclare it.
+ *
+ * Tokens MUST come before core-css so variables are defined when used.
+ */
+@import url('../../../packages/wp-tokens/src/tokens.css');
+@import url('../../../packages/wp-core-css/src/wp-admin.css');
+
+/* ── Top bar ──────────────────────────────────────────────────────────────
+ * Rendered by src/partials/header.html (injected via the htmlPartials
+ * Vite plugin). The active nav item is set per-page via:
+ *   <body data-page="components|layouts|changelog">
+ */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--wpadmin-border);
+  height: 56px;
+  /* Pages whose <body> uses `display: flex; flex-direction: column`
+   * (docs.html, components.html, layouts.html) would otherwise let the
+   * topbar's default flex-shrink: 1 squeeze it below its declared 56px
+   * height. Lock it. */
+  flex-shrink: 0;
+}
+.topbar-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.topbar-logo {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--wpadmin-text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.topbar-logo span { color: var(--wpadmin-primary); }
+.topbar-nav-wrap { flex-shrink: 0; }
+.topbar-nav {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.topbar-nav a {
+  font-size: 13px;
+  color: var(--wpadmin-text-subtle);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.12s;
+}
+.topbar-nav a:hover { color: var(--wpadmin-text); }
+
+/* GitHub Star button slot — desktop only.
+ * The buttons.github.io script swaps the inner <a class="github-button">
+ * for an <iframe>. While the iframe is loading there's a brief flash of
+ * the raw "Star" link, which we suppress with the negative top margin
+ * below to vertically center it inside the 56px topbar. */
+.topbar-gh-star {
+  display: flex;
+  align-items: center;
+}
+.topbar-gh-star .github-button { line-height: 0; }
+/* On desktop, the live star widget replaces the plain "GitHub" link. */
+@media (min-width: 721px) {
+  .topbar-gh-link { display: none; }
+}
+/* On mobile (drawer), hide the star widget — the iframe doesn't lay
+ * out cleanly inside the vertical drawer, so the plain "GitHub" link
+ * carries the load instead. */
+@media (max-width: 720px) {
+  .topbar-gh-star { display: none; }
+}
+
+/* Active-page highlight — set <body data-page="..."> on each page. */
+.topbar-nav a.is-active,
+body[data-page="docs"]       .topbar-nav a[data-nav="docs"],
+body[data-page="components"] .topbar-nav a[data-nav="components"],
+body[data-page="layouts"]    .topbar-nav a[data-nav="layouts"],
+body[data-page="changelog"]  .topbar-nav a[data-nav="changelog"] {
+  color: var(--wpadmin-primary);
+}
+
+/* ── Hamburger toggle (mobile only) ───────────────────────────────────────
+ * Wired by the inline script in src/partials/header.html. Bars morph into
+ * an X when aria-expanded="true". Hidden by default — only displayed
+ * inside the @media (max-width: 720px) block below.
+ */
+.topbar-menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  flex-shrink: 0;
+  color: var(--wpadmin-text);
+}
+.topbar-menu-toggle__bar {
+  position: absolute;
+  left: 50%;
+  width: 20px;
+  height: 1.75px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: top 0.18s, transform 0.18s, opacity 0.18s;
+  transform: translateX(-50%);
+}
+.topbar-menu-toggle__bar:nth-child(1) { top: 13px; }
+.topbar-menu-toggle__bar:nth-child(2) { top: 50%; transform: translate(-50%, -50%); }
+.topbar-menu-toggle__bar:nth-child(3) { top: 25px; }
+.topbar-menu-toggle[aria-expanded="true"] .topbar-menu-toggle__bar:nth-child(1) {
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.topbar-menu-toggle[aria-expanded="true"] .topbar-menu-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+.topbar-menu-toggle[aria-expanded="true"] .topbar-menu-toggle__bar:nth-child(3) {
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* When the mobile nav is open, lock body scroll under it. */
+html.has-mobile-nav-open { overflow: hidden; }
+
+@media (max-width: 720px) {
+  .topbar-menu-toggle { display: flex; }
+
+  /* Drawer that slides down from below the topbar. */
+  .topbar-nav-wrap {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background: var(--wpadmin-surface, #fff);
+    border-bottom: 1px solid var(--wpadmin-border);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+  }
+  .topbar-nav-wrap.is-open {
+    max-height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+  .topbar-nav {
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 0;
+  }
+  .topbar-nav li { width: 100%; }
+  .topbar-nav a {
+    display: block;
+    padding: 14px 24px;
+    font-size: 15px;
+    border-top: 1px solid var(--wpadmin-border);
+  }
+  .topbar-nav li:first-child a { border-top: 0; }
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────
+ * Rendered by src/partials/footer.html. Two-column layout (newsletter +
+ * latest release teaser) with a credits bar underneath. The newsletter
+ * form is wired by api.poets.sh's embed.js (loaded at the end of the
+ * partial). The latest release teaser content is regenerated on every
+ * build by scripts/build-changelog.mjs.
+ */
+.footer {
+  background: #0f1115;
+  color: #9ba1ab;
+  padding: 64px 24px 28px;
+  font-size: 13px;
+}
+.footer h3 {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 10px;
+}
+.footer p { margin: 0; }
+.footer a { color: #d1d5db; transition: color 0.12s; text-decoration: none; }
+.footer a:hover { color: #fff; }
+
+.footer-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 64px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.footer-lead {
+  color: #9ba1ab;
+  margin-bottom: 16px;
+  max-width: 380px;
+  line-height: 1.55;
+}
+
+/* Newsletter form */
+.footer-form { max-width: 520px; }
+.footer-form-fields {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr auto;
+  gap: 8px;
+}
+.footer-form input[type="text"],
+.footer-form input[type="email"] {
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  min-width: 0;
+}
+.footer-form input::placeholder { color: #6b7280; }
+.footer-form input:focus {
+  outline: 2px solid rgba(34, 113, 177, 0.45);
+  outline-offset: 0;
+  border-color: var(--wpadmin-primary, #2271b1);
+}
+.footer-form button {
+  padding: 9px 18px;
+  background: var(--wpadmin-primary, #2271b1);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.footer-form button:hover { background: var(--wpadmin-primary-dark, #1c5d94); }
+.footer-form button:disabled { opacity: 0.5; cursor: wait; }
+.footer-form-note {
+  color: #6b7280;
+  font-size: 11px;
+  margin-top: 10px;
+}
+.footer-form-success {
+  color: #34d399;
+  font-weight: 500;
+  margin-top: 12px;
+}
+.footer-form-already {
+  /* Returning-visitor message — shown when localStorage indicates the
+   * visitor previously subscribed on this origin. Slightly warmer tone:
+   * the brand accent instead of the success-green. */
+  color: var(--wpadmin-primary, #4f94d4);
+  font-weight: 500;
+  font-size: 14px;
+  max-width: 420px;
+}
+.footer-form-error {
+  color: #f87171;
+  font-weight: 500;
+  margin-top: 12px;
+}
+.footer-honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Latest release teaser */
+.footer-release-card {
+  display: block;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: background 0.12s, border-color 0.12s;
+}
+.footer-release-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.footer-release-version {
+  display: block;
+  font-family: var(--wpadmin-font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  color: var(--wpadmin-primary, #4f94d4);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.footer-release-card strong {
+  display: block;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+.footer-release-date {
+  display: block;
+  color: #6b7280;
+  font-size: 12px;
+}
+.footer-release-all {
+  font-size: 13px;
+  color: #9ba1ab;
+}
+.footer-release-all:hover { color: #fff; }
+
+/* Credits row */
+.footer-credits {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-top: 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+}
+/* GitHub Star + Follow buttons row inside the footer credits. */
+.footer-gh-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  /* Vertically align the two iframe widgets. */
+  align-items: center;
+  /* Force a dark visual context for the buttons — the footer is dark. */
+  color-scheme: dark;
+}
+
+@media (max-width: 720px) {
+  .footer { padding: 48px 20px 24px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 40px; padding-bottom: 32px; }
+  .footer-form-fields { grid-template-columns: 1fr; }
+}

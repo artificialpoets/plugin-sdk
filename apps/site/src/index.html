@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plugin SDK — WordPress admin CSS primitives for plugin developers</title>
+  <meta name="description" content="Build WordPress plugins that feel native — and ship secure. Real WP admin markup, security patterns built in, CSS/React/PHP runtimes, plus a plugin scaffold and skill files for AI agents.">
+  <link rel="canonical" href="https://wp-admincss.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="Plugin SDK — Build WordPress plugins that feel native and ship secure">
+  <meta property="og:description" content="Real WP admin markup, security by default, and CSS/React/PHP runtimes. Built for developers and AI agents.">
+  <meta property="og:image" content="https://wp-admincss.com/og/home.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Plugin SDK — Build WordPress plugins that feel native and ship secure">
+  <meta name="twitter:description" content="Real WP admin markup, security by default, and CSS/React/PHP runtimes. Built for developers and AI agents.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/home.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--wpadmin-font);
+      font-size: 15px;
+      color: var(--wpadmin-text);
+      background: var(--wpadmin-surface);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* Topbar styles live in styles.css (shared across all pages). */
+
+    /* ── Section wrapper ────────────────────────────────────────────────── */
+    .section {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 96px 24px;
+    }
+    .section.tight { padding-top: 0; }
+    .section.compact { padding: 64px 24px; }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-primary);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--wpadmin-text);
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+    .section-lead {
+      font-size: 17px;
+      color: var(--wpadmin-text-subtle);
+      max-width: 600px;
+      line-height: 1.55;
+    }
+    .section-header {
+      margin-bottom: 56px;
+    }
+    .section-header.centered {
+      text-align: center;
+    }
+    .section-header.centered .section-lead {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────────────────── */
+    .hero {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34, 113, 177, .14), transparent 70%),
+        linear-gradient(180deg, #f6f8fb 0%, #fff 100%);
+      padding: 96px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      padding: 6px 14px 6px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 24px;
+      font-weight: 500;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .hero-pill-tag {
+      background: var(--wpadmin-primary);
+      color: #fff;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(38px, 6vw, 62px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.04;
+      color: #14181f;
+      margin-bottom: 24px;
+      max-width: 880px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero h1 .accent {
+      background: linear-gradient(135deg, var(--wpadmin-primary) 0%, #4f94d4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero-sub {
+      font-size: clamp(16px, 1.4vw, 19px);
+      color: var(--wpadmin-text-subtle);
+      max-width: 580px;
+      margin: 0 auto 36px;
+      line-height: 1.55;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+    .btn-primary {
+      background: var(--wpadmin-primary);
+      color: #fff;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .12s, transform .12s;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 4px 14px -4px rgba(34,113,177,.4);
+    }
+    .btn-primary:hover {
+      background: var(--wpadmin-primary-dark);
+      transform: translateY(-1px);
+    }
+    .btn-primary svg { transition: transform .15s; }
+    .btn-primary:hover svg { transform: translateX(2px); }
+    .btn-ghost {
+      background: var(--wpadmin-surface);
+      color: var(--wpadmin-text);
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--wpadmin-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .12s, border-color .12s;
+    }
+    .btn-ghost:hover {
+      background: var(--wpadmin-surface-alt);
+      border-color: #a7aaad;
+    }
+
+    /* ── Hero mockup (large browser-framed WP admin) ────────────────────── */
+    .mockup {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--wpadmin-body-bg);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 12px;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,.06),
+        0 12px 32px -8px rgba(0,0,0,.12),
+        0 32px 80px -16px rgba(0,0,0,.18);
+      overflow: hidden;
+      text-align: left;
+    }
+    .mockup-titlebar {
+      background: #f6f7f7;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 6px;
+      border-bottom: 1px solid var(--wpadmin-border);
+    }
+    .mockup-titlebar .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #d1d5d9;
+    }
+    .mockup-titlebar .dot.r { background: #ed6a5e; }
+    .mockup-titlebar .dot.y { background: #f4be4f; }
+    .mockup-titlebar .dot.g { background: #61c554; }
+    .mockup-url {
+      flex: 1;
+      margin: 0 16px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--wpadmin-text-subtle);
+      padding: 3px 10px;
+      font-family: var(--wpadmin-font-mono);
+      text-align: center;
+    }
+    .mockup-body {
+      display: flex;
+      min-height: 480px;
+    }
+    .mockup-sidebar {
+      width: 180px;
+      flex-shrink: 0;
+      background: var(--wpadmin-menu-bg);
+      padding: 12px 0;
+    }
+    .mockup-sidebar-item {
+      padding: 8px 14px;
+      font-size: 12px;
+      color: var(--wpadmin-menu-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mockup-sidebar-item.is-active {
+      background: var(--wpadmin-menu-active-bg);
+      color: #fff;
+      font-weight: 500;
+    }
+    .mockup-content {
+      flex: 1;
+      padding: 20px 28px;
+      overflow: hidden;
+    }
+    .mockup-content h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+      margin-bottom: 4px;
+      letter-spacing: -0.01em;
+    }
+    .mockup-content .page-meta {
+      font-size: 12px;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 18px;
+    }
+    .mockup-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .mockup-stat {
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .mockup-stat .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 4px;
+    }
+    .mockup-stat .value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+    }
+    .mockup-stat .delta {
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .mockup-stat .delta.up { color: var(--wpadmin-success); }
+    .mockup-stat .delta.down { color: var(--wpadmin-error); }
+    .mockup-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .mockup-row .col { flex: 1; min-width: 0; }
+    .mockup-card {
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .mockup-card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--wpadmin-border);
+    }
+    .mockup-activity {
+      display: flex;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 12px;
+      align-items: center;
+    }
+    .mockup-activity .av {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--wpadmin-surface-alt);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--wpadmin-text-subtle);
+      flex-shrink: 0;
+    }
+    .mockup-activity .time {
+      color: var(--wpadmin-text-subtle);
+      font-size: 11px;
+    }
+
+    /* ── Three-up feature row ───────────────────────────────────────────── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature {
+      padding: 28px 24px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 12px;
+      transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .feature:hover {
+      border-color: #a7aaad;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,.04);
+    }
+    .feature-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--wpadmin-primary), #4f94d4);
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .feature h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .feature p {
+      font-size: 14px;
+      color: var(--wpadmin-text-subtle);
+      line-height: 1.6;
+    }
+
+    /* ── Component showcase grid ────────────────────────────────────────── */
+    .showcase {
+      background: linear-gradient(180deg, var(--wpadmin-surface-alt) 0%, var(--wpadmin-surface) 100%);
+      border-top: 1px solid var(--wpadmin-border);
+      border-bottom: 1px solid var(--wpadmin-border);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .showcase-card {
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .showcase-card:hover {
+      border-color: var(--wpadmin-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.06);
+    }
+    .showcase-preview {
+      flex: 1;
+      padding: 28px 20px;
+      background: var(--wpadmin-body-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      border-bottom: 1px solid var(--wpadmin-border);
+    }
+    .showcase-footer {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .showcase-footer .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+    }
+    .showcase-footer .arrow {
+      color: var(--wpadmin-text-subtle);
+      transition: transform .15s, color .15s;
+    }
+    .showcase-card:hover .showcase-footer .arrow {
+      transform: translateX(2px);
+      color: var(--wpadmin-primary);
+    }
+
+    /* ── AI copy flow ───────────────────────────────────────────────────── */
+    .copy-flow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .copy-flow-card {
+      background: #0f1115;
+      border: 1px solid #1f2228;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .copy-flow-card-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1f2228;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9ba1ab;
+      font-weight: 500;
+    }
+    .copy-flow-card-header .tag {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.06);
+    }
+    .copy-flow-card pre {
+      margin: 0;
+      padding: 18px 20px;
+      overflow-x: auto;
+      max-height: 280px;
+    }
+    .copy-flow-card pre code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #d1d5db;
+      white-space: pre;
+      background: none;
+      padding: 0;
+    }
+    .copy-flow-card .keyword { color: #c990d6; }
+    .copy-flow-card .attr { color: #79c0ff; }
+    .copy-flow-card .value { color: #a5d6ff; }
+    .copy-flow-card .text { color: #d1d5db; }
+    .copy-flow-card .punctuation { color: #79c0ff; }
+
+    /* ── Three runtimes (CSS / React / PHP) ────────────────────────────── */
+    .runtimes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .runtime-card {
+      background: #14181f;
+      border: 1px solid #1f242e;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .runtime-card__header {
+      padding: 14px 18px;
+      background: #0f1115;
+      border-bottom: 1px solid #1f242e;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .runtime-card__name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .runtime-card__pkg {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 11px;
+      color: #79c0ff;
+    }
+    .runtime-card pre {
+      margin: 0;
+      padding: 18px 20px;
+      flex: 1;
+      overflow-x: auto;
+    }
+    .runtime-card pre code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #d1d5db;
+      white-space: pre;
+      background: none;
+      padding: 0;
+    }
+    .runtime-card__note {
+      padding: 12px 18px;
+      border-top: 1px solid #1f242e;
+      background: rgba(255, 255, 255, 0.02);
+      font-size: 12px;
+      color: #9ba1ab;
+      margin: 0;
+    }
+    .runtime-card .keyword { color: #c990d6; }
+    .runtime-card .attr { color: #79c0ff; }
+    .runtime-card .value { color: #a5d6ff; }
+    .runtime-card .text { color: #d1d5db; }
+    .runtime-card .punctuation { color: #79c0ff; }
+    .runtime-card .green { color: #7ee787; }
+    .runtime-card .yellow { color: #f4be4f; }
+    .runtimes-footer {
+      text-align: center;
+      font-size: 14px;
+      color: var(--wpadmin-text-subtle);
+      margin: 24px auto 0;
+      max-width: 800px;
+    }
+    .runtimes-footer code {
+      background: var(--wpadmin-surface-alt);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+    @media (max-width: 900px) {
+      .runtimes-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Security by default ──────────────────────────────────────────── */
+    .security-section {
+      background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
+      padding-top: 80px;
+      padding-bottom: 80px;
+    }
+    .security-card {
+      background: #14181f;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 720px;
+      margin: 0 auto 28px;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.06),
+        0 12px 32px -8px rgba(0, 0, 0, 0.18);
+    }
+    .security-card__filename {
+      padding: 12px 20px;
+      background: #0f1115;
+      border-bottom: 1px solid #1f242e;
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12px;
+      color: #79c0ff;
+    }
+    .security-card__code {
+      margin: 0;
+      padding: 22px 24px;
+      overflow-x: auto;
+    }
+    .security-card__code code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: #d1d5db;
+      white-space: pre;
+      background: none;
+      padding: 0;
+    }
+    .security-card__code .lp-code-comment { color: #6b7280; font-style: italic; }
+    .security-card__code .keyword { color: #c990d6; }
+    .security-card__code .attr { color: #79c0ff; }
+    .security-card__code .value { color: #a5d6ff; }
+    .security-card__code .punctuation { color: #d1d5db; }
+
+    .security-points {
+      max-width: 720px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 28px;
+    }
+    .security-point {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .security-point__num {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      background: var(--wpadmin-primary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .security-point strong {
+      display: block;
+      font-size: 14px;
+      color: var(--wpadmin-text);
+      margin-bottom: 2px;
+    }
+    .security-point p {
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+      margin: 0;
+      line-height: 1.55;
+    }
+    .section-footnote {
+      max-width: 720px;
+      margin: 28px auto 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+    }
+    @media (max-width: 720px) {
+      .security-points { grid-template-columns: 1fr; }
+    }
+
+    /* ── Customize / Tokens section ────────────────────────────────────── */
+    .customize-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+    .customize-card {
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .customize-card[data-brand="default"] {
+      --custom-primary: var(--wpadmin-primary);
+      --custom-radius: 4px;
+    }
+    .customize-card[data-brand="purple"] {
+      --custom-primary: #7c3aed;
+      --custom-radius: 8px;
+    }
+    .customize-card[data-brand="teal"] {
+      --custom-primary: #0d9488;
+      --custom-radius: 12px;
+    }
+    .customize-card__label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+    }
+    .customize-card__swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--custom-primary);
+      border: 1px solid var(--wpadmin-border);
+    }
+    .customize-card__preview {
+      background: var(--wpadmin-body-bg);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .customize-card__notice {
+      background: var(--wpadmin-surface);
+      border-left: 4px solid var(--custom-primary);
+      border-radius: var(--custom-radius);
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--wpadmin-text);
+    }
+    .customize-card__notice strong { color: var(--wpadmin-text); }
+    .customize-card__btn {
+      background: var(--custom-primary);
+      color: #fff;
+      border: 0;
+      padding: 6px 14px;
+      border-radius: var(--custom-radius);
+      font-size: 12px;
+      font-weight: 500;
+      align-self: flex-start;
+      font-family: inherit;
+    }
+    .customize-tokens {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .customize-tokens__list {
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 8px;
+      padding: 18px 20px;
+      font-family: var(--wpadmin-font-mono);
+      font-size: 12.5px;
+      line-height: 1.85;
+    }
+    .customize-tokens__row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .customize-tokens__row + .customize-tokens__row {
+      border-top: 1px dashed var(--wpadmin-border);
+      padding-top: 6px;
+      margin-top: 6px;
+    }
+    .customize-tokens__row .key { color: var(--wpadmin-primary); }
+    .customize-tokens__row .val { color: var(--wpadmin-text-subtle); }
+    .customize-tokens__row .val .chip {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+      vertical-align: -1px;
+      margin-right: 5px;
+      border: 1px solid var(--wpadmin-border);
+    }
+
+    /* ── Get started ────────────────────────────────────────────────────── */
+    .install {
+      background: #0f1115;
+      border-radius: 12px;
+      padding: 28px 32px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .install-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #6e7681;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .install code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 14px;
+      color: #d1d5db;
+      background: none;
+      padding: 0;
+      display: block;
+      line-height: 1.7;
+    }
+    .install code .green { color: #7ee787; }
+    .install code .yellow { color: #f4be4f; }
+    .install code .punctuation { color: #79c0ff; }
+    .install hr {
+      margin: 18px -32px;
+      border: 0;
+      border-top: 1px solid #1f2228;
+    }
+
+    /* ── Roadmap ────────────────────────────────────────────────────────── */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      position: relative;
+    }
+    .roadmap::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 16.6%;
+      right: 16.6%;
+      height: 2px;
+      background: var(--wpadmin-primary);
+      z-index: 0;
+    }
+    .roadmap-step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .roadmap-dot {
+      width: 56px; height: 56px;
+      background: var(--wpadmin-surface);
+      border: 2px solid var(--wpadmin-border);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--wpadmin-text-subtle);
+      transition: all .2s;
+    }
+    .roadmap-step.is-done .roadmap-dot {
+      background: var(--wpadmin-primary);
+      border-color: var(--wpadmin-primary);
+      color: #fff;
+    }
+    .roadmap-step.is-active .roadmap-dot {
+      background: var(--wpadmin-surface);
+      border-color: var(--wpadmin-primary);
+      color: var(--wpadmin-primary);
+    }
+    .roadmap-phase {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .roadmap-step h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--wpadmin-text);
+      margin-bottom: 6px;
+    }
+    .roadmap-step p {
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+      max-width: 240px;
+      margin: 0 auto;
+    }
+
+    /* ── CTA ───────────────────────────────────────────────────────────── */
+    .cta {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,.08), transparent 70%),
+        linear-gradient(135deg, var(--wpadmin-primary) 0%, var(--wpadmin-primary-dark) 100%);
+      color: #fff;
+      text-align: center;
+      padding: 80px 24px;
+    }
+    .cta h2 {
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .cta p {
+      font-size: 17px;
+      color: rgba(255,255,255,.85);
+      max-width: 540px;
+      margin: 0 auto 32px;
+    }
+    .btn-white {
+      background: #fff;
+      color: var(--wpadmin-primary);
+      padding: 11px 26px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .12s, box-shadow .12s;
+      box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    }
+    .btn-white:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    }
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-white-ghost {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 11px 26px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background .12s, border-color .12s;
+    }
+    .btn-white-ghost:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Footer styles live in styles.css (shared across all pages). */
+
+    /* ── Star CTA ───────────────────────────────────────────────────────── */
+    .star-cta {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34,113,177,.08), transparent 65%),
+        linear-gradient(180deg, #fff 0%, #f6f8fb 100%);
+      border-top: 1px solid var(--wpadmin-border);
+      border-bottom: 1px solid var(--wpadmin-border);
+      padding: 80px 24px;
+      text-align: center;
+    }
+    .star-cta-inner { max-width: 640px; margin: 0 auto; }
+    .star-cta-eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-primary);
+      margin-bottom: 14px;
+    }
+    .star-cta h2 {
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--wpadmin-text);
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+    .star-cta p {
+      font-size: 16px;
+      color: var(--wpadmin-text-subtle);
+      max-width: 460px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    /* GitHub button rows — the .github-button anchors get swapped for
+     * iframe widgets by buttons.github.io. We zoom the iframes via the
+     * wrapper to enlarge them without altering the embed itself. */
+    .star-cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      align-items: center;
+      /* Scale up — the default button size is ~28px tall; bumping the
+       * wrapper makes the star + count read at landing-page scale. */
+    }
+    .star-cta-buttons .github-button {
+      transform: scale(1.6);
+      transform-origin: center;
+      margin: 6px 14px;
+    }
+    .star-cta-note {
+      display: block;
+      margin-top: 36px;
+      font-size: 12px;
+      color: var(--wpadmin-text-subtle);
+      font-family: var(--wpadmin-font-mono, ui-monospace, monospace);
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .features, .showcase-grid, .copy-flow, .roadmap { grid-template-columns: 1fr; }
+      .mockup-stats { grid-template-columns: 1fr; }
+      .mockup-sidebar { display: none; }
+      .roadmap::before { display: none; }
+      .section { padding: 64px 20px; }
+    }
+  </style>
+</head>
+<body data-page="home">
+
+  <!-- @include header -->
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-pill">
+      <span class="hero-pill-tag">Free</span>
+      <span>Open source under Apache 2.0</span>
+    </div>
+    <h1>
+      Build WordPress plugins<br>
+      <span class="accent">that feel native — and ship secure.</span>
+    </h1>
+    <p class="hero-sub">
+      Real WP admin markup. Security patterns built in. CSS, React, and PHP runtimes — plus a plugin scaffold and skill files so AI agents build the same way.
+    </p>
+    <div class="hero-actions">
+      <a href="components.html" class="btn-primary">
+        Browse components
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="docs.html" class="btn-ghost">Read the docs</a>
+      <a href="https://github.com/artificialpoets/plugin-sdk" target="_blank" rel="noopener" class="btn-ghost">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-1.93c-3.2.7-3.87-1.54-3.87-1.54-.52-1.34-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.45.11-3.03 0 0 .97-.31 3.17 1.18.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.74.11 3.03.74.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.13v3.16c0 .3.21.66.78.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+        Star on GitHub
+      </a>
+    </div>
+
+    <!-- Big hero mockup -->
+    <div class="mockup">
+      <div class="mockup-titlebar">
+        <span class="dot r"></span>
+        <span class="dot y"></span>
+        <span class="dot g"></span>
+        <div class="mockup-url">https://example.com/wp-admin/admin.php?page=my-plugin</div>
+      </div>
+      <div class="mockup-body">
+        <aside class="mockup-sidebar">
+          <div class="mockup-sidebar-item">Dashboard</div>
+          <div class="mockup-sidebar-item">Posts</div>
+          <div class="mockup-sidebar-item">Media</div>
+          <div class="mockup-sidebar-item">Pages</div>
+          <div class="mockup-sidebar-item is-active">My Plugin</div>
+          <div class="mockup-sidebar-item">Settings</div>
+          <div class="mockup-sidebar-item">Tools</div>
+        </aside>
+        <div class="mockup-content">
+          <h1>Plugin Settings</h1>
+          <p class="page-meta">Last sync: 4 minutes ago</p>
+
+          <div class="notice notice-success inline" style="margin-left:0">
+            <p><strong>Settings saved.</strong> Your changes have been applied.</p>
+          </div>
+
+          <div class="mockup-stats">
+            <div class="mockup-stat">
+              <div class="label">Total events</div>
+              <div class="value">1,284</div>
+              <div class="delta up">↑ 12% this week</div>
+            </div>
+            <div class="mockup-stat">
+              <div class="label">Active users</div>
+              <div class="value">82</div>
+              <div class="delta up">↑ 4 new</div>
+            </div>
+            <div class="mockup-stat">
+              <div class="label">Errors</div>
+              <div class="value">3</div>
+              <div class="delta down">↓ 2 vs last week</div>
+            </div>
+          </div>
+
+          <div class="mockup-row">
+            <div class="col">
+              <table class="form-table" style="margin:0">
+                <tr>
+                  <th scope="row" style="padding:8px 10px 8px 0;width:120px;font-size:12px">API Key</th>
+                  <td style="padding:8px 0">
+                    <input type="text" class="regular-text" value="sk-abc1234…" readonly style="font-size:12px;padding:3px 6px">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="padding:8px 10px 8px 0;font-size:12px">Notifications</th>
+                  <td style="padding:8px 0">
+                    <label style="font-size:12px"><input type="checkbox" checked> Email me when events fire</label>
+                  </td>
+                </tr>
+              </table>
+              <p class="submit" style="margin:14px 0 0;padding:0">
+                <button type="button" class="button button-primary" style="font-size:12px">Save Changes</button>
+                <button type="button" class="button" style="font-size:12px">Reset</button>
+              </p>
+            </div>
+            <div class="col" style="flex:0 0 200px">
+              <div class="mockup-card">
+                <h2>Recent Activity</h2>
+                <div class="mockup-activity">
+                  <span class="av">JD</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Jane published "Hello"</div>
+                    <div class="time">2h ago</div>
+                  </div>
+                </div>
+                <div class="mockup-activity">
+                  <span class="av">AS</span>
+                  <div style="flex:1;min-width:0">
+                    <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Alex updated config</div>
+                    <div class="time">Yesterday</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Three pillars -->
+  <section class="section">
+    <div class="section-header centered">
+      <p class="eyebrow">The three pillars</p>
+      <h2 class="section-title">Native design. Security by default. AI agent-ready.</h2>
+      <p class="section-lead">
+        The patterns the WordPress plugin ecosystem needs in 2026, in one framework.
+      </p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">⌘</div>
+        <h3>Native design</h3>
+        <p>Real WP admin class names — <code>.button</code>, <code>.notice</code>, <code>.wp-list-table</code>. Your plugin inherits the user's color scheme automatically (Default, Midnight, Coffee, Ocean, …). It looks like part of WordPress because it <em>is</em>.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🛡</div>
+        <h3>Security by default</h3>
+        <p>The boilerplate uses capability checks, nonces, sanitize on input, escape on output, and prepared SQL — the patterns plugin reviewers expect. Your AI agent gets the same via <code>skills/security.md</code>.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">✦</div>
+        <h3>AI agent-ready</h3>
+        <p>One URL — <code>cdn.wp-admincss.com/AGENTS.md</code> — feeds your coding agent the framework, the skill files, and a working scaffold. No more guessing how WordPress plugins should be structured.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Three runtimes — CSS / React / PHP, all rendering the same WP-native markup -->
+  <section class="section">
+    <div class="section-header centered">
+      <p class="eyebrow">Three runtimes</p>
+      <h2 class="section-title">Pick your level. Same markup. Same output.</h2>
+      <p class="section-lead">
+        Drop-in CSS to start. React components for sophisticated UIs. PHP helpers for server-rendered admin pages. Every package emits identical WordPress-native HTML and inherits the user's color scheme.
+      </p>
+    </div>
+
+    <div class="runtimes-grid">
+      <div class="runtime-card">
+        <div class="runtime-card__header">
+          <span class="runtime-card__name">CSS</span>
+          <span class="runtime-card__pkg">@plugin-sdk/wp-core-css</span>
+        </div>
+<pre><code><span class="lp-code-comment">&lt;!-- One link, no build step --&gt;</span>
+<span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span>
+      <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span>
+
+<span class="punctuation">&lt;</span><span class="green">button</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"button button-primary"</span><span class="punctuation">&gt;</span>
+  Save Changes
+<span class="punctuation">&lt;/</span><span class="green">button</span><span class="punctuation">&gt;</span></code></pre>
+        <p class="runtime-card__note">Ideal for static admin pages and existing plugins.</p>
+      </div>
+
+      <div class="runtime-card">
+        <div class="runtime-card__header">
+          <span class="runtime-card__name">React</span>
+          <span class="runtime-card__pkg">@plugin-sdk/wp-react</span>
+        </div>
+<pre><code><span class="lp-code-comment">// Typed components, real WP class names</span>
+<span class="keyword">import</span> <span class="punctuation">{</span> <span class="attr">Button</span><span class="punctuation">,</span> <span class="attr">Notice</span> <span class="punctuation">}</span>
+  <span class="keyword">from</span> <span class="value" style="color:#a5d6ff">'@plugin-sdk/wp-react'</span><span class="punctuation">;</span>
+
+<span class="punctuation">&lt;</span><span class="keyword">Button</span> <span class="attr">variant</span>=<span class="value" style="color:#a5d6ff">"primary"</span><span class="punctuation">&gt;</span>
+  <span class="text">Save Changes</span>
+<span class="punctuation">&lt;/</span><span class="keyword">Button</span><span class="punctuation">&gt;</span></code></pre>
+        <p class="runtime-card__note">For modern admin UIs. Pairs with the same CSS bundle.</p>
+      </div>
+
+      <div class="runtime-card">
+        <div class="runtime-card__header">
+          <span class="runtime-card__name">PHP</span>
+          <span class="runtime-card__pkg">plugin-sdk/wp</span>
+        </div>
+<pre><code><span class="lp-code-comment">// Composer-installable render helpers</span>
+<span class="keyword">use</span> <span class="attr">PluginSDK\WP\Components</span><span class="punctuation">;</span>
+
+<span class="keyword">echo</span> <span class="attr">Components</span>::<span class="keyword">button</span><span class="punctuation">(</span>
+  <span class="value" style="color:#a5d6ff">'Save Changes'</span><span class="punctuation">,</span>
+  <span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'variant'</span> <span class="punctuation">=&gt;</span> <span class="value" style="color:#a5d6ff">'primary'</span><span class="punctuation">]</span>
+<span class="punctuation">);</span></code></pre>
+        <p class="runtime-card__note">For server-rendered admin pages in your plugin.</p>
+      </div>
+    </div>
+
+    <p class="runtimes-footer">
+      → All three render the same WP-native HTML:
+      <code>&lt;button class="button button-primary"&gt;Save Changes&lt;/button&gt;</code>
+    </p>
+  </section>
+
+  <!-- Security by default — show real boilerplate code -->
+  <section class="section security-section">
+    <div class="section-header centered">
+      <p class="eyebrow">Security by default</p>
+      <h2 class="section-title">Capability check. Nonce. Sanitize. Escape.</h2>
+      <p class="section-lead">
+        Every code example in the framework ships with the security patterns WordPress plugin reviewers expect. AI agents loading <code>skills/security.md</code> get them too.
+      </p>
+    </div>
+
+    <div class="security-card">
+      <div class="security-card__filename">
+        boilerplate/src/Admin/SettingsPage.php
+      </div>
+<pre class="security-card__code"><code><span class="lp-code-comment">// 1. Capability check — server-side gate.</span>
+<span class="keyword">if</span> <span class="punctuation">(!</span><span class="attr">current_user_can</span><span class="punctuation">(</span><span class="value" style="color:#a5d6ff">'manage_options'</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+    <span class="attr">wp_die</span><span class="punctuation">(</span><span class="attr">esc_html__</span><span class="punctuation">(</span><span class="value" style="color:#a5d6ff">'No permission.'</span><span class="punctuation">,</span> <span class="value" style="color:#a5d6ff">'my-plugin'</span><span class="punctuation">));</span>
+<span class="punctuation">}</span>
+
+<span class="lp-code-comment">// 2. Nonce verification — defense against CSRF.</span>
+<span class="attr">check_admin_referer</span><span class="punctuation">(</span><span class="value" style="color:#a5d6ff">'my_save_settings'</span><span class="punctuation">);</span>
+
+<span class="lp-code-comment">// 3. Sanitize each field. Never trust $_POST.</span>
+<span class="punctuation">$</span><span class="attr">sanitized</span> <span class="punctuation">=</span> <span class="punctuation">[</span>
+    <span class="value" style="color:#a5d6ff">'api_key'</span> <span class="punctuation">=&gt;</span> <span class="attr">sanitize_text_field</span><span class="punctuation">(</span><span class="punctuation">$_POST</span><span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'api_key'</span><span class="punctuation">]</span> <span class="punctuation">??</span> <span class="value" style="color:#a5d6ff">''</span><span class="punctuation">),</span>
+    <span class="value" style="color:#a5d6ff">'mode'</span>    <span class="punctuation">=&gt;</span> <span class="attr">in_array</span><span class="punctuation">(</span><span class="punctuation">$_POST</span><span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'mode'</span><span class="punctuation">]</span><span class="punctuation">,</span> <span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'production'</span><span class="punctuation">,</span> <span class="value" style="color:#a5d6ff">'sandbox'</span><span class="punctuation">],</span> <span class="keyword">true</span><span class="punctuation">)</span>
+                  <span class="punctuation">?</span> <span class="punctuation">$_POST</span><span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'mode'</span><span class="punctuation">]</span> <span class="punctuation">:</span> <span class="value" style="color:#a5d6ff">'production'</span><span class="punctuation">,</span>
+<span class="punctuation">];</span>
+
+<span class="lp-code-comment">// 4. Escape every output.</span>
+<span class="keyword">echo</span> <span class="value" style="color:#a5d6ff">'&lt;input value="'</span> <span class="punctuation">.</span> <span class="attr">esc_attr</span><span class="punctuation">(</span><span class="punctuation">$</span><span class="attr">sanitized</span><span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'api_key'</span><span class="punctuation">]</span><span class="punctuation">)</span> <span class="punctuation">.</span> <span class="value" style="color:#a5d6ff">'"&gt;'</span><span class="punctuation">;</span></code></pre>
+    </div>
+
+    <div class="security-points">
+      <div class="security-point">
+        <span class="security-point__num">1</span>
+        <div>
+          <strong>Capability check</strong>
+          <p>Server-side gate before any read or write.</p>
+        </div>
+      </div>
+      <div class="security-point">
+        <span class="security-point__num">2</span>
+        <div>
+          <strong>Nonce verification</strong>
+          <p><code>check_admin_referer()</code> defends against CSRF.</p>
+        </div>
+      </div>
+      <div class="security-point">
+        <span class="security-point__num">3</span>
+        <div>
+          <strong>Sanitize input</strong>
+          <p><code>sanitize_text_field</code>, <code>in_array</code>, type coercion — never trust <code>$_POST</code>.</p>
+        </div>
+      </div>
+      <div class="security-point">
+        <span class="security-point__num">4</span>
+        <div>
+          <strong>Escape output</strong>
+          <p><code>esc_html</code> / <code>esc_attr</code> / <code>esc_url</code> at the moment of render.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-footnote">
+      Database queries follow the same discipline — every <code>$wpdb</code> call uses <code>prepare()</code>. Full pattern walkthrough in <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/security.md">skills/security.md</a>.
+    </p>
+  </section>
+
+  <!-- Component showcase -->
+  <section class="showcase">
+    <div class="section">
+      <div class="section-header centered">
+        <p class="eyebrow">Component library</p>
+        <h2 class="section-title">25+ components. Pure CSS.</h2>
+        <p class="section-lead">
+          Every primitive you need for a polished plugin admin page. Click any tile to see the live preview and copy the code.
+        </p>
+      </div>
+
+      <div class="showcase-grid">
+
+        <a href="components.html#/notice" class="showcase-card">
+          <div class="showcase-preview">
+            <div class="notice notice-success inline" style="margin-left:0;max-width:100%">
+              <p style="margin:.5em 0"><strong>Settings saved.</strong></p>
+            </div>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Notice</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="components.html#/button" class="showcase-card">
+          <div class="showcase-preview" style="gap:8px;flex-wrap:wrap">
+            <button type="button" class="button button-primary">Save</button>
+            <button type="button" class="button">Cancel</button>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Button</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="components.html#/stat-card" class="showcase-card">
+          <div class="showcase-preview">
+            <div class="wp-admin-statcard" style="width:100%;max-width:240px">
+              <div class="wp-admin-statcard__label">Total posts</div>
+              <div class="wp-admin-statcard__value">1,284</div>
+              <div class="wp-admin-statcard__delta is-up">↑ 12 this week</div>
+            </div>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Stat Card</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="components.html#/toggle" class="showcase-card">
+          <div class="showcase-preview" style="flex-direction:column;gap:10px;align-items:flex-start;padding-left:32px">
+            <label class="wp-admin-toggle">
+              <input type="checkbox" class="wp-admin-toggle__input" checked>
+              <span class="wp-admin-toggle__track"></span>
+              <span class="wp-admin-toggle__label">Notifications</span>
+            </label>
+            <label class="wp-admin-toggle">
+              <input type="checkbox" class="wp-admin-toggle__input">
+              <span class="wp-admin-toggle__track"></span>
+              <span class="wp-admin-toggle__label">Auto-save</span>
+            </label>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Toggle</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="components.html#/status-badge" class="showcase-card">
+          <div class="showcase-preview" style="gap:8px;flex-wrap:wrap">
+            <span class="wp-admin-status is-active">Active</span>
+            <span class="wp-admin-status is-warning">Pending</span>
+            <span class="wp-admin-status is-error">Failed</span>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Status Badge</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="components.html#/nav-tabs" class="showcase-card">
+          <div class="showcase-preview" style="align-items:flex-end;padding-bottom:0">
+            <nav class="nav-tab-wrapper" style="margin:0;width:100%">
+              <a href="#" class="nav-tab nav-tab-active">General</a>
+              <a href="#" class="nav-tab">Advanced</a>
+            </nav>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Nav Tabs</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- AI / copy flow -->
+  <section class="section">
+    <div class="section-header centered">
+      <p class="eyebrow">Built for AI workflows</p>
+      <h2 class="section-title">HTML for humans. Prompts for agents.</h2>
+      <p class="section-lead">
+        Every component has two copy buttons. Grab the raw HTML for yourself, or grab a ready-to-paste prompt for your coding agent.
+      </p>
+    </div>
+
+    <div class="copy-flow">
+      <div class="copy-flow-card">
+        <div class="copy-flow-card-header">
+          <span>Copy HTML</span>
+          <span class="tag">For humans</span>
+        </div>
+<pre><code><span class="punctuation">&lt;</span><span class="keyword">div</span> <span class="attr">class</span>=<span class="value">"notice notice-success is-dismissible"</span><span class="punctuation">&gt;</span>
+  <span class="punctuation">&lt;</span><span class="keyword">p</span><span class="punctuation">&gt;&lt;</span><span class="keyword">strong</span><span class="punctuation">&gt;</span><span class="text">Settings saved.</span><span class="punctuation">&lt;/</span><span class="keyword">strong</span><span class="punctuation">&gt;&lt;/</span><span class="keyword">p</span><span class="punctuation">&gt;</span>
+  <span class="punctuation">&lt;</span><span class="keyword">button</span> <span class="attr">type</span>=<span class="value">"button"</span> <span class="attr">class</span>=<span class="value">"notice-dismiss"</span><span class="punctuation">&gt;</span>
+    <span class="punctuation">&lt;</span><span class="keyword">span</span> <span class="attr">class</span>=<span class="value">"screen-reader-text"</span><span class="punctuation">&gt;</span><span class="text">Dismiss</span><span class="punctuation">&lt;/</span><span class="keyword">span</span><span class="punctuation">&gt;</span>
+  <span class="punctuation">&lt;/</span><span class="keyword">button</span><span class="punctuation">&gt;</span>
+<span class="punctuation">&lt;/</span><span class="keyword">div</span><span class="punctuation">&gt;</span></code></pre>
+      </div>
+
+      <div class="copy-flow-card">
+        <div class="copy-flow-card-header">
+          <span>Copy AI Prompt</span>
+          <span class="tag">For agents</span>
+        </div>
+<pre><code><span class="text">Add a dismissible WordPress admin notice to my</span>
+<span class="text">plugin page using Plugin SDK.</span>
+
+<span class="text">Import the library:</span>
+<span class="text">&lt;link rel="stylesheet" href="https://wp-</span>
+<span class="text">admincss.com/dist/wp-admin.css"&gt;</span>
+
+<span class="text">HTML:</span>
+<span class="text">&lt;div class="notice notice-success</span>
+<span class="text">           is-dismissible"&gt;</span>
+<span class="text">  &lt;p&gt;&lt;strong&gt;Saved.&lt;/strong&gt;&lt;/p&gt;</span>
+<span class="text">  &lt;button class="notice-dismiss"&gt;…</span>
+<span class="text">&lt;/div&gt;</span></code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customize / Tokens -->
+  <section class="section" id="customize">
+    <div class="section-header centered">
+      <p class="eyebrow">Customize</p>
+      <h2 class="section-title">Match your brand — change a few tokens.</h2>
+      <p class="section-lead">
+        Every primitive uses CSS custom properties. Override them in your plugin's stylesheet to fit your brand. No build step, no preprocessor, no fork.
+      </p>
+    </div>
+
+    <div class="customize-grid">
+
+      <div class="customize-card" data-brand="default">
+        <div class="customize-card__label">
+          <span>Default</span>
+          <span class="customize-card__swatch"></span>
+        </div>
+        <div class="customize-card__preview">
+          <div class="customize-card__notice"><strong>Settings saved.</strong></div>
+          <button type="button" class="customize-card__btn">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="customize-card" data-brand="purple">
+        <div class="customize-card__label">
+          <span>Stripe-ish purple</span>
+          <span class="customize-card__swatch"></span>
+        </div>
+        <div class="customize-card__preview">
+          <div class="customize-card__notice"><strong>Settings saved.</strong></div>
+          <button type="button" class="customize-card__btn">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="customize-card" data-brand="teal">
+        <div class="customize-card__label">
+          <span>Linear-ish teal</span>
+          <span class="customize-card__swatch"></span>
+        </div>
+        <div class="customize-card__preview">
+          <div class="customize-card__notice"><strong>Settings saved.</strong></div>
+          <button type="button" class="customize-card__btn">Save Changes</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="customize-tokens">
+
+      <div class="customize-tokens__list">
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-primary</span>
+          <span class="val"><span class="chip" style="background:#2271b1"></span>#2271b1</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-primary-dark</span>
+          <span class="val"><span class="chip" style="background:#135e96"></span>#135e96</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-text</span>
+          <span class="val"><span class="chip" style="background:#3c434a"></span>#3c434a</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-text-subtle</span>
+          <span class="val"><span class="chip" style="background:#646970"></span>#646970</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-border</span>
+          <span class="val"><span class="chip" style="background:#c3c4c7"></span>#c3c4c7</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-surface</span>
+          <span class="val"><span class="chip" style="background:#fff"></span>#fff</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-radius</span>
+          <span class="val">4px</span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">--wpadmin-success / error / warning</span>
+          <span class="val">
+            <span class="chip" style="background:#46b450"></span>
+            <span class="chip" style="background:#d63638"></span>
+            <span class="chip" style="background:#dba617"></span>
+          </span>
+        </div>
+        <div class="customize-tokens__row">
+          <span class="key">+ 40 more</span>
+          <span class="val">spacing · typography · menu colors</span>
+        </div>
+      </div>
+
+      <div class="install">
+        <div class="install-label">Override in your plugin CSS</div>
+<code><span class="lp-code-comment">/* your-plugin/admin.css */</span>
+<span class="punctuation">:root</span> <span class="punctuation">{</span>
+  <span class="yellow">--wpadmin-primary</span>: <span class="value" style="color:#a5d6ff">#7c3aed</span>;
+  <span class="yellow">--wpadmin-primary-dark</span>: <span class="value" style="color:#a5d6ff">#6d28d9</span>;
+  <span class="yellow">--wpadmin-radius</span>: <span class="value" style="color:#a5d6ff">8px</span>;
+  <span class="yellow">--wpadmin-text</span>: <span class="value" style="color:#a5d6ff">#1a1a2e</span>;
+<span class="punctuation">}</span>
+
+<span class="lp-code-comment">/* Scope to just your plugin page if you want */</span>
+<span class="punctuation">.my-plugin-page</span> <span class="punctuation">{</span>
+  <span class="yellow">--wpadmin-primary</span>: <span class="value" style="color:#a5d6ff">#0d9488</span>;
+<span class="punctuation">}</span></code>
+        <hr>
+        <div class="install-label">Or theme via the wrapper class</div>
+<code><span class="punctuation">&lt;</span><span class="green">div</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"my-plugin-page"</span><span class="punctuation">&gt;</span>
+  <span class="lp-code-comment">&lt;!-- everything inside picks up your tokens --&gt;</span>
+<span class="punctuation">&lt;/</span><span class="green">div</span><span class="punctuation">&gt;</span></code>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Get started -->
+  <section class="section compact">
+    <div class="section-header centered">
+      <p class="eyebrow">Get started</p>
+      <h2 class="section-title">One line. Drop it in.</h2>
+    </div>
+
+    <div class="install">
+      <div class="install-label">Add to your plugin admin page</div>
+<code><span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span> <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span></code>
+
+      <hr>
+
+      <div class="install-label">Use real WordPress admin classes</div>
+<code><span class="punctuation">&lt;</span><span class="green">div</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"wrap"</span><span class="punctuation">&gt;</span>
+  <span class="punctuation">&lt;</span><span class="green">h1</span><span class="punctuation">&gt;</span>My Plugin<span class="punctuation">&lt;/</span><span class="green">h1</span><span class="punctuation">&gt;</span>
+  <span class="punctuation">&lt;</span><span class="green">button</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"button button-primary"</span><span class="punctuation">&gt;</span>Save<span class="punctuation">&lt;/</span><span class="green">button</span><span class="punctuation">&gt;</span>
+<span class="punctuation">&lt;/</span><span class="green">div</span><span class="punctuation">&gt;</span></code>
+    </div>
+  </section>
+
+  <!-- Build with agents -->
+  <section class="section" id="agents">
+    <div class="section-header centered">
+      <p class="eyebrow">Built for AI-driven development</p>
+      <h2 class="section-title">An AGENTS.md, a skills library, and a working scaffold.</h2>
+      <p class="section-lead">
+        Point your coding agent at one URL. It gets the framework instructions, the security patterns, the database conventions, and a working WP plugin to copy from — all in one shot.
+      </p>
+    </div>
+
+    <div class="features" style="margin-bottom:32px">
+      <div class="lp-feature">
+        <div class="lp-feature-icon">📄</div>
+        <h3>AGENTS.md</h3>
+        <p>The master entry point. The framework, the anti-patterns, the security checklist. Hosted at <code>cdn.wp-admincss.com/AGENTS.md</code> — load it once, the agent has everything.</p>
+      </div>
+      <div class="lp-feature">
+        <div class="lp-feature-icon">⚙</div>
+        <h3>6 skill files</h3>
+        <p>Security, database, data-modeling, enqueue, plugin-structure, i18n. Each focuses on the patterns AI agents commonly get wrong in WordPress. Load on demand.</p>
+      </div>
+      <div class="lp-feature">
+        <div class="lp-feature-icon">⌂</div>
+        <h3>Plugin boilerplate</h3>
+        <p>A working plugin scaffold — settings page, REST endpoint, custom table, lifecycle hooks. Clone, find-replace the names, ship.</p>
+      </div>
+    </div>
+
+    <div class="install" style="max-width:760px;margin:0 auto">
+      <div class="install-label">Drop into Cursor / Claude Code / Aider</div>
+<code><span class="lp-code-comment"># Tell your agent to use the framework</span>
+<span class="green">@docs</span> https://cdn.wp-admincss.com/AGENTS.md
+
+<span class="lp-code-comment"># Or read into the conversation directly</span>
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/AGENTS.md
+<span class="yellow">curl</span> https://cdn.wp-admincss.com/skills/security.md
+
+<span class="lp-code-comment"># Then ask: "Build a WP plugin settings page following Plugin SDK"</span>
+<span class="lp-code-comment"># The agent already knows the security boundary, the markup, the conventions.</span></code>
+      <hr>
+      <div class="install-label">Or clone the boilerplate</div>
+<code><span class="yellow">gh</span> repo clone artificialpoets/plugin-sdk
+<span class="yellow">cp</span> -r plugin-sdk/boilerplates/wordpress ~/my-plugin
+<span class="yellow">cd</span> ~/my-plugin && <span class="yellow">composer</span> install</code>
+    </div>
+  </section>
+
+
+  <!-- Star CTA — community pitch + live GitHub buttons. Sits between
+       the content sections and the closing dark "build with us" CTA
+       so the star action feels like a step on the way out, not a
+       sidebar. -->
+  <section class="star-cta">
+    <div class="star-cta-inner">
+      <span class="star-cta-eyebrow">Open source</span>
+      <h2>If Plugin SDK saves you time, leave a star.</h2>
+      <p>
+        Stars help other WordPress developers find this project, and
+        they're the single biggest signal that the work is worth
+        continuing. One click, no email required.
+      </p>
+      <div class="star-cta-buttons">
+        <a
+          class="github-button"
+          href="https://github.com/artificialpoets/plugin-sdk"
+          data-color-scheme="no-preference: light; light: light; dark: light;"
+          data-icon="octicon-star"
+          data-size="large"
+          data-show-count="true"
+          aria-label="Star artificialpoets/plugin-sdk on GitHub"
+        >Star</a>
+        <a
+          class="github-button"
+          href="https://github.com/matysanchez"
+          data-color-scheme="no-preference: light; light: light; dark: light;"
+          data-size="large"
+          data-show-count="true"
+          aria-label="Follow @matysanchez on GitHub"
+        >Follow @matysanchez</a>
+      </div>
+      <span class="star-cta-note">Apache 2.0 · free forever · no tracking</span>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>Build your next WordPress plugin with Plugin SDK.</h2>
+    <p>Native admin design. Security by default. CSS, React, or PHP — your call. Apache 2.0.</p>
+    <div class="cta-actions">
+      <a href="components.html" class="btn-white">
+        Browse components
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="docs.html" class="btn-white-ghost">Read the docs</a>
+    </div>
+  </section>
+
+  <!-- @include footer -->
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "your-org/plugin-sdk-starter",
+  "description": "Greenfield WordPress plugin scaffold using Plugin SDK.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.4",
+    "plugin-sdk/wp": "^0.1.0-rc.1 || ^0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "PluginSDK\\Starter\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  }
+}

@@ -1,0 +1,61 @@
+WP AdminCSS
+Copyright 2024-2026 Artificial Poets, Inc.
+
+This product includes software developed at Artificial Poets, Inc.
+(https://artificialpoets.com).
+
+================================================================================
+LICENSING — repository overview
+================================================================================
+
+Most of this repository is licensed under the Apache License, Version 2.0
+(see the LICENSE file at the repository root).
+
+Two subdirectories are licensed under GPLv2-or-later instead, because they
+contain or are designed to combine with WordPress core (which is GPLv2+):
+
+  * packages/core-css/  — bundles WordPress core admin stylesheets.
+                          See packages/core-css/LICENSE and
+                          packages/core-css/NOTICE for full attribution.
+
+  * boilerplate/        — WordPress plugin scaffold. The scaffold itself is
+                          GPLv2-or-later; plugins built from it will normally
+                          also be GPLv2-or-later when distributed alongside
+                          WordPress.
+
+Apache-2.0 → GPLv2-or-later is one-way compatible (via GPLv3), so the
+Apache-licensed packages in this repo can be combined with the GPL-licensed
+packages in a downstream WordPress plugin without conflict.
+
+================================================================================
+Trademarks
+================================================================================
+
+"WP AdminCSS", "Artificial Poets", and any associated logos are trademarks
+of Artificial Poets, Inc. The licenses in this repository do NOT grant
+permission to use these trademarks. Forks and derivative works must not use
+Artificial Poets trademarks without prior written permission. Community
+projects may reference the project in descriptive context (e.g.,
+"compatible with WP AdminCSS").
+
+================================================================================
+Third-party attributions
+================================================================================
+
+This repository includes third-party material. See per-package NOTICE files
+for the full list. Highlights:
+
+  * WordPress core admin CSS (GPLv2-or-later)
+      Copyright (c) WordPress contributors
+      Source: https://github.com/WordPress/WordPress
+      Vendored into: packages/core-css/src/
+
+  * jQuery UI CSS snippet (MIT)
+      Copyright jQuery Foundation and other contributors
+      https://jqueryui.com / https://jquery.org/license
+      Vendored into: packages/core-css/src/common.css
+
+  * Dashicons (GPLv2-or-later)
+      Copyright (c) WordPress contributors
+      Loaded from: https://s.w.org/wp-includes/css/dashicons.min.css
+      Referenced by: packages/core-css/src/dashicons.css

@@ -1,0 +1,189 @@
+/*
+ * WordPress admin buttons.
+ *
+ * In WP core these live in wp-includes/css/buttons.css and are scoped under
+ * .wp-core-ui. We unscope them so .button / .button-primary work standalone
+ * in any plugin admin page — and we route colors through our tokens so they
+ * inherit the active WP color scheme.
+ */
+
+.button,
+.button-primary,
+.button-secondary,
+.button-link,
+button.button,
+input[type="submit"].button,
+input[type="reset"].button,
+input[type="button"].button,
+a.button {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 2.15384615;        /* 28px */
+  min-height: 30px;
+  margin: 0;
+  padding: 0 10px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 3px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Secondary / default (outline) — uses theme primary as accent */
+.button,
+.button-secondary {
+  color: var(--wpadmin-primary);
+  border-color: var(--wpadmin-primary);
+  background: #f6f7f7;
+  vertical-align: top;
+}
+
+.button:hover,
+.button-secondary:hover,
+.button:focus,
+.button-secondary:focus {
+  background: #f0f0f1;
+  border-color: var(--wpadmin-primary-dark);
+  color: var(--wpadmin-primary-dark);
+}
+
+.button:focus,
+.button-secondary:focus {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 3px var(--wpadmin-focus-ring);
+  outline: 2px solid transparent;
+  outline-offset: 0;
+}
+
+.button:active,
+.button-secondary:active {
+  background: #f6f7f7;
+  border-color: #8c8f94;
+  box-shadow: none;
+}
+
+.button[disabled],
+.button:disabled,
+.button-disabled,
+.button.disabled {
+  color: #a7aaad !important;
+  border-color: #dcdcde !important;
+  background: #f6f7f7 !important;
+  box-shadow: none !important;
+  text-shadow: 0 1px 0 #fff !important;
+  cursor: default;
+  transform: none !important;
+}
+
+/* Primary (filled) */
+.button-primary {
+  background: var(--wpadmin-primary);
+  border-color: var(--wpadmin-primary);
+  color: #fff;
+  text-decoration: none;
+  text-shadow: none;
+}
+
+.button-primary:hover,
+.button-primary:focus {
+  background: var(--wpadmin-primary-dark);
+  border-color: var(--wpadmin-primary-dark);
+  color: #fff;
+}
+
+.button-primary:focus {
+  box-shadow: 0 0 0 1px #fff, 0 0 0 3px var(--wpadmin-focus-ring);
+  outline: 2px solid transparent;
+}
+
+.button-primary:active {
+  background: var(--wpadmin-primary-darker);
+  border-color: var(--wpadmin-primary-darker);
+  color: #fff;
+}
+
+.button-primary[disabled],
+.button-primary:disabled,
+.button-primary-disabled,
+.button-primary.disabled {
+  color: #a0c8e7 !important;
+  background: #4f94d4 !important;
+  border-color: #4f94d4 !important;
+  text-shadow: none !important;
+  opacity: .7;
+}
+
+/* Sizes */
+.button.button-small {
+  min-height: 26px;
+  line-height: 2.18181818;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.button.button-large {
+  min-height: 32px;
+  line-height: 2.30769231;
+  padding: 0 12px;
+}
+
+.button.button-hero {
+  font-size: 14px;
+  line-height: 3.14285714;
+  min-height: 46px;
+  padding: 0 36px;
+}
+
+/* Link-style button */
+.button-link {
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--wpadmin-primary);
+  text-decoration: underline;
+  transition-property: border, background, color;
+  transition-duration: .05s;
+  transition-timing-function: ease-in-out;
+  height: auto;
+  min-height: 0;
+  line-height: inherit;
+  white-space: normal;
+}
+
+.button-link:hover,
+.button-link:active {
+  color: var(--wpadmin-primary-dark);
+}
+
+.button-link:focus {
+  color: var(--wpadmin-primary-dark);
+  outline: 2px solid var(--wpadmin-focus-ring);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+.button-link.button-link-delete {
+  color: var(--wpadmin-error);
+}
+
+.button-link.button-link-delete:hover,
+.button-link.button-link-delete:focus {
+  color: var(--wpadmin-error);
+  background: transparent;
+  border-color: transparent;
+}
+
+/* Spinner icon inside loading buttons */
+.button .dashicons,
+.button .icon {
+  vertical-align: middle;
+}

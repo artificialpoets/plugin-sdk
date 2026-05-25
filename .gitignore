@@ -1,0 +1,36 @@
+node_modules/
+dist/
+cdn/
+
+# Wrangler local state (never commit)
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Env files (never commit; the codebase uses Worker secrets, not env files,
+# but lock this down anyway so a stray .env doesn't accidentally leak)
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Editor scratch
+.vscode/
+.idea/
+
+# Build artifacts + logs
+*.log
+npm-debug.log*
+.npm/
+
+# Remotion video output. The video project lives at apps/videos/ — its
+# source TSX is tracked, but rendered MP4s + Remotion's working cache are
+# binary blobs we generate on demand. Keep them out of git.
+apps/videos/out/
+apps/videos/.remotion/
+
+# Claude Code project-local config (kept out of git so each contributor
+# can have their own launch.json without conflicts)
+.claude/

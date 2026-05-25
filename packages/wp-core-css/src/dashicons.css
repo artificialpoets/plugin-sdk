@@ -1,0 +1,22 @@
+/*
+ * Dashicons — WordPress's built-in icon font.
+ *
+ * Imported by wp-admin.css ("optional, enabled by default"). To opt out,
+ * import individual component CSS files from @plugin-sdk/wp-core-css/src/
+ * instead of the bundled wp-admin.css.
+ *
+ * The icon catalog (~300 icons) is pulled from WordPress's official CDN
+ * so it stays in sync with WP core and adds no maintenance burden here.
+ *
+ * Inside a WordPress plugin, prefer wp_enqueue_style('dashicons') to avoid
+ * the external request — the rules are identical and WP serves them locally.
+ * The PHP package exposes Assets::enqueue_dashicons() for this.
+ *
+ * Browse the catalog: https://developer.wordpress.org/resource/dashicons/
+ */
+
+@import url("https://s.w.org/wp-includes/css/dashicons.min.css");
+
+/* Helpful sizing classes that aren't in WP core. */
+.dashicons.is-large { font-size: 28px; width: 28px; height: 28px; }
+.dashicons.is-small { font-size: 16px; width: 16px; height: 16px; }

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components — Plugin SDK</title>
+  <meta name="description" content="Browse every WordPress admin primitive — buttons, forms, list tables, notices, postboxes. Copy as HTML, AI prompt, React, or PHP.">
+  <link rel="canonical" href="https://wp-admincss.com/components.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="Components — Plugin SDK">
+  <meta property="og:description" content="Every WP admin primitive, copy-pasteable. Copy as HTML, AI prompt, React, or PHP.">
+  <meta property="og:image" content="https://wp-admincss.com/og/components.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/components.html">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Components — Plugin SDK">
+  <meta name="twitter:description" content="Every WP admin primitive, copy-pasteable.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/components.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--wpadmin-font);
+      font-size: var(--wpadmin-font-size);
+      color: var(--wpadmin-text);
+      background: var(--wpadmin-surface);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--wpadmin-primary); }
+    a:hover { color: var(--wpadmin-primary-dark); }
+
+    code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: .92em;
+      background: var(--wpadmin-surface-alt);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--wpadmin-text);
+    }
+
+    /* ── Pure CSS color scheme switcher ─────────────────────────────────── */
+    .scheme-inputs { position: absolute; opacity: 0; pointer-events: none; }
+
+    html:has(#cs-blue:checked) {
+      --wpadmin-primary: #096484; --wpadmin-primary-dark: #07526c;
+      --wpadmin-menu-bg: #1e3a4a; --wpadmin-menu-sub-bg: #1a3344;
+      --wpadmin-menu-active-bg: #096484; --wpadmin-menu-text: #e2ecf1;
+    }
+    html:has(#cs-coffee:checked) {
+      --wpadmin-primary: #c7a589; --wpadmin-primary-dark: #a6856d;
+      --wpadmin-menu-bg: #1a1a1a; --wpadmin-menu-sub-bg: #2b2b2b;
+      --wpadmin-menu-active-bg: #c7a589; --wpadmin-menu-text: #c6b9aa;
+    }
+    html:has(#cs-ectoplasm:checked) {
+      --wpadmin-primary: #a3b745; --wpadmin-primary-dark: #8a9c38;
+      --wpadmin-menu-bg: #413256; --wpadmin-menu-sub-bg: #3b2d50;
+      --wpadmin-menu-active-bg: #a3b745; --wpadmin-menu-text: #cbc5d2;
+    }
+    html:has(#cs-midnight:checked) {
+      --wpadmin-primary: #e14d43; --wpadmin-primary-dark: #c9413a;
+      --wpadmin-menu-bg: #25282b; --wpadmin-menu-sub-bg: #363b3f;
+      --wpadmin-menu-active-bg: #e14d43; --wpadmin-menu-text: #e4e6e8;
+    }
+    html:has(#cs-modern:checked) {
+      --wpadmin-primary: #3858e9; --wpadmin-primary-dark: #2d48d5;
+      --wpadmin-menu-bg: #1e1e1e; --wpadmin-menu-sub-bg: #2a2a2a;
+      --wpadmin-menu-active-bg: #3858e9; --wpadmin-menu-text: #e8eaf6;
+    }
+    html:has(#cs-sunrise:checked) {
+      --wpadmin-primary: #dd823b; --wpadmin-primary-dark: #c9732e;
+      --wpadmin-menu-bg: #3e3e3e; --wpadmin-menu-sub-bg: #4d4d4d;
+      --wpadmin-menu-active-bg: #dd823b; --wpadmin-menu-text: #f3e9d8;
+    }
+
+    /* Topbar styles live in styles.css (shared across all pages). */
+
+    /* ── Layout ─────────────────────────────────────────────────────────── */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: calc(100vh - 56px);
+    }
+
+    /* ── Sidebar ────────────────────────────────────────────────────────── */
+    .sidebar {
+      border-right: 1px solid var(--wpadmin-border);
+      overflow-y: auto;
+      padding: 24px 0 40px;
+      background: var(--wpadmin-surface);
+    }
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+    #sidebar-list {
+      list-style: none;
+    }
+    .sidebar-category {
+      margin-bottom: 20px;
+    }
+    .sidebar-category-name {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      padding: 6px 24px;
+    }
+    .sidebar-sublist {
+      list-style: none;
+    }
+    .sidebar-sublist a {
+      display: block;
+      padding: 5px 24px;
+      font-size: 13px;
+      color: var(--wpadmin-text);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: background .1s, color .1s, border-color .1s;
+    }
+    .sidebar-sublist a:hover {
+      background: var(--wpadmin-surface-alt);
+      color: var(--wpadmin-primary);
+    }
+    .sidebar-sublist a.is-active {
+      background: var(--wpadmin-surface-alt);
+      color: var(--wpadmin-primary);
+      border-left-color: var(--wpadmin-primary);
+      font-weight: 500;
+    }
+
+    .sidebar-schemes {
+      padding: 20px 24px;
+      margin-top: 8px;
+      border-top: 1px solid var(--wpadmin-border);
+    }
+    .sidebar-schemes-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--wpadmin-text-subtle);
+      display: block;
+      margin-bottom: 10px;
+    }
+    .sidebar-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .sidebar-swatch {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+      display: inline-block;
+    }
+    .sidebar-swatch:hover { transform: scale(1.15); }
+    html:has(#cs-default:checked)   label[for="cs-default"]   .sidebar-swatch,
+    html:has(#cs-blue:checked)      label[for="cs-blue"]      .sidebar-swatch,
+    html:has(#cs-coffee:checked)    label[for="cs-coffee"]    .sidebar-swatch,
+    html:has(#cs-ectoplasm:checked) label[for="cs-ectoplasm"] .sidebar-swatch,
+    html:has(#cs-midnight:checked)  label[for="cs-midnight"]  .sidebar-swatch,
+    html:has(#cs-ocean:checked)     label[for="cs-ocean"]     .sidebar-swatch,
+    html:has(#cs-sunrise:checked)   label[for="cs-sunrise"]   .sidebar-swatch,
+    html:has(#cs-modern:checked)    label[for="cs-modern"]    .sidebar-swatch {
+      border-color: var(--wpadmin-primary);
+    }
+
+    /* ── Main content scroller ──────────────────────────────────────────── */
+    .main-scroll {
+      overflow-y: auto;
+      background: var(--wpadmin-surface);
+    }
+    #main {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 56px 48px 96px;
+    }
+
+    /* ── Component doc ──────────────────────────────────────────────────── */
+    .component-doc__header {
+      margin-bottom: 40px;
+    }
+    .component-doc__breadcrumb {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .component-doc h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--wpadmin-text);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .component-doc__description {
+      font-size: 16px;
+      color: var(--wpadmin-text-subtle);
+      line-height: 1.6;
+      max-width: 640px;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .section-label span {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-text-subtle);
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--wpadmin-border);
+    }
+
+    .component-doc__preview-section,
+    .component-doc__code-section {
+      margin-bottom: 40px;
+    }
+
+    /* ── Preview frame ──────────────────────────────────────────────────── */
+    .preview-frame {
+      background: var(--wpadmin-body-bg);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 8px;
+      padding: 24px 24px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .preview-frame__inner {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    /* Scope demo overlays (modals, dropdowns) to the preview frame so they
+     * don't cover the docs sidebar / topbar. */
+    .preview-frame .wp-admin-modal-backdrop.is-demo {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+    }
+    .preview-frame .wp-admin-modal-backdrop.is-demo .wp-admin-modal {
+      max-height: calc(100% - 24px);
+    }
+
+    /* Dropzone visual states (Media Button demo). */
+    [data-demo-dropzone] {
+      border: 2px dashed var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 20px 16px;
+      text-align: center;
+      background: var(--wpadmin-surface);
+      transition: border-color .15s, background .15s;
+      cursor: pointer;
+    }
+    [data-demo-dropzone].is-dragover {
+      border-color: var(--wpadmin-primary);
+      background: rgba(34, 113, 177, .06);
+    }
+    [data-demo-dropzone] input[type="file"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* ── Code card (Catalyst-style with Vercel-style copy button) ──────── */
+    .code-card {
+      background: #0f1115;
+      border: 1px solid #1f2228;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .code-card__tabs {
+      display: flex;
+      background: #161a1f;
+      border-bottom: 1px solid #1f2228;
+      padding: 0 8px;
+      overflow-x: auto;
+    }
+    .code-tab {
+      flex-shrink: 0;
+      background: transparent;
+      border: 0;
+      color: #9ba1ab;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 11px 14px;
+      cursor: pointer;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: color .12s;
+    }
+    .code-tab:hover:not(:disabled) { color: #d1d5db; }
+    .code-tab.is-active {
+      color: #fff;
+    }
+    .code-tab.is-active::after {
+      content: "";
+      position: absolute;
+      left: 14px; right: 14px; bottom: 0;
+      height: 2px;
+      background: var(--wpadmin-primary);
+      border-radius: 1px;
+    }
+    .code-tab.is-coming,
+    .code-tab:disabled {
+      color: #5c6470;
+      cursor: not-allowed;
+    }
+    .tab-badge {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: #9ba1ab;
+    }
+    .code-panel__empty {
+      padding: 32px;
+      text-align: center;
+      color: #6e7681;
+      font-size: 13px;
+    }
+
+    .code-card__body {
+      position: relative;
+    }
+    .code-panel {
+      display: none;
+      position: relative;
+    }
+    .code-panel.is-active {
+      display: block;
+    }
+    .code-panel pre {
+      margin: 0;
+      padding: 22px 24px;
+      overflow-x: auto;
+      max-height: 480px;
+    }
+    .code-panel pre code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 13px;
+      line-height: 1.65;
+      color: #d1d5db;
+      background: none;
+      padding: 0;
+      white-space: pre;
+    }
+
+    /* ── Copy button (Vercel-style) ─────────────────────────────────────── */
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      color: #9ba1ab;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .12s, color .12s, border-color .12s;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+    }
+    .copy-btn:hover {
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border-color: rgba(255,255,255,.14);
+    }
+    .copy-btn.is-copied {
+      color: var(--wpadmin-success);
+      background: rgba(70, 180, 80, 0.12);
+      border-color: rgba(70, 180, 80, 0.3);
+    }
+    .copy-icon { display: block; }
+    .copy-btn.is-copied .copy-icon { display: none; }
+
+    /* ── "Coming soon" panel ────────────────────────────────────────────── */
+    .code-panel__coming {
+      padding: 48px 32px;
+      text-align: center;
+      color: #9ba1ab;
+    }
+    .coming-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+      color: #5c6470;
+    }
+    .code-panel__coming h3 {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .code-panel__coming p {
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 420px;
+      margin: 0 auto 18px;
+    }
+    .code-panel__coming code {
+      background: rgba(255,255,255,.06);
+      color: #d1d5db;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    .coming-preview {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #0a0c10;
+      border: 1px solid #1f2228;
+      border-radius: 6px;
+      text-align: left;
+    }
+    .coming-preview code {
+      background: none;
+      color: #d1d5db;
+      font-size: 12px;
+    }
+
+    .empty-route {
+      padding: 80px 20px;
+      text-align: center;
+      color: var(--wpadmin-text-subtle);
+    }
+
+    /* ── Sidebar toggle (mobile only) ──────────────────────────────────── */
+    .sidebar-toggle {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      align-items: center;
+      gap: 8px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--wpadmin-text);
+      cursor: pointer;
+      margin: 16px 20px 0;
+      width: fit-content;
+      font-family: inherit;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .sidebar-toggle:hover { background: var(--wpadmin-surface-alt); }
+    .sidebar-toggle svg { width: 14px; height: 14px; }
+    .sidebar-backdrop { display: none; }
+
+    /* ── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: calc(100vh - 56px);
+      }
+      #main { padding: 16px 20px 64px; }
+
+      /* Sidebar becomes an off-canvas drawer that slides in from the left. */
+      .sidebar {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        width: min(320px, 85vw);
+        z-index: 60;
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+      }
+      .sidebar.is-open { transform: translateX(0); }
+
+      .sidebar-toggle { display: inline-flex; }
+      .sidebar-backdrop {
+        position: fixed;
+        top: 56px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 55;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .sidebar-backdrop.is-open {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .main-scroll {
+        /* Drop the inner scroll on mobile; let the page scroll naturally. */
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body data-page="components">
+
+  <!-- Scheme radio inputs (pure CSS switcher) -->
+  <div class="scheme-inputs" aria-hidden="true">
+    <input type="radio" name="cs" id="cs-default" checked>
+    <input type="radio" name="cs" id="cs-blue">
+    <input type="radio" name="cs" id="cs-coffee">
+    <input type="radio" name="cs" id="cs-ectoplasm">
+    <input type="radio" name="cs" id="cs-midnight">
+    <input type="radio" name="cs" id="cs-ocean">
+    <input type="radio" name="cs" id="cs-sunrise">
+    <input type="radio" name="cs" id="cs-modern">
+  </div>
+
+  <!-- @include header -->
+
+  <div class="layout">
+
+    <!-- Backdrop for the mobile sidebar drawer. Click closes the drawer. -->
+    <div class="sidebar-backdrop" aria-hidden="true"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="components-sidebar">
+      <ul id="sidebar-list"></ul>
+
+      <div class="sidebar-schemes">
+        <span class="sidebar-schemes-label">Color Scheme</span>
+        <div class="sidebar-swatches">
+          <label for="cs-default" title="Default">
+            <span class="sidebar-swatch" style="background:#2271b1"></span>
+          </label>
+          <label for="cs-blue" title="Blue">
+            <span class="sidebar-swatch" style="background:#096484"></span>
+          </label>
+          <label for="cs-coffee" title="Coffee">
+            <span class="sidebar-swatch" style="background:#c7a589"></span>
+          </label>
+          <label for="cs-ectoplasm" title="Ectoplasm">
+            <span class="sidebar-swatch" style="background:#a3b745"></span>
+          </label>
+          <label for="cs-midnight" title="Midnight">
+            <span class="sidebar-swatch" style="background:#e14d43"></span>
+          </label>
+          <label for="cs-ocean" title="Ocean">
+            <span class="sidebar-swatch" style="background:#9ebaa0"></span>
+          </label>
+          <label for="cs-sunrise" title="Sunrise">
+            <span class="sidebar-swatch" style="background:#dd823b"></span>
+          </label>
+          <label for="cs-modern" title="Modern">
+            <span class="sidebar-swatch" style="background:#3858e9"></span>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main scroll container -->
+    <main class="main-scroll">
+      <!-- Mobile-only: opens the sidebar drawer. Hidden via CSS on desktop. -->
+      <button
+        class="sidebar-toggle"
+        type="button"
+        aria-controls="components-sidebar"
+        aria-expanded="false"
+      >
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <line x1="2" y1="4" x2="14" y2="4"/>
+          <line x1="2" y1="8" x2="14" y2="8"/>
+          <line x1="2" y1="12" x2="14" y2="12"/>
+        </svg>
+        Categories
+      </button>
+      <div id="main"><!-- rendered by components-app.js --></div>
+    </main>
+
+  </div>
+
+  <script type="module" src="components-app.js"></script>
+
+  <script>
+    /*
+     * Mobile sidebar drawer wiring. The CSS keeps the sidebar fixed
+     * off-screen on small viewports; this script handles the open/close
+     * state plus the usual escape hatches (Escape, backdrop click, in-drawer
+     * link click). Desktop is unaffected — the toggle is `display: none`.
+     */
+    (function () {
+      var toggle = document.querySelector('.sidebar-toggle');
+      var sidebar = document.getElementById('components-sidebar');
+      var backdrop = document.querySelector('.sidebar-backdrop');
+      if (!toggle || !sidebar || !backdrop) return;
+
+      function setOpen(open) {
+        sidebar.classList.toggle('is-open', open);
+        backdrop.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+      toggle.addEventListener('click', function () {
+        setOpen(!sidebar.classList.contains('is-open'));
+      });
+      backdrop.addEventListener('click', function () { setOpen(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('is-open')) setOpen(false);
+      });
+      // Close on link click inside the sidebar (rendered async by
+      // components-app.js, so use event delegation).
+      sidebar.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a');
+        if (a) setOpen(false);
+      });
+    })();
+  </script>
+
+  <!-- @include footer -->
+</body>
+</html>

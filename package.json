@@ -1,0 +1,40 @@
+{
+  "name": "plugin-sdk",
+  "version": "0.1.0-rc.1",
+  "description": "Plugin SDK \u2014 the open-source SDK for building plugins anywhere. WordPress today; more platforms next.",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@plugin-sdk/site",
+    "build": "npm run build --workspace=@plugin-sdk/site && node scripts/build-cdn.mjs",
+    "build:site": "npm run build --workspace=@plugin-sdk/site",
+    "build:cdn": "node scripts/build-cdn.mjs",
+    "preview": "npm run preview --workspace=@plugin-sdk/site",
+    "test": "npm test --workspaces --if-present && npm run test:php",
+    "test:php": "php packages/wp-composer/tests/run.php"
+  },
+  "keywords": [
+    "plugin",
+    "sdk",
+    "scaffold",
+    "wordpress",
+    "design-system",
+    "ai-agents"
+  ],
+  "author": "Mat\u00edas Sanchez Moises <matias@artificialpoets.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artificialpoets/plugin-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/artificialpoets/plugin-sdk/issues"
+  },
+  "homepage": "https://plugin-sdk.com"
+}

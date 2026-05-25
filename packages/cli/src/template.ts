@@ -1,0 +1,119 @@
+/*
+ * Substitution engine for the scaffolder.
+ *
+ * The boilerplate ships as runnable code (you can clone
+ * boilerplates/wordpress/ and activate it as-is). It uses concrete
+ * placeholder values:
+ *
+ *   PHP namespace          PluginSDK\Starter
+ *   PHP constant prefix    PSDK_
+ *   Slug                   plugin-sdk-starter
+ *   Option key fragment    psdk_db_version
+ *   Asset handle           psdk-admin
+ *   Plugin display name    "Plugin SDK Starter"
+ *
+ * `substitute()` replaces every occurrence in a string. Each rule is
+ * applied in order — later rules see the output of earlier ones. The
+ * order matters: more specific patterns must precede their substrings
+ * so we don't double-replace.
+ *
+ * We use plain `String.replaceAll` (no regex) which means the search
+ * patterns are literal strings — no escaping needed by callers.
+ */
+
+export interface PluginContext {
+  /** Human-readable name: "Acme Forms" */
+  name: string;
+  /** Kebab slug: "acme-forms" — directory and file name */
+  slug: string;
+  /** PHP PSR-4: "Acme\Forms" */
+  namespace: string;
+  /** Constant prefix: "ACME_FORMS_" */
+  constantPrefix: string;
+  /** Lowercase snake from slug: "acme_forms" */
+  slugSnake: string;
+  /** Asset handle prefix: usually = slug */
+  textDomain: string;
+  /** Free-text description for composer.json + plugin header */
+  description: string;
+  /** Author display name */
+  author: string;
+  /** Author URL — optional, empty string if none */
+  authorUrl: string;
+}
+
+/** Build the list of (from, to) replacements in dependency order. */
+export function buildRules(ctx: PluginContext): Array<[string, string]> {
+  // PHP namespace pairs — emit before fragments so longer matches win.
+  // The double-backslash form must come before the single-backslash form
+  // so we don't partially replace.
+  return [
+    // Composer + JSON encoded namespace (double-escaped)
+    ['PluginSDK\\\\Starter\\\\', escapeForJson(ctx.namespace) + '\\\\'],
+    ['PluginSDK\\\\Starter', escapeForJson(ctx.namespace)],
+
+    // PHP source namespace (single backslashes)
+    ['PluginSDK\\Starter', ctx.namespace],
+
+    // Constants
+    ['PSDK_VERSION', `${ctx.constantPrefix}VERSION`],
+    ['PSDK_FILE', `${ctx.constantPrefix}FILE`],
+    ['PSDK_DIR', `${ctx.constantPrefix}DIR`],
+    ['PSDK_URL', `${ctx.constantPrefix}URL`],
+
+    // Composer vendor/slug — must precede the lone slug rule, otherwise
+    // `plugin-sdk-starter` gets rewritten before the vendor/slug pattern
+    // has a chance to match the original full string.
+    ['your-org/plugin-sdk-starter', `${slugifyOrg(ctx.author)}/${ctx.slug}`],
+
+    // Option keys + asset handles + slugs (longest first)
+    ['plugin-sdk-starter', ctx.slug],
+    ['psdk_db_version', `${ctx.slugSnake}_db_version`],
+    ['psdk-admin', `${ctx.slug}-admin`],
+
+    // Display name (boilerplate's plugin header + composer description)
+    ['Plugin SDK Starter', ctx.name],
+    [
+      'Greenfield WordPress plugin scaffold using Plugin SDK.',
+      ctx.description,
+    ],
+
+    // Author placeholders (only used if present in template)
+    ['{{PLUGIN_AUTHOR}}', ctx.author],
+    ['{{PLUGIN_AUTHOR_URL}}', ctx.authorUrl],
+  ];
+}
+
+/** Apply rules left-to-right. Idempotent only if rules are non-overlapping. */
+export function substitute(input: string, ctx: PluginContext): string {
+  let out = input;
+  for (const [from, to] of buildRules(ctx)) {
+    out = out.split(from).join(to);
+  }
+  return out;
+}
+
+/** Path-level rename. The starter's main PHP file is named after the slug. */
+export function renamePath(relPath: string, ctx: PluginContext): string {
+  return relPath.replaceAll('plugin-sdk-starter.php', `${ctx.slug}.php`);
+}
+
+/* ── helpers ───────────────────────────────────────────────────────── */
+
+function escapeForJson(s: string): string {
+  // PSR-4 namespaces in composer.json are JSON-escaped with double
+  // backslashes: "Acme\\Forms\\". JSON-encoding adds the escapes.
+  return s.replace(/\\/g, '\\\\');
+}
+
+/** "Matías Sanchez" → "matias-sanchez". Used to build the composer
+ *  vendor/package name. */
+function slugifyOrg(author: string): string {
+  const slug = author
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'your-org';
+}

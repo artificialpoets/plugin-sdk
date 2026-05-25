@@ -1,0 +1,32 @@
+{
+  "name": "@plugin-sdk/wp-core-css",
+  "version": "0.1.0-rc.1",
+  "description": "Plugin SDK \u2014 WordPress core admin CSS bundle plus component extensions. Real WP class names.",
+  "license": "GPL-2.0-or-later",
+  "main": "src/wp-admin.css",
+  "style": "src/wp-admin.css",
+  "exports": {
+    ".": "./src/wp-admin.css",
+    "./wp-admin.css": "./src/wp-admin.css",
+    "./extensions.css": "./src/extensions.css",
+    "./src/*": "./src/*"
+  },
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "@plugin-sdk/wp-tokens": "*"
+  },
+  "keywords": [
+    "plugin-sdk",
+    "wordpress",
+    "wp-admin",
+    "css",
+    "components"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artificialpoets/plugin-sdk.git",
+    "directory": "packages/wp-core-css"
+  }
+}

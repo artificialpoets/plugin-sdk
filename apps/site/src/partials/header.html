@@ -1,0 +1,76 @@
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="/" class="topbar-logo">Plugin <span>SDK</span></a>
+
+    <nav class="topbar-nav-wrap" id="topbar-nav-wrap">
+      <ul class="topbar-nav">
+        <li><a href="/docs.html" data-nav="docs">Docs</a></li>
+        <li><a href="/components.html" data-nav="components">Components</a></li>
+        <li><a href="/layouts.html" data-nav="layouts">Layouts</a></li>
+        <li><a href="/changelog.html" data-nav="changelog">Changelog</a></li>
+        <!-- Plain link is the fallback / mobile drawer entry. -->
+        <li class="topbar-gh-link">
+          <a href="https://github.com/artificialpoets/plugin-sdk" target="_blank" rel="noopener">GitHub</a>
+        </li>
+        <!-- Live GitHub Star button (desktop). Hidden until the
+             buttons.github.io script swaps it for the live count widget. -->
+        <li class="topbar-gh-star">
+          <a
+            class="github-button"
+            href="https://github.com/artificialpoets/plugin-sdk"
+            data-color-scheme="no-preference: light; light: light; dark: light;"
+            data-icon="octicon-star"
+            data-size="small"
+            data-show-count="true"
+              aria-label="Star artificialpoets/plugin-sdk on GitHub"
+          >Star</a>
+        </li>
+      </ul>
+    </nav>
+
+    <button
+      class="topbar-menu-toggle"
+      type="button"
+      aria-controls="topbar-nav-wrap"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="topbar-menu-toggle__bar"></span>
+      <span class="topbar-menu-toggle__bar"></span>
+      <span class="topbar-menu-toggle__bar"></span>
+    </button>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var toggle = document.querySelector('.topbar-menu-toggle');
+    var wrap = document.querySelector('.topbar-nav-wrap');
+    if (!toggle || !wrap) return;
+    function setOpen(open) {
+      wrap.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.documentElement.classList.toggle('has-mobile-nav-open', open);
+    }
+    toggle.addEventListener('click', function () {
+      setOpen(!wrap.classList.contains('is-open'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && wrap.classList.contains('is-open')) setOpen(false);
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target) && !toggle.contains(e.target) && wrap.classList.contains('is-open')) {
+        setOpen(false);
+      }
+    });
+    // Close when navigating to a link in the mobile drawer
+    wrap.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+  })();
+</script>
+
+<!-- GitHub Buttons — renders star/follow widgets where .github-button
+     links appear (topbar, landing CTA, footer). The library is tiny
+     (~3KB gz), async/defer so it never blocks rendering. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>

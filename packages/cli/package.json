@@ -1,0 +1,39 @@
+{
+  "name": "@plugin-sdk/cli",
+  "version": "0.1.0-rc.1",
+  "description": "Plugin SDK \u2014 scaffold a plugin for WordPress (and, soon, more platforms) with one command.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "plugin-sdk": "./bin/plugin-sdk.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc --noEmit && node --test --experimental-strip-types 'test/**/*.test.ts'",
+    "test:smoke": "node --test --experimental-strip-types 'test/smoke.test.ts'",
+    "dev": "node --experimental-strip-types src/index.ts"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "keywords": [
+    "plugin-sdk",
+    "cli",
+    "scaffolder",
+    "wordpress"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artificialpoets/plugin-sdk.git",
+    "directory": "packages/cli"
+  }
+}

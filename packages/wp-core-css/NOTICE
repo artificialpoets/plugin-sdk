@@ -1,0 +1,27 @@
+@wp-admincss/core-css
+
+This package includes material from:
+
+* WordPress core admin CSS — GPLv2-or-later
+  Copyright (c) WordPress contributors
+  Source: https://github.com/WordPress/WordPress
+  Path: wp-admin/css/
+
+  Files derived: src/about.css, src/admin-menu.css, src/buttons.css,
+  src/common.css, src/dashboard.css, src/edit.css, src/forms.css,
+  src/l10n.css, src/list-tables.css, src/media.css, src/nav-menus.css,
+  src/revisions.css, src/site-health.css, src/site-icon.css, src/themes.css,
+  src/widgets.css.
+
+  Tokens overlay (modifications applied to route colors and sizing through
+  CSS custom properties) is original work by Artificial Poets, Inc.
+
+* jQuery UI Draggable/Sortable CSS snippet — MIT
+  Copyright jQuery Foundation and other contributors
+  https://jqueryui.com / https://jquery.org/license
+  Path: src/common.css (single embedded block)
+
+* Dashicons — GPLv2-or-later (loaded at runtime, not bundled)
+  Copyright (c) WordPress contributors
+  Loaded from: https://s.w.org/wp-includes/css/dashicons.min.css
+  Path: src/dashicons.css

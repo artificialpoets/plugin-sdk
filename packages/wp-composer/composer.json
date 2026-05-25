@@ -1,0 +1,35 @@
+{
+  "name": "plugin-sdk/wp",
+  "description": "Plugin SDK — WordPress runtime: declarative manifest loader, fluent Settings API, REST routes with JSON-schema validation, dbDelta migrations, plus admin-UI render helpers.",
+  "type": "library",
+  "license": "Apache-2.0",
+  "keywords": ["plugin-sdk", "wordpress", "wp-admin", "plugin", "rest", "settings"],
+  "authors": [
+    {
+      "name": "Matías Sanchez Moises",
+      "email": "matias@artificialpoets.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PluginSDK\\WP\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PluginSDK\\WP\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "php tests/run.php"
+  },
+  "homepage": "https://plugin-sdk.com",
+  "support": {
+    "issues": "https://github.com/artificialpoets/plugin-sdk/issues",
+    "source": "https://github.com/artificialpoets/plugin-sdk"
+  }
+}

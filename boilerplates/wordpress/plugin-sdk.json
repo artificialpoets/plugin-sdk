@@ -1,0 +1,89 @@
+{
+  "$schema": "https://cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json",
+  "platform": "wordpress",
+  "name": "Plugin SDK Starter",
+  "slug": "plugin-sdk-starter",
+  "textDomain": "plugin-sdk-starter",
+  "version": "0.1.0",
+  "namespace": "PluginSDK\\Starter",
+
+  "settings": {
+    "page": {
+      "title": "Plugin SDK Starter",
+      "menuTitle": "PSDK Starter",
+      "parent": "options-general.php",
+      "capability": "manage_options",
+      "sections": [
+        {
+          "id": "general",
+          "title": "General",
+          "description": "Settings for the starter plugin. Edit plugin-sdk.json to add fields — the runtime wires them up.",
+          "fields": [
+            {
+              "id": "api_key",
+              "label": "API Key",
+              "type": "password",
+              "description": "Stored as a regular WP option. For production credentials, wire your own secret manager.",
+              "required": true
+            },
+            {
+              "id": "environment",
+              "label": "Environment",
+              "type": "select",
+              "default": "production",
+              "options": [
+                { "value": "production", "label": "Production" },
+                { "value": "staging", "label": "Staging" }
+              ]
+            },
+            {
+              "id": "enable_logging",
+              "label": "Enable verbose logging",
+              "type": "checkbox",
+              "default": false,
+              "description": "Logs every request handler invocation to error_log."
+            }
+          ]
+        }
+      ]
+    }
+  },
+
+  "rest": {
+    "namespace": "plugin-sdk-starter/v1",
+    "routes": [
+      {
+        "path": "/submissions",
+        "method": "POST",
+        "capability": "manage_options",
+        "handler": "PluginSDK\\Starter\\REST\\Submissions::create",
+        "schema": {
+          "type": "object",
+          "required": ["email"],
+          "properties": {
+            "email": { "type": "string", "format": "email" },
+            "name":  { "type": "string", "maxLength": 200 }
+          },
+          "additionalProperties": false
+        }
+      }
+    ]
+  },
+
+  "database": {
+    "tables": [
+      {
+        "name": "submissions",
+        "columns": [
+          { "name": "id", "type": "BIGINT UNSIGNED", "primary": true, "autoIncrement": true },
+          { "name": "email", "type": "VARCHAR(255)", "notNull": true },
+          { "name": "name", "type": "VARCHAR(200)" },
+          { "name": "created_at", "type": "DATETIME", "notNull": true, "default": "CURRENT_TIMESTAMP" }
+        ],
+        "indexes": [
+          { "name": "email_idx", "columns": ["email"] }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json",
+  "title": "Plugin SDK manifest (WordPress)",
+  "description": "Declarative manifest for a WordPress plugin built with Plugin SDK. Describes settings pages, REST routes, and database tables. The PHP runtime (plugin-sdk/wp) reads this file at boot, validates against this schema, and registers the corresponding WP hooks with capability checks, nonce verification, and JSON-schema validation built in.",
+  "type": "object",
+  "required": ["platform", "name", "slug", "textDomain"],
+  "additionalProperties": false,
+  "properties": {
+    "platform": {
+      "type": "string",
+      "const": "wordpress",
+      "description": "Target platform. WordPress is the only supported value today."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Human-readable plugin name. Appears in the WP plugins list."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "description": "Kebab-case identifier used for menu slugs, asset handles, and the main PHP file name."
+    },
+    "textDomain": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$",
+      "description": "WP i18n text domain. Usually equals slug."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+].+)?$",
+      "description": "Semver. Used to drive db-version comparisons + asset cache busting."
+    },
+    "namespace": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9_]*(?:\\\\[A-Z][A-Za-z0-9_]*)*$",
+      "description": "PHP PSR-4 root namespace for the plugin (e.g. \"Acme\\\\Forms\")."
+    },
+    "settings": {
+      "type": "object",
+      "description": "Optional admin settings page. Renders under Settings or Tools (or as a top-level menu).",
+      "required": ["page"],
+      "additionalProperties": false,
+      "properties": {
+        "page": { "$ref": "#/$defs/SettingsPage" }
+      }
+    },
+    "rest": {
+      "type": "object",
+      "description": "Optional REST API surface. Routes are registered on rest_api_init with cap checks and JSON-schema body validation.",
+      "required": ["namespace", "routes"],
+      "additionalProperties": false,
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*\\/v\\d+$",
+          "description": "REST namespace, e.g. \"acme-forms/v1\"."
+        },
+        "routes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/RestRoute" }
+        }
+      }
+    },
+    "database": {
+      "type": "object",
+      "description": "Optional custom tables. Migration runs on activate or version bump.",
+      "required": ["tables"],
+      "additionalProperties": false,
+      "properties": {
+        "tables": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Table" }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "Capability": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A WP capability name. Examples: 'manage_options', 'edit_posts', 'read'."
+    },
+
+    "SettingsPage": {
+      "type": "object",
+      "required": ["title", "capability", "sections"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Menu slug. Defaults to the plugin slug if omitted."
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "menuTitle": { "type": "string" },
+        "parent": {
+          "type": "string",
+          "enum": ["options-general.php", "tools.php", "edit.php", "themes.php", "plugins.php", "users.php", "top-level"],
+          "default": "options-general.php",
+          "description": "Where the page lives in the WP admin menu. 'top-level' creates a top-level menu item."
+        },
+        "menuIcon": {
+          "type": "string",
+          "description": "Dashicon name (e.g. 'dashicons-admin-generic') or a data: URL. Only used when parent='top-level'."
+        },
+        "capability": { "$ref": "#/$defs/Capability" },
+        "optionGroup": {
+          "type": "string",
+          "description": "Settings group name passed to register_setting(). Defaults to <slug>_settings."
+        },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/SettingsSection" }
+        }
+      }
+    },
+
+    "SettingsSection": {
+      "type": "object",
+      "required": ["id", "title", "fields"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/SettingsField" }
+        }
+      }
+    },
+
+    "SettingsField": {
+      "type": "object",
+      "required": ["id", "label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "label": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "description": "Help text shown below the field." },
+        "type": {
+          "type": "string",
+          "enum": ["text", "textarea", "email", "url", "number", "checkbox", "select", "password"]
+        },
+        "default": {
+          "description": "Default value. Type must match the field type."
+        },
+        "required": { "type": "boolean", "default": false },
+        "placeholder": { "type": "string" },
+        "options": {
+          "type": "array",
+          "description": "For type='select' only. Each option is either a string or { value, label }.",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "required": ["value", "label"],
+                "additionalProperties": false,
+                "properties": {
+                  "value": { "type": ["string", "number"] },
+                  "label": { "type": "string" }
+                }
+              }
+            ]
+          }
+        },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "step": { "type": "number" }
+      }
+    },
+
+    "RestRoute": {
+      "type": "object",
+      "required": ["path", "method"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/[a-z0-9/_(?P<>)\\-\\\\d\\[\\]+*]*$",
+          "description": "Path under the REST namespace, leading slash. Supports WP path patterns like '/(?P<id>\\d+)'."
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+        },
+        "capability": {
+          "$ref": "#/$defs/Capability",
+          "description": "Required cap. If omitted, the route is public (rare — usually a mistake)."
+        },
+        "schema": {
+          "type": "object",
+          "description": "JSON Schema for the request body (POST/PUT/PATCH). The runtime validates incoming JSON against this before invoking the handler.",
+          "properties": {
+            "type": { "type": "string" },
+            "properties": { "type": "object" },
+            "required": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "handler": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9_\\\\]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)?$",
+          "description": "PSR-4 callable: 'Acme\\\\Forms\\\\REST\\\\Submissions::create' or 'Acme\\\\Forms\\\\REST\\\\Submissions' (invokable class)."
+        }
+      }
+    },
+
+    "Table": {
+      "type": "object",
+      "required": ["name", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{1,63}$",
+          "description": "Table name without the WP table prefix. Final name = $wpdb->prefix + slug-prefix + name."
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/Column" }
+        },
+        "indexes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Index" }
+        }
+      }
+    },
+
+    "Column": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "type": {
+          "type": "string",
+          "description": "SQL column type. Examples: BIGINT UNSIGNED, VARCHAR(255), TEXT, DATETIME, TINYINT(1)."
+        },
+        "primary": { "type": "boolean", "default": false },
+        "autoIncrement": { "type": "boolean", "default": false },
+        "notNull": { "type": "boolean", "default": false },
+        "unique": { "type": "boolean", "default": false },
+        "default": {
+          "description": "SQL default. Use the literal string 'CURRENT_TIMESTAMP' for timestamps."
+        }
+      }
+    },
+
+    "Index": {
+      "type": "object",
+      "required": ["name", "columns"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "unique": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}

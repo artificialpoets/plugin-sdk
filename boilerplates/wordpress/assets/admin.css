@@ -1,0 +1,19 @@
+/*
+ * Plugin-specific admin styles.
+ *
+ * Brand overrides go here — these override the Plugin SDK tokens for your
+ * plugin's admin page only. Other WP admin screens stay consistent with WP.
+ *
+ * The selector `.toplevel_page_plugin-sdk-starter` is auto-added to <body>
+ * by WordPress on this plugin's admin page. (Replace with your own slug.)
+ */
+
+.toplevel_page_plugin-sdk-starter {
+  /* Brand overrides — adjust to your color palette */
+  /* --wpadmin-primary: #7c3aed;            */
+  /* --wpadmin-primary-dark: #6d28d9;        */
+  /* --wpadmin-radius: 6px;                  */
+}
+
+/* Your own component styles below. Keep them prefixed (.wpacs-*) to avoid
+ * colliding with other plugins. */

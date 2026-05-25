@@ -1,0 +1,80 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+jobs:
+  build:
+    name: Build site + CDN
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build
+        # `npm run build` runs the changelog generator + OG PNG rasterizer
+        # + Vite build + CDN bundling. Any unresolved import / broken
+        # template / failed rasterization breaks this step.
+        run: npm run build
+      - name: Verify expected build outputs exist
+        run: |
+          set -e
+          test -f apps/site/dist/index.html
+          test -f apps/site/dist/components.html
+          test -f apps/site/dist/layouts.html
+          test -f apps/site/dist/docs.html
+          test -f apps/site/dist/changelog.html
+          test -d apps/site/dist/changelog
+          test -d apps/site/dist/og
+          test -f apps/site/dist/og/home.png
+          test -f apps/site/dist/sitemap.xml
+          test -f apps/site/dist/robots.txt
+          test -f cdn/wordpress/AGENTS.md
+          test -f cdn/wordpress/plugin-sdk.schema.json
+          test -f cdn/css/latest.css
+          echo "✓ All expected build outputs present."
+
+  js-tests:
+    name: JS tests (Node)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Run JS workspace tests
+        # @plugin-sdk/cli (slug, template, codegen, scaffolder smoke)
+        # using Node's built-in --test.
+        run: npm test --workspaces --if-present
+
+  php-tests:
+    name: PHP tests on ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        # plugin-sdk/wp declares `php >=7.4`. Run the matrix so anything
+        # that lands relying on a newer language feature fails the build.
+        php-version: ['7.4', '8.0', '8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+      - name: Run PHP unit + drift tests
+        # plugin-sdk/wp test runner: Settings, REST, Schema, Migration,
+        # Config, Version, plus the StabilityDriftTest that asserts
+        # every public symbol carries @api or @internal.
+        run: php packages/wp-composer/tests/run.php

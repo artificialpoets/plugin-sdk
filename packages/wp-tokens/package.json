@@ -1,0 +1,27 @@
+{
+  "name": "@plugin-sdk/wp-tokens",
+  "version": "0.1.0-rc.1",
+  "description": "Plugin SDK \u2014 WordPress admin design tokens. CSS custom properties with full color-scheme support.",
+  "license": "Apache-2.0",
+  "main": "src/tokens.css",
+  "style": "src/tokens.css",
+  "exports": {
+    ".": "./src/tokens.css",
+    "./tokens.css": "./src/tokens.css"
+  },
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "plugin-sdk",
+    "wordpress",
+    "wp-admin",
+    "design-tokens",
+    "css-variables"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/artificialpoets/plugin-sdk.git",
+    "directory": "packages/wp-tokens"
+  }
+}

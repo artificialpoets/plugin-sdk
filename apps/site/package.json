@@ -1,0 +1,22 @@
+{
+  "name": "@plugin-sdk/site",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for Plugin SDK \u2014 the open-source SDK for building plugins anywhere.",
+  "scripts": {
+    "predev": "node scripts/build-changelog.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/build-changelog.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@plugin-sdk/wp-core-css": "*",
+    "@plugin-sdk/wp-tokens": "*"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "vite": "^5.0.0"
+  }
+}

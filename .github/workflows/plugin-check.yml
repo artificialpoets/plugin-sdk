@@ -1,0 +1,81 @@
+name: Plugin Check
+
+# Runs WordPress's official Plugin Check tool against a freshly
+# scaffolded boilerplate. WP.org reviewers run the same checks before
+# approving a plugin for the directory, so green here means the SDK's
+# scaffold output is review-ready.
+#
+# We use WordPress.org's published GitHub Action:
+#   https://github.com/marketplace/actions/plugin-check
+# It boots a temporary WP environment, activates Plugin Check, and
+# runs every static analyzer against the target plugin directory.
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+jobs:
+  plugin-check:
+    name: Plugin Check on scaffolded boilerplate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Set up PHP + Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          coverage: none
+
+      - run: npm ci
+
+      - name: Scaffold a fresh plugin from the SDK
+        # Use the in-tree CLI (not npx) so the check runs against current
+        # sources, not whatever's published.
+        run: |
+          node --experimental-strip-types packages/cli/src/index.ts \
+            create "Plugin Check Subject" \
+            --platform=wordpress \
+            --slug=plugin-check-subject \
+            --namespace='PluginCheck\Subject' \
+            --prefix='PCS_' \
+            --yes \
+            --no-install \
+            --out=${{ github.workspace }}/_scaffold
+
+      - name: Install Composer deps inside the scaffolded plugin
+        run: |
+          cd ${{ github.workspace }}/_scaffold
+          composer install --no-interaction --prefer-dist
+
+      - name: Run WordPress Plugin Check
+        # Official Action — boots WP, installs the plugin-check plugin,
+        # runs all checks against the target directory. We constrain
+        # `categories` to `plugin_repo` (the WP.org submission ruleset)
+        # so we're checking exactly what reviewers check.
+        uses: wordpress/plugin-check-action@v1
+        with:
+          # path to the plugin we want checked
+          build-dir: ./_scaffold
+          # Stay strict on the WP.org review categories. Failing tag
+          # `error` blocks the build; `warning` shows up as annotations
+          # but doesn't fail the workflow yet (we'll tighten later).
+          categories: 'plugin_repo'
+
+      - name: Upload Plugin Check JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-check-report
+          path: |
+            **/plugin-check-results.json
+            **/plugin-check-*.log
+          if-no-files-found: ignore

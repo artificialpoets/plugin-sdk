@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation — Plugin SDK</title>
+  <meta name="description" content="Get started with Plugin SDK: install via CDN/npm/Composer, core concepts, customization, building with AI agents, and the plugin boilerplate.">
+  <link rel="canonical" href="https://wp-admincss.com/docs.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="Documentation — Plugin SDK">
+  <meta property="og:description" content="Install, customize, and ship. Getting started, core concepts, agent guides, and a working plugin boilerplate.">
+  <meta property="og:image" content="https://wp-admincss.com/og/docs.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/docs.html">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Documentation — Plugin SDK">
+  <meta name="twitter:description" content="Install, customize, and ship.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/docs.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--wpadmin-font);
+      font-size: var(--wpadmin-font-size);
+      color: var(--wpadmin-text);
+      background: var(--wpadmin-surface);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: var(--wpadmin-primary); text-decoration: none; }
+    a:hover { color: var(--wpadmin-primary-dark); }
+
+    /* ── Page layout ─────────────────────────────────────────────────── */
+    .docs-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      max-width: 1120px;
+      margin: 0 auto;
+      width: 100%;
+      gap: 48px;
+      padding: 0 24px;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    .docs-sidebar {
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding: 32px 0;
+    }
+    .docs-sidebar h4 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 10px;
+      margin-top: 22px;
+    }
+    .docs-sidebar h4:first-child { margin-top: 0; }
+    .docs-sidebar ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .docs-sidebar a {
+      display: block;
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+      padding: 4px 0;
+      border-left: 2px solid transparent;
+      padding-left: 10px;
+      margin-left: -12px;
+      transition: color 0.12s, border-color 0.12s;
+    }
+    .docs-sidebar a:hover {
+      color: var(--wpadmin-text);
+    }
+    .docs-sidebar a.is-active {
+      color: var(--wpadmin-primary);
+      border-left-color: var(--wpadmin-primary);
+    }
+
+    /* ── Main content ────────────────────────────────────────────────── */
+    .docs-main {
+      max-width: 720px;
+      padding: 32px 0 96px;
+    }
+    .docs-main section {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+    .docs-main section:first-child { margin-top: 0; }
+
+    .docs-eyebrow {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--wpadmin-primary);
+      margin-bottom: 12px;
+    }
+    .docs-main h1 {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      color: var(--wpadmin-text);
+    }
+    .docs-main .lead {
+      font-size: 17px;
+      color: var(--wpadmin-text-subtle);
+      margin-bottom: 36px;
+      line-height: 1.55;
+      max-width: 600px;
+    }
+    .docs-main h2 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin-bottom: 12px;
+      color: var(--wpadmin-text);
+    }
+    .docs-main h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 28px;
+      margin-bottom: 8px;
+      color: var(--wpadmin-text);
+    }
+    .docs-main p {
+      margin-bottom: 14px;
+      font-size: 15px;
+      color: var(--wpadmin-text);
+    }
+    .docs-main p.muted {
+      color: var(--wpadmin-text-subtle);
+    }
+    .docs-main ul, .docs-main ol {
+      margin: 8px 0 16px 22px;
+    }
+    .docs-main li {
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+    .docs-main strong { font-weight: 600; }
+    .docs-main code {
+      font-family: var(--wpadmin-font-mono);
+      font-size: 0.92em;
+      background: var(--wpadmin-surface-alt);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--wpadmin-text);
+    }
+
+    /* ── Code blocks ─────────────────────────────────────────────────── */
+    .codeblock {
+      background: #0f1115;
+      color: #e6e7eb;
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-family: var(--wpadmin-font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 8px 0 18px;
+    }
+    .codeblock + .codeblock-label {
+      margin-top: -10px;
+    }
+    .codeblock-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--wpadmin-text-subtle);
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────────────── */
+    .docs-main .docs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 22px;
+      font-size: 14px;
+    }
+    .docs-main .docs-table th,
+    .docs-main .docs-table td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--wpadmin-border);
+      vertical-align: top;
+    }
+    .docs-main .docs-table th {
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--wpadmin-text-subtle);
+      background: var(--wpadmin-surface-alt);
+    }
+
+    /* ── Callouts ────────────────────────────────────────────────────── */
+    .callout {
+      border-left: 3px solid var(--wpadmin-primary);
+      background: var(--wpadmin-surface-alt);
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin: 12px 0 20px;
+    }
+    .callout p { margin: 0; font-size: 14px; }
+    .callout .callout-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--wpadmin-primary);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .docs-layout { grid-template-columns: 1fr; gap: 0; }
+      .docs-sidebar {
+        position: static;
+        max-height: none;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--wpadmin-border);
+        margin-bottom: 8px;
+      }
+      .docs-main { padding-top: 16px; max-width: none; }
+    }
+  </style>
+</head>
+<body data-page="docs">
+
+  <!-- @include header -->
+
+  <div class="docs-layout">
+
+    <aside class="docs-sidebar" aria-label="Documentation navigation">
+      <h4>Getting started</h4>
+      <ul>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#first-component">First component</a></li>
+        <li><a href="#first-plugin">First plugin</a></li>
+      </ul>
+
+      <h4>Core concepts</h4>
+      <ul>
+        <li><a href="#wp-class-names">Real WP class names</a></li>
+        <li><a href="#color-schemes">Color schemes</a></li>
+        <li><a href="#tokens">Design tokens</a></li>
+      </ul>
+
+      <h4>Customize</h4>
+      <ul>
+        <li><a href="#customize-brand">Brand tokens</a></li>
+      </ul>
+
+      <h4>AI agents</h4>
+      <ul>
+        <li><a href="#agents-overview">Overview</a></li>
+        <li><a href="#agents-recipe">The agent recipe</a></li>
+        <li><a href="#skills-reference">Skills reference</a></li>
+      </ul>
+
+      <h4>Reference</h4>
+      <ul>
+        <li><a href="#boilerplate">Boilerplate walkthrough</a></li>
+        <li><a href="#cdn">CDN endpoints</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-main">
+
+      <section id="install">
+        <p class="docs-eyebrow">Documentation</p>
+        <h1>Install, customize, and ship.</h1>
+        <p class="lead">
+          Plugin SDK works in three runtimes — drop-in CSS, npm package, or PHP Composer package — all emitting the same native WordPress admin markup. Pick whichever fits your stack.
+        </p>
+
+        <h2>Install</h2>
+
+        <h3>CDN (fastest)</h3>
+        <p>Add a single <code>&lt;link&gt;</code> tag in your plugin's admin enqueue. Works inside WordPress without any build step.</p>
+        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/latest.css"&gt;</pre>
+        <p class="muted">For production, pin to a version:</p>
+        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/v0.1.0/wp-admin.css"&gt;</pre>
+
+        <h3>npm (React / Vite / build pipelines)</h3>
+        <pre class="codeblock">npm install @plugin-sdk/wp-core-css @plugin-sdk/wp-tokens</pre>
+        <pre class="codeblock">// In your entry CSS or JS:
+import '@plugin-sdk/wp-tokens';
+import '@plugin-sdk/wp-core-css';</pre>
+        <p class="muted">React components live in a separate package:</p>
+        <pre class="codeblock">npm install @plugin-sdk/wp-react</pre>
+
+        <h3>Composer (PHP plugins)</h3>
+        <pre class="codeblock">composer require plugin-sdk/wp</pre>
+        <pre class="codeblock">&lt;?php
+use PluginSDK\WP\Assets;
+
+add_action('admin_enqueue_scripts', [Assets::class, 'enqueue_cdn']);</pre>
+      </section>
+
+      <section id="first-component">
+        <h2>Your first component</h2>
+        <p>Once the CSS is loaded, real WordPress admin class names just work. Here's a complete admin page with a heading, a success notice, and a primary button:</p>
+        <pre class="codeblock">&lt;div class="wrap"&gt;
+  &lt;h1 class="wp-heading-inline"&gt;My Plugin&lt;/h1&gt;
+  &lt;a href="?page=add-new" class="page-title-action"&gt;Add New&lt;/a&gt;
+  &lt;hr class="wp-header-end"&gt;
+
+  &lt;div class="notice notice-success is-dismissible"&gt;
+    &lt;p&gt;&lt;strong&gt;Settings saved.&lt;/strong&gt;&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;p class="submit"&gt;
+    &lt;button class="button button-primary"&gt;Save Changes&lt;/button&gt;
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+        <p>That's the whole API. Browse the full <a href="/components.html">component catalog</a> for every primitive (forms, list tables, modals, postboxes, status badges, …) with copy buttons for HTML, AI prompts, React, and PHP.</p>
+      </section>
+
+      <section id="first-plugin">
+        <h2>Start a new plugin from the boilerplate</h2>
+        <p>The fastest way to a working plugin is to clone the boilerplate, which already wires up the patterns that AI agents and developers commonly get wrong.</p>
+        <pre class="codeblock">gh repo clone artificialpoets/plugin-sdk
+cp -r plugin-sdk/boilerplates/wordpress ~/my-plugin
+cd ~/my-plugin
+composer install</pre>
+        <p>Then rename the <code>WPACS\</code> namespace to your plugin's, set your text domain, activate the plugin. The scaffold includes:</p>
+        <ul>
+          <li>Secure settings page (capability check + nonce + sanitize/escape)</li>
+          <li>Custom database table with <code>dbDelta</code> migration and a typed repository</li>
+          <li>REST endpoint with <code>permission_callback</code> and schema validation</li>
+          <li>Lifecycle hooks (activation / deactivation / uninstall)</li>
+          <li>PSR-4 autoloading, i18n setup, scoped asset enqueue</li>
+        </ul>
+        <p>Full file-by-file walkthrough below in <a href="#boilerplate">Boilerplate walkthrough</a>.</p>
+      </section>
+
+      <section id="wp-class-names">
+        <h2>Why real WordPress class names</h2>
+        <p>Most "WordPress admin component libraries" invent their own class prefix — <code>.wpac-button--primary</code>, <code>.acme-notice</code>, that sort of thing. The output looks like WP, but doesn't <em>behave</em> like WP and doesn't fit cleanly alongside core admin pages.</p>
+        <p>Plugin SDK uses the actual WordPress admin class names: <code>.button</code>, <code>.notice</code>, <code>.wp-list-table</code>, <code>.postbox</code>, <code>.form-table</code>, and so on. The benefits compound:</p>
+        <ul>
+          <li><strong>Your plugin inherits the user's color scheme automatically.</strong> The same way WP core admin does.</li>
+          <li><strong>WordPress-savvy developers can read your markup</strong> without having to learn a new namespace.</li>
+          <li><strong>Your admin pages look indistinguishable from core WP pages.</strong> Less context-switching for the user.</li>
+        </ul>
+      </section>
+
+      <section id="color-schemes">
+        <h2>Color schemes</h2>
+        <p>WordPress ships with nine admin color schemes: Default, Blue, Coffee, Ectoplasm, Midnight, Ocean, Sunrise, Light, Modern. Plugin SDK responds to all of them via the <code>admin-color-*</code> body class WP applies based on the user's profile.</p>
+        <pre class="codeblock">&lt;body class="admin-color-midnight"&gt;
+  &lt;!-- All tokens use Midnight scheme values --&gt;
+&lt;/body&gt;</pre>
+        <p>Inside a WordPress plugin you don't need to do anything — WP sets the body class for you. For previews or design demos, set it yourself; you can also apply it to any ancestor (not just <code>&lt;body&gt;</code>) to isolate the theming to one region.</p>
+      </section>
+
+      <section id="tokens">
+        <h2>Design tokens</h2>
+        <p>Everything routes through CSS custom properties. Full list lives in <code>packages/wp-tokens/src/tokens.css</code>. The most-used ones:</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Token</th><th>Use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--wpadmin-primary</code></td><td>Primary accent (matches the user's WP color scheme)</td></tr>
+            <tr><td><code>--wpadmin-primary-dark</code></td><td>Hover/active state</td></tr>
+            <tr><td><code>--wpadmin-text</code></td><td>Body text</td></tr>
+            <tr><td><code>--wpadmin-text-subtle</code></td><td>Secondary text, captions, metadata</td></tr>
+            <tr><td><code>--wpadmin-surface</code></td><td>Card / panel background</td></tr>
+            <tr><td><code>--wpadmin-surface-alt</code></td><td>Page background</td></tr>
+            <tr><td><code>--wpadmin-border</code></td><td>Borders + dividers</td></tr>
+            <tr><td><code>--wpadmin-radius</code></td><td>Corner radius</td></tr>
+            <tr><td><code>--wpadmin-font</code></td><td>System font stack</td></tr>
+            <tr><td><code>--wpadmin-font-mono</code></td><td>Monospace font stack</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="customize-brand">
+        <h2>Customize for your brand</h2>
+        <p>Override tokens to skin your plugin while keeping the WP feel. Scope to a wrapper class so the rest of WP admin stays consistent:</p>
+        <pre class="codeblock">.my-plugin-page {
+  --wpadmin-primary: #7c3aed;
+  --wpadmin-primary-dark: #6d28d9;
+  --wpadmin-radius: 8px;
+}</pre>
+        <p>Three brand previews on the landing page demonstrate the pattern — see the <a href="/#customize">customize section on the home page</a>.</p>
+        <div class="callout">
+          <span class="callout-label">Pro tip</span>
+          <p>Scope your overrides to your plugin's wrapper element so the rest of WP admin keeps the user's chosen color scheme. WP power users get upset when plugins break their theming.</p>
+        </div>
+      </section>
+
+      <section id="agents-overview">
+        <h2>Building with AI agents</h2>
+        <p>The framework is designed to be agent-readable. The complete instruction surface lives at the repo root, hosted publicly so any agent can fetch it.</p>
+        <ul>
+          <li><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/AGENTS.md">AGENTS.md</a> — master entry point. Hosted at <code>cdn.wp-admincss.com/AGENTS.md</code>.</li>
+          <li><a href="https://github.com/artificialpoets/plugin-sdk/tree/main/skills">skills/</a> — focused skill files for the patterns AI commonly gets wrong (security, database, i18n, etc.).</li>
+          <li><a href="https://github.com/artificialpoets/plugin-sdk/tree/main/boilerplate">boilerplate/</a> — a complete working plugin scaffold to clone for new plugins.</li>
+        </ul>
+      </section>
+
+      <section id="agents-recipe">
+        <h2>The agent recipe</h2>
+        <p>Point your coding agent at Plugin SDK using a prompt like this:</p>
+        <pre class="codeblock">Read https://cdn.wp-admincss.com/AGENTS.md first.
+
+For any state-changing action, load:
+  https://cdn.wp-admincss.com/skills/security.md
+
+For database work, load:
+  https://cdn.wp-admincss.com/skills/database.md
+
+For data modeling decisions:
+  https://cdn.wp-admincss.com/skills/data-modeling.md
+
+When building a plugin admin page:
+  1. Identify the layout from https://wp-admincss.com/layouts.html
+  2. Identify the components from https://wp-admincss.com/components.html
+  3. Copy the "AI Prompt" tab from each into your implementation</pre>
+        <p>Most agents (Claude Code, Cursor, Cline, Aider) can fetch these URLs directly. If yours can't, paste the relevant content into the conversation.</p>
+      </section>
+
+      <section id="skills-reference">
+        <h2>Skills reference</h2>
+        <p>Each skill is a focused Markdown file that an agent can fetch on demand when it needs that specific expertise. Load only the skills relevant to the current task — keeping context lean keeps results good.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Skill</th><th>When to load</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/security.md">security.md</a></td>
+              <td>Any state-changing action — capability checks, nonces, sanitize/escape, SQL injection prevention.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/database.md">database.md</a></td>
+              <td><code>$wpdb</code> queries, prepared statements, <code>dbDelta</code> migrations, transactions.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/data-modeling.md">data-modeling.md</a></td>
+              <td>Decision tree: options vs post-meta vs user-meta vs custom tables vs transients vs CPTs.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/enqueue.md">enqueue.md</a></td>
+              <td>The four enqueue hooks, WP built-in script handles, scoping admin assets to your hook suffix.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/plugin-structure.md">plugin-structure.md</a></td>
+              <td>PSR-4 layout, lifecycle hooks, naming conventions, file organization.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/i18n.md">i18n.md</a></td>
+              <td>Translation functions, text domains, RTL support, JS string translation.</td>
+            </tr>
+            <tr>
+              <td><a href="https://github.com/artificialpoets/plugin-sdk/blob/main/skills/publishing.md">publishing.md</a></td>
+              <td>Plugin Check, slug research on wordpress.org, <code>readme.txt</code> format, SVN submission flow.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="boilerplate">
+        <h2>Boilerplate walkthrough</h2>
+        <p>The scaffold is a complete working plugin. Every file is a worked example of the patterns described in the skills directory — read them before you write similar code from scratch.</p>
+        <pre class="codeblock">boilerplate/
+├── plugin-sdk-starter.php  ← Plugin bootstrap (rename per project)
+├── composer.json            ← PSR-4 autoloading
+├── uninstall.php            ← Multisite-aware cleanup
+├── src/
+│   ├── Plugin.php           ← Orchestrator — wire up hooks here
+│   ├── Lifecycle.php        ← Activation, deactivation hooks
+│   ├── Admin/
+│   │   ├── Menu.php         ← register_menu()
+│   │   ├── Assets.php       ← Enqueue Plugin SDK from the CDN
+│   │   └── SettingsPage.php ← Capability + nonce + sanitize/escape demo
+│   ├── Database/
+│   │   ├── Schema.php       ← dbDelta migrations
+│   │   └── EventRepository.php  ← $wpdb with prepare()
+│   └── REST/
+│       └── SettingsController.php ← REST with permission_callback</pre>
+        <p>Key files to study:</p>
+        <ul>
+          <li><strong><code>Admin/SettingsPage.php</code></strong> — the canonical secure admin page. Capability check before doing anything, nonce on the form, sanitize on input, escape on output. Copy this pattern verbatim for any settings page.</li>
+          <li><strong><code>Database/EventRepository.php</code></strong> — every <code>$wpdb</code> call uses <code>->prepare()</code>. The class methods are typed so callers can't accidentally pass user input as a column name.</li>
+          <li><strong><code>REST/SettingsController.php</code></strong> — REST endpoint with both <code>permission_callback</code> (capability check) and JSON Schema validation on arguments.</li>
+          <li><strong><code>uninstall.php</code></strong> — runs on plugin uninstall. Drops the custom table, deletes options, scoped to be multisite-aware (loops sites if network-active).</li>
+        </ul>
+      </section>
+
+      <section id="cdn">
+        <h2>CDN endpoints</h2>
+        <p>Everything in the framework is hosted on <code>cdn.wp-admincss.com</code> so agents and runtime plugins can fetch what they need without cloning the repo.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>URL</th><th>Content</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cdn.wp-admincss.com/css/latest.css</code></td><td>Rolling latest CSS bundle</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/css/v0.1.0/wp-admin.css</code></td><td>Pinned version (production use)</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/AGENTS.md</code></td><td>Master agent instructions</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/skills/<em>name</em>.md</code></td><td>Individual skill files</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          <span class="callout-label">In production</span>
+          <p>Pin to a version. The <code>latest.css</code> rolling endpoint is useful for prototyping but exposes you to breaking changes on framework updates.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- @include footer -->
+
+  <script>
+    // Highlight the sidebar link for the section currently in view.
+    // Uses IntersectionObserver — bails on unsupported browsers.
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+      const links = Array.from(document.querySelectorAll('.docs-sidebar a[href^="#"]'));
+      const sections = links
+        .map(a => document.getElementById(a.getAttribute('href').slice(1)))
+        .filter(Boolean);
+      const linkById = Object.fromEntries(
+        links.map(a => [a.getAttribute('href').slice(1), a])
+      );
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            links.forEach(a => a.classList.remove('is-active'));
+            const link = linkById[e.target.id];
+            if (link) link.classList.add('is-active');
+          }
+        });
+      }, { rootMargin: '-30% 0px -65% 0px' });
+      sections.forEach(s => observer.observe(s));
+    })();
+  </script>
+</body>
+</html>

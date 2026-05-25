@@ -1,0 +1,117 @@
+name: Sync wp-composer → plugin-sdk-wp mirror
+
+# Keeps the read-only Composer mirror at
+#   https://github.com/artificialpoets/plugin-sdk-wp
+# in sync with packages/wp-composer/ here. Packagist points at the mirror
+# so end users `composer require plugin-sdk/wp:^0.1` and get a normal,
+# root-composer.json-shaped repository to install from.
+#
+# Mechanics:
+#   - On every tag push (v*) the action checks out the tagged commit,
+#     runs `git subtree split --prefix=packages/wp-composer`, force-pushes
+#     the resulting branch as `main` on the mirror, then mirrors the tag
+#     across so Packagist auto-detects the release.
+#   - On manual workflow_dispatch the same flow runs against the current
+#     ref, useful for bootstrapping the mirror without waiting for a tag.
+#
+# Authentication: the action needs cross-repo push, so GITHUB_TOKEN won't
+# work. We use a PAT stored as the MIRROR_PAT secret. Setup:
+#
+#   1. gh auth refresh -s repo                                  (token has Contents:Write)
+#   2. gh secret set MIRROR_PAT --body "$(gh auth token)"       (sets it for this repo)
+#
+# Or, recommended for production, a fine-grained PAT scoped only to the
+# mirror repo with Contents: Read & Write — see LAUNCH.md for the steps.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional tag to apply on the mirror (skip for branch-only sync).'
+        required: false
+        type: string
+
+jobs:
+  split:
+    name: Subtree split + push
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      MIRROR_REPO: artificialpoets/plugin-sdk-wp
+      SUBTREE_PREFIX: packages/wp-composer
+    steps:
+      - name: Check out monorepo (full history)
+        uses: actions/checkout@v4
+        with:
+          # Subtree split needs the full commit history of the prefix.
+          fetch-depth: 0
+          # Don't leave GITHUB_TOKEN as an http.extraheader in git config —
+          # the persisted header would override our URL-embedded MIRROR_PAT
+          # on `git push` and the request would auth as github-actions[bot]
+          # (which doesn't have access to the mirror repo). With this off,
+          # the URL-embedded credentials take effect normally.
+          persist-credentials: false
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "plugin-sdk-bot"
+          git config user.email "plugin-sdk-bot@artificialpoets.com"
+
+      - name: Split out packages/wp-composer/
+        # Produces a local branch (`release/wp-composer`) whose history is
+        # rewritten so the prefix becomes the repo root. The HEAD of the
+        # split corresponds 1:1 with the monorepo commit we're on now.
+        run: |
+          git subtree split --prefix="${SUBTREE_PREFIX}" -b release/wp-composer
+
+      - name: Push split as `main` to mirror
+        env:
+          PAT: ${{ secrets.MIRROR_PAT }}
+        run: |
+          if [ -z "$PAT" ]; then
+            echo "::error::MIRROR_PAT secret is not configured. See LAUNCH.md → Phase 4b."
+            exit 1
+          fi
+          git push --force \
+            "https://x-access-token:${PAT}@github.com/${MIRROR_REPO}.git" \
+            release/wp-composer:main
+
+      - name: Push tag to mirror (tag-triggered runs only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          PAT: ${{ secrets.MIRROR_PAT }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Tag the split branch's HEAD with the same name as the
+          # monorepo tag, then push it. Packagist picks the tag up via
+          # its webhook and registers the version automatically.
+          git tag -f "${TAG}" release/wp-composer
+          git push --force \
+            "https://x-access-token:${PAT}@github.com/${MIRROR_REPO}.git" \
+            "refs/tags/${TAG}"
+          echo "✓ Mirrored ${TAG} to ${MIRROR_REPO}"
+
+      - name: Push tag to mirror (manual dispatch with explicit tag)
+        if: github.event_name == 'workflow_dispatch' && inputs.tag != ''
+        env:
+          PAT: ${{ secrets.MIRROR_PAT }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          git tag -f "${TAG}" release/wp-composer
+          git push --force \
+            "https://x-access-token:${PAT}@github.com/${MIRROR_REPO}.git" \
+            "refs/tags/${TAG}"
+          echo "✓ Mirrored ${TAG} to ${MIRROR_REPO}"
+
+      - name: Summary
+        run: |
+          echo "### Mirror sync complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mirror:** https://github.com/${MIRROR_REPO}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Subtree prefix:** \`${SUBTREE_PREFIX}\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "- **Tag:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          fi

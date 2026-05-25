@@ -1,0 +1,25 @@
+/*
+ * @plugin-sdk/wp-core-css — WordPress Admin CSS
+ * Bundle of WordPress core admin stylesheets.
+ *
+ * Import @plugin-sdk/wp-tokens before this file for CSS custom properties
+ * and color-scheme support.
+ */
+@import url(dashicons.css);
+@import url(common.css);
+@import url(buttons.css);
+@import url(forms.css);
+@import url(admin-menu.css);
+@import url(dashboard.css);
+@import url(list-tables.css);
+@import url(edit.css);
+@import url(revisions.css);
+@import url(media.css);
+@import url(themes.css);
+@import url(about.css);
+@import url(nav-menus.css);
+@import url(widgets.css);
+@import url(site-icon.css);
+@import url(l10n.css);
+@import url(site-health.css);
+@import url(extensions.css);
