@@ -780,11 +780,14 @@
       .runtimes-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── Security by default ──────────────────────────────────────────── */
+    /* ── Security by default ────────────────────────────────────────────
+       Outer wrapper paints the subtle gradient full-width. The inner
+       .section element provides the max-width:1120 + vertical padding,
+       same pattern .showcase uses below. Combining .section +
+       .security-section on a single element clips the gradient to
+       1120px, which is the bug we're avoiding here. */
     .security-section {
       background: linear-gradient(180deg, #fafbfc 0%, #fff 100%);
-      padding-top: 80px;
-      padding-bottom: 80px;
     }
     .security-card {
       background: #14181f;
@@ -1612,8 +1615,12 @@
        Layer ① card above + the Components catalog at /wordpress/components/. -->
 
 
-  <!-- Security by default — show real boilerplate code -->
-  <section class="section security-section">
+  <!-- Security by default — show real boilerplate code.
+       Outer .security-section is full-width so the subtle gradient spans
+       the viewport; inner .section provides the standard 1120px content
+       container. Same wrapper pattern .showcase uses below. -->
+  <section class="security-section">
+    <div class="section">
     <div class="section-header centered">
       <p class="eyebrow">Security by default</p>
       <h2 class="section-title">Capability. Nonce. Sanitize. Escape.</h2>
@@ -1679,6 +1686,7 @@
     <p class="section-footnote">
       Database queries follow the same discipline — every <code>$wpdb</code> call uses <code>prepare()</code>. Full pattern walkthrough in <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/platforms/wordpress/skills/security.md">platforms/wordpress/skills/security.md</a>.
     </p>
+    </div>
   </section>
 
   <!-- Component showcase — live HTML previews. These are real WP-CSS-styled
