@@ -1,0 +1,94 @@
+name: CI
+
+# Quality gate on every push to any branch and every pull request.
+# Two jobs run in parallel: PHP code lint + WordPress Plugin Check.
+# Both must pass before the work is considered ready to merge.
+# Merging into `main` then triggers the Release workflow, which uses
+# the same checks to make sure no release ships from a broken main.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+# One concurrent run per branch — when you push twice in a row the older
+# run is cancelled instead of queuing up duplicate work.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Static analysis ────────────────────────────────────────────────
+  # PHPCS over the WordPress + PHPCompatibility rulesets, plus a php -l
+  # syntax pass that catches parse errors before PHPCS has to deal with
+  # them. `cs2pr` converts the checkstyle report into inline GitHub
+  # annotations so PR reviewers see violations on the right line.
+  lint:
+    name: PHPCS + syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2, cs2pr
+          coverage: none
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock', 'composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHP syntax (php -l on every plugin file)
+        run: composer run phpsyntax
+
+      - name: PHPCS (WordPress + PHPCompatibility)
+        # --report=checkstyle pipes XML into cs2pr, which prints the same
+        # GitHub annotations the PR review screen renders inline.
+        run: ./vendor/bin/phpcs -q --report=checkstyle | cs2pr
+
+  # ─── WordPress Plugin Check (mirrors wp.org reviewers) ──────────────
+  # Plugin Check is the same static analyser wp.org volunteer reviewers
+  # run before approving a plugin for the directory. Green here means
+  # the dist is review-ready. We run against the BUILT dist (not the
+  # source tree) so dev-only files (phpcs.xml.dist, bin/, package.json)
+  # don't trip the file_type and application_files checks — same
+  # artefact reviewers would actually see on a submission.
+  plugin-check:
+    name: Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+          coverage: none
+
+      - name: Build dist
+        # Mirrors what `npm run build` (or `composer run build`) would
+        # do locally — same script, same .distignore.
+        run: bash bin/build.sh
+
+      - name: Run Plugin Check on the built dist
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: ./build/plugin-sdk-starter
+          # Errors fail the job; warnings annotate but don't fail
+          # (matches wp.org's behaviour for first-submission review).
+          ignore-warnings: true
