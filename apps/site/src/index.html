@@ -413,6 +413,19 @@
       border: 1px solid var(--wpadmin-border);
       border-radius: 12px;
       transition: border-color .15s, transform .15s, box-shadow .15s;
+      /* CSS Grid items default to min-width:auto (intrinsic content
+         width), which lets a long unwrappable <pre> inside push the
+         track wider than 1fr. Forcing min-width:0 lets the track
+         shrink to its 1fr share and constrains the <pre> to the
+         card's actual width — the overflow-x:auto on the <pre> then
+         gives a horizontal scrollbar inside the card. */
+      min-width: 0;
+    }
+    .feature pre {
+      /* Belt-and-braces: even with min-width:0 on the grid item,
+         pin the <pre> max-width so a stray long token can't break
+         the card's right edge. */
+      max-width: 100%;
     }
     .feature:hover {
       border-color: #a7aaad;
