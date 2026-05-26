@@ -56,6 +56,17 @@ jobs:
           cd ${{ github.workspace }}/_scaffold
           composer install --no-interaction --prefer-dist
 
+      - name: Build the production dist
+        # bin/build.sh re-runs `composer install --no-dev` and rsyncs the
+        # tree through .distignore, producing build/<slug>/ — the same
+        # artefact wp.org reviewers would see. Plugin Check runs against
+        # THIS dist (not the source) so dev-only files (phpcs.xml.dist,
+        # bin/, package.json) don't trip Plugin Check's file_type and
+        # application_files checks.
+        run: |
+          cd ${{ github.workspace }}/_scaffold
+          bash bin/build.sh
+
       - name: Run WordPress Plugin Check
         # Official Action — boots WP, installs the plugin-check plugin,
         # runs all checks against the target directory. We constrain
@@ -63,8 +74,8 @@ jobs:
         # so we're checking exactly what reviewers check.
         uses: wordpress/plugin-check-action@v1
         with:
-          # path to the plugin we want checked
-          build-dir: ./_scaffold
+          # path to the plugin we want checked — the built dist, not source
+          build-dir: ./_scaffold/build/plugin-check-subject
           # Stay strict on the WP.org review categories. Failing tag
           # `error` blocks the build; `warning` shows up as annotations
           # but doesn't fail the workflow yet (we'll tighten later).

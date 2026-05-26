@@ -68,6 +68,12 @@ export function buildRules(ctx: PluginContext): Array<[string, string]> {
 
     // Option keys + asset handles + slugs (longest first)
     ['plugin-sdk-starter', ctx.slug],
+    // snake_case slug — used as the prefix for option keys, nonces,
+    // custom-table names, REST error codes, and JS-globals exposed via
+    // wp_add_inline_script. Must come AFTER the kebab-slug rule so the
+    // two don't shadow each other (they share no substring, but order
+    // is still meaningful for predictability).
+    ['plugin_sdk_starter', ctx.slugSnake],
     ['psdk_db_version', `${ctx.slugSnake}_db_version`],
     ['psdk-admin', `${ctx.slug}-admin`],
 
@@ -81,6 +87,19 @@ export function buildRules(ctx: PluginContext): Array<[string, string]> {
     // Author placeholders (only used if present in template)
     ['{{PLUGIN_AUTHOR}}', ctx.author],
     ['{{PLUGIN_AUTHOR_URL}}', ctx.authorUrl],
+
+    // Mustache-style derived tokens. Used by phpcs.xml.dist's
+    // PrefixAllGlobals ruleset (which needs every prefix variant the
+    // plugin actually uses), and by anything else that wants a clean
+    // way to reference the slug / namespace root / case-shifted prefix.
+    // Listed AFTER the more specific rules so the lone `{{slug}}` token
+    // doesn't accidentally match a longer pattern someone else set up.
+    ['{{prefixLower}}', ctx.slugSnake],
+    ['{{prefixUpper}}', ctx.constantPrefix.replace(/_+$/, '')],
+    ['{{namespaceRoot}}', ctx.namespace.split('\\')[0] ?? ctx.namespace],
+    ['{{slug}}', ctx.slug],
+    ['{{slugSnake}}', ctx.slugSnake],
+    ['{{textDomain}}', ctx.textDomain],
   ];
 }
 

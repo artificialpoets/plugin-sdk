@@ -1,0 +1,57 @@
+# Files and directories listed here are EXCLUDED from the production
+# distribution built by bin/build.sh. The result is the byte-for-byte
+# tree that ships to WordPress.org SVN trunk or gets attached to a
+# GitHub release.
+#
+# Plugin Check warns about non-PHP/CSS/JS/MD files at the plugin root
+# (it flags them as "application files"), so anything project-management
+# related needs to be excluded.
+#
+# Rule of thumb: if a file is only useful for development (linting,
+# testing, CI), exclude it. If it's needed at runtime or by reviewers
+# on wp.org, keep it.
+
+# Version control + GitHub
+.git
+.gitignore
+.gitattributes
+.github
+
+# Build artefacts + this scaffolding
+build
+bin
+*.zip
+.distignore
+
+# Linters + their reports
+phpcs.xml
+phpcs.xml.dist
+.phpcs-cache
+
+# Tests + their configs
+tests
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Composer development files. composer.json is INTENTIONALLY kept —
+# Plugin Check warns if absent, and reviewers use it to verify deps.
+composer.lock
+
+# Editor + OS junk
+.idea
+.vscode
+.DS_Store
+*.bak
+*.log
+Thumbs.db
+
+# Node + JS tooling (only used by `npm run prep`, not at runtime)
+node_modules
+package.json
+package-lock.json
+
+# Documentation that targets contributors, not end users
+CLAUDE.md
+AGENTS.md
+CONTRIBUTING.md

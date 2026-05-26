@@ -14,7 +14,7 @@ final class Schema {
         global $wpdb;
 
         $charset_collate = $wpdb->get_charset_collate();
-        $events_table    = $wpdb->prefix . 'wpacs_events';
+        $events_table    = $wpdb->prefix . 'plugin_sdk_starter_events';
 
         // dbDelta is picky:
         //   • Two spaces between PRIMARY KEY and (id)
@@ -42,6 +42,6 @@ final class Schema {
     /** The fully-qualified table name (with the site's prefix). */
     public static function events_table(): string {
         global $wpdb;
-        return $wpdb->prefix . 'wpacs_events';
+        return $wpdb->prefix . 'plugin_sdk_starter_events';
     }
 }

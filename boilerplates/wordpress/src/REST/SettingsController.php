@@ -25,7 +25,7 @@ final class SettingsController {
     }
 
     public function register_routes(): void {
-        register_rest_route('wpacs/v1', '/settings', [
+        register_rest_route('plugin-sdk-starter/v1', '/settings', [
             [
                 'methods'             => WP_REST_Server::READABLE,   // GET
                 'callback'            => [$this, 'get_settings'],
@@ -63,7 +63,7 @@ final class SettingsController {
     }
 
     public function get_settings(): WP_REST_Response {
-        $settings = get_option('wpacs_settings', [
+        $settings = get_option('plugin_sdk_starter_settings', [
             'api_key'       => '',
             'mode'          => 'production',
             'notifications' => true,
@@ -79,10 +79,10 @@ final class SettingsController {
             'notifications' => (bool)   $request->get_param('notifications'),
         ];
 
-        $saved = update_option('wpacs_settings', $sanitized);
+        $saved = update_option('plugin_sdk_starter_settings', $sanitized);
         if ($saved === false) {
             return new WP_Error(
-                'wpacs_save_failed',
+                'plugin_sdk_starter_save_failed',
                 __('Could not save settings.', 'plugin-sdk-starter'),
                 ['status' => 500]
             );

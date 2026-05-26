@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<ruleset name="Plugin SDK Starter">
+    <description>Coding standard for Plugin SDK Starter (WordPress + PHPCompatibility).</description>
+
+    <!--
+        Files to scan. The boilerplate keeps logic split between the main
+        bootstrap, uninstall, and the src/ tree (PSR-4). vendor/, tests/,
+        build/, and CI configuration are excluded so the scanner only sees
+        the plugin's own source.
+    -->
+    <file>./plugin-sdk-starter.php</file>
+    <file>./uninstall.php</file>
+    <file>./src</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>*/.github/*</exclude-pattern>
+
+    <!-- Show progress + violation source codes so it's easy to silence
+         a specific check when there's a legitimate reason. -->
+    <arg value="ps"/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="basepath" value="."/>
+
+    <!--
+        WordPress Coding Standards: pick the sub-rulesets that matter for
+        plugin review. WordPress.Security catches missing nonces /
+        unescaped output / unprepared SQL. WordPress.DB enforces
+        prepared-statement usage. WordPress.WP.I18n requires the literal
+        text-domain string. The deprecation sniff catches removed APIs.
+    -->
+    <rule ref="WordPress.Security"/>
+    <rule ref="WordPress.DB"/>
+    <rule ref="WordPress.WP.DeprecatedClasses"/>
+    <rule ref="WordPress.WP.DeprecatedFunctions"/>
+    <rule ref="WordPress.WP.DeprecatedParameters"/>
+    <rule ref="WordPress.WP.DeprecatedParameterValues"/>
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="plugin-sdk-starter"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!--
+        Globals (functions, classes, constants, $globals) MUST start with
+        one of the plugin's prefix variants — otherwise two plugins on
+        the same site can collide. The four entries below cover snake,
+        upper-snake, PascalCase namespace root, and the slug.
+
+        The CLI scaffolder rewrites each token at scaffold time
+        (see packages/cli/src/template.ts).
+    -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="{{prefixLower}}"/>
+                <element value="{{prefixUpper}}"/>
+                <element value="{{namespaceRoot}}"/>
+            </property>
+        </properties>
+        <!--
+            Soften two sub-rules that produce noise in well-prefixed code:
+            - ShortPrefixPassed: short prefixes (<4 chars) trigger a
+              warning we don't care about — the slug is the authoritative
+              prefix, length doesn't matter.
+            - NonPrefixedConstantFound / FunctionFound / VariableFound:
+              flagged for callable scope (inside namespace-scoped code) —
+              the namespace already provides isolation.
+        -->
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound"/>
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound"/>
+        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
+    </rule>
+
+    <!-- PHP compatibility — match composer.json's `require.php` floor. -->
+    <config name="testVersion" value="7.4-"/>
+    <rule ref="PHPCompatibilityWP"/>
+
+    <!-- WP version compatibility — match readme.txt "Requires at least". -->
+    <config name="minimum_supported_wp_version" value="6.4"/>
+
+    <!-- Catch parse errors the same way `php -l` does, but via PHPCS so it
+         shows up alongside other findings rather than in a separate run. -->
+    <rule ref="Generic.PHP.Syntax"/>
+</ruleset>

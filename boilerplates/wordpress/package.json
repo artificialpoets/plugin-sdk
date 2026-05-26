@@ -1,0 +1,14 @@
+{
+  "name": "plugin-sdk-starter",
+  "version": "0.1.0",
+  "description": "Greenfield WordPress plugin scaffold using Plugin SDK.",
+  "private": true,
+  "scripts": {
+    "build": "bash bin/build.sh",
+    "prep": "bash bin/submission-prep.sh",
+    "slug-research": "bash bin/slug-research.sh",
+    "lint": "composer run lint",
+    "lint:fix": "composer run lint:fix",
+    "check": "composer run check"
+  }
+}

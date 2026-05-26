@@ -35,8 +35,8 @@ final class Assets {
         wp_register_script('psdk-admin', '', ['wp-api-fetch'], PSDK_VERSION, true);
         wp_add_inline_script(
             'psdk-admin',
-            'window.wpacsData = ' . wp_json_encode([
-                'restUrl' => esc_url_raw(rest_url('wpacs/v1/')),
+            'window.pluginSdkStarter = ' . wp_json_encode([
+                'restUrl' => esc_url_raw(rest_url('plugin-sdk-starter/v1/')),
                 'nonce'   => wp_create_nonce('wp_rest'),
             ]) . ';',
             'before'
