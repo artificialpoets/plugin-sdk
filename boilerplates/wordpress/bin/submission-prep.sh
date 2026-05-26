@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+#
+# submission-prep.sh — one command to go from "feature works" to
+# "ready to submit to WordPress.org".
+#
+# Walks the same checks a reviewer will run, in order, so anything
+# that would fail review fails here first. Exits non-zero on any
+# blocker. Prints a short summary at the end with the next steps.
+#
+# Usage:
+#   bash bin/submission-prep.sh        # full prep
+#   bash bin/submission-prep.sh --skip-tests  # skip composer test step
+#
+# Designed to be re-runnable. Each step is idempotent.
+
+set -euo pipefail
+
+SLUG="plugin-sdk-starter"            # ← substituted to <slug> at scaffold time
+SKIP_TESTS=0
+
+for arg in "$@"; do
+    case "$arg" in
+        --skip-tests) SKIP_TESTS=1 ;;
+        *) echo "Unknown flag: $arg" >&2; exit 1 ;;
+    esac
+done
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${PLUGIN_ROOT}"
+
+# ─── Tiny ANSI helpers ─────────────────────────────────────────────────
+
+if [[ -t 1 ]]; then
+    BOLD=$'\033[1m'; DIM=$'\033[2m'; GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
+else
+    BOLD=''; DIM=''; GREEN=''; YELLOW=''; RED=''; RESET=''
+fi
+
+step() { printf "%s▸%s %s\n" "${BOLD}" "${RESET}" "$1"; }
+pass() { printf "  %s✓%s %s\n" "${GREEN}" "${RESET}" "$1"; }
+warn() { printf "  %s⚠%s %s\n" "${YELLOW}" "${RESET}" "$1"; }
+fail() { printf "  %s✗%s %s\n" "${RED}" "${RESET}" "$1"; exit 1; }
+
+# ─── 1. Working tree must be clean ─────────────────────────────────────
+
+step "Verifying working tree is clean"
+if [[ -d .git ]] && ! git diff-index --quiet HEAD -- 2>/dev/null; then
+    git status --short
+    fail "Uncommitted changes. Commit or stash before preparing a submission build."
+fi
+pass "working tree is clean (or not a git repo)"
+
+# ─── 2. Version triple must agree ──────────────────────────────────────
+
+step "Verifying version is consistent across header / constant / readme.txt"
+
+MAIN_FILE="${SLUG}.php"
+if [[ ! -f "${MAIN_FILE}" ]]; then
+    fail "Main plugin file not found: ${MAIN_FILE}"
+fi
+
+HEADER_VERSION=$(grep -E '^\s*\*\s*Version:' "${MAIN_FILE}" | head -1 \
+                 | sed -E 's/.*Version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+CONST_VERSION=$(grep -E "define\([[:space:]]*'[A-Z_]*VERSION'" "${MAIN_FILE}" | head -1 \
+                | sed -E "s/.*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
+README_VERSION=""
+if [[ -f readme.txt ]]; then
+    README_VERSION=$(grep -E '^\s*Stable tag:' readme.txt | head -1 \
+                     | sed -E 's/.*Stable tag:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+fi
+
+echo "  ${DIM}header  =${RESET} ${HEADER_VERSION:-?}"
+echo "  ${DIM}constant=${RESET} ${CONST_VERSION:-?}"
+echo "  ${DIM}readme  =${RESET} ${README_VERSION:-?}"
+
+if [[ -z "${HEADER_VERSION}" || -z "${CONST_VERSION}" || -z "${README_VERSION}" ]]; then
+    fail "Missing one of: plugin header Version, *_VERSION constant, readme.txt Stable tag."
+fi
+if [[ "${HEADER_VERSION}" != "${CONST_VERSION}" || "${HEADER_VERSION}" != "${README_VERSION}" ]]; then
+    fail "Version mismatch — sync header + constant + readme.txt Stable tag before submitting."
+fi
+pass "all three say ${HEADER_VERSION}"
+
+# ─── 3. Lint + syntax ──────────────────────────────────────────────────
+
+step "Running composer run check (phpsyntax + phpcs)"
+composer run check
+pass "lint clean"
+
+# ─── 4. Tests (optional) ───────────────────────────────────────────────
+
+if [[ "${SKIP_TESTS}" == "0" ]]; then
+    if grep -q '"test":' composer.json 2>/dev/null && [[ -d tests ]]; then
+        step "Running composer test"
+        composer test
+        pass "tests pass"
+    else
+        warn "No composer.json test script or tests/ directory found — skipping."
+    fi
+fi
+
+# ─── 5. Build the wp.org dist ──────────────────────────────────────────
+
+step "Building wp.org-clean dist via bin/build.sh"
+bash bin/build.sh wporg
+pass "dist built"
+
+# ─── 6. Local Plugin Check (optional — only if wp-cli is installed) ────
+
+step "Running Plugin Check locally (best-effort)"
+if command -v wp >/dev/null 2>&1; then
+    # wp-cli is on PATH; try running plugin-check against the built dist.
+    if wp plugin check --help >/dev/null 2>&1; then
+        # Plugin Check command exists. Need a path it understands.
+        # Many setups need the plugin to be in wp-content/plugins/ — for
+        # other setups, --path makes wp-cli use the built dist directly.
+        if wp plugin check "${SLUG}" --path="${PLUGIN_ROOT}/build" 2>/dev/null; then
+            pass "Plugin Check passed locally"
+        else
+            warn "Local Plugin Check returned issues — review output above."
+            warn "CI will run the same check on the GitHub Action runner."
+        fi
+    else
+        warn "wp-cli is installed but the 'wp plugin check' subcommand is not."
+        warn "  Install: wp plugin install plugin-check --activate"
+        warn "  CI runs Plugin Check via the GitHub Action — that's the source of truth."
+    fi
+else
+    warn "wp-cli not on PATH — skipping local Plugin Check."
+    warn "  The CI workflow (.github/workflows/ci.yml) runs Plugin Check"
+    warn "  on every push; merging green there means wp.org-ready."
+fi
+
+# ─── 7. Final summary ──────────────────────────────────────────────────
+
+cat <<EOF
+
+${BOLD}Submission build ready: build/${SLUG}-v${HEADER_VERSION}.zip${RESET}
+
+Next steps for WordPress.org submission:
+
+  1. First-time submission?
+     - Verify the slug is available: bash bin/slug-research.sh ${SLUG}
+     - Submit at https://wordpress.org/plugins/developers/add/
+       Upload build/${SLUG}.zip and wait for the review email (1–4 weeks).
+
+  2. Subsequent release on an already-approved plugin?
+     - svn co https://plugins.svn.wordpress.org/${SLUG}/ wpsvn
+     - Replace wpsvn/trunk/ with build/${SLUG}/
+     - cd wpsvn && svn add --force trunk && svn commit -m "${HEADER_VERSION}: release"
+     - svn cp trunk tags/${HEADER_VERSION} && svn commit -m "Tag ${HEADER_VERSION}"
+
+  3. Need to also publish to GitHub? Merging to main triggers
+     .github/workflows/release.yml which builds, runs Plugin Check,
+     and creates a GitHub release with both zips automatically.
+
+EOF
