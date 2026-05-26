@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documentation — Plugin SDK</title>
-  <meta name="description" content="Get started with Plugin SDK: install via CDN/npm/Composer, core concepts, customization, building with AI agents, and the plugin boilerplate.">
+  <meta name="description" content="Docs for Plugin SDK — the agent-first SDK for WordPress plugin development. The manifest, the runtime, the CLI, build &amp; ship pipelines, the design system, and the agent skills library.">
   <link rel="canonical" href="https://wp-admincss.com/wordpress/docs/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Plugin SDK">
   <meta property="og:title" content="Documentation — Plugin SDK">
-  <meta property="og:description" content="Install, customize, and ship. Getting started, core concepts, agent guides, and a working plugin boilerplate.">
+  <meta property="og:description" content="The manifest, the runtime, the CLI, build &amp; ship pipelines, and the agent skills library.">
   <meta property="og:image" content="https://wp-admincss.com/og/docs.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
@@ -21,7 +21,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Documentation — Plugin SDK">
-  <meta name="twitter:description" content="Install, customize, and ship.">
+  <meta name="twitter:description" content="The manifest, the runtime, the CLI, build &amp; ship, and the agent skills library.">
   <meta name="twitter:image" content="https://wp-admincss.com/og/docs.png">
 
   <!-- @include head-icons -->
@@ -268,21 +268,47 @@
     <aside class="docs-sidebar" aria-label="Documentation navigation">
       <h4>Getting started</h4>
       <ul>
-        <li><a href="#install">Install</a></li>
-        <li><a href="#first-component">First component</a></li>
-        <li><a href="#first-plugin">First plugin</a></li>
+        <li><a href="#scaffold">Scaffold a new plugin</a></li>
+        <li><a href="#add-to-existing">Add to an existing plugin</a></li>
+        <li><a href="#just-css">Just the CSS</a></li>
       </ul>
 
-      <h4>Core concepts</h4>
+      <h4>The manifest</h4>
+      <ul>
+        <li><a href="#manifest-overview">plugin-sdk.json</a></li>
+        <li><a href="#manifest-settings">Settings page</a></li>
+        <li><a href="#manifest-rest">REST routes</a></li>
+        <li><a href="#manifest-database">Custom tables</a></li>
+      </ul>
+
+      <h4>The runtime</h4>
+      <ul>
+        <li><a href="#runtime-bootstrap">Bootstrap</a></li>
+        <li><a href="#runtime-classes">Public classes</a></li>
+        <li><a href="#runtime-fluent">Fluent API</a></li>
+      </ul>
+
+      <h4>The CLI</h4>
+      <ul>
+        <li><a href="#cli-create">create</a></li>
+        <li><a href="#cli-codegen">codegen</a></li>
+      </ul>
+
+      <h4>Build &amp; ship</h4>
+      <ul>
+        <li><a href="#channels">Distribution channels</a></li>
+        <li><a href="#build-pipeline">Build pipeline</a></li>
+        <li><a href="#submission-prep">wp.org submission</a></li>
+        <li><a href="#release-yml">GitHub release auto-bump</a></li>
+        <li><a href="#puc">Plugin Update Checker</a></li>
+      </ul>
+
+      <h4>Design system</h4>
       <ul>
         <li><a href="#wp-class-names">Real WP class names</a></li>
         <li><a href="#color-schemes">Color schemes</a></li>
         <li><a href="#tokens">Design tokens</a></li>
-      </ul>
-
-      <h4>Customize</h4>
-      <ul>
-        <li><a href="#customize-brand">Brand tokens</a></li>
+        <li><a href="#customize-brand">Brand customization</a></li>
       </ul>
 
       <h4>AI agents</h4>
@@ -296,77 +322,614 @@
       <ul>
         <li><a href="#boilerplate">Boilerplate walkthrough</a></li>
         <li><a href="#cdn">CDN endpoints</a></li>
+        <li><a href="#stability">Stability contract</a></li>
       </ul>
     </aside>
 
     <main class="docs-main">
 
-      <section id="install">
+      <section id="scaffold">
         <p class="docs-eyebrow">Documentation</p>
-        <h1>Install, customize, and ship.</h1>
+        <h1>Build, ship, and update WordPress plugins.</h1>
         <p class="lead">
-          Plugin SDK works in three runtimes — drop-in CSS, npm package, or PHP Composer package — all emitting the same native WordPress admin markup. Pick whichever fits your stack.
+          Plugin SDK is the agent-first SDK for WordPress plugin development. Declare what your plugin needs in a manifest, boot a runtime that wires every hook correctly, and ship through a pipeline that produces a wp.org-ready zip on every push to <code>main</code>.
         </p>
 
-        <h2>Install</h2>
+        <h2>Scaffold a new plugin</h2>
+        <p>The fastest path. One command writes a working WordPress plugin with the manifest, runtime, build pipeline, CI workflows, and reference code already wired up.</p>
+        <pre class="codeblock">npx @plugin-sdk/cli@next create "My Plugin"</pre>
+        <p>Interactive prompts ask for slug, namespace, constant prefix, author, and <strong>distribution channel</strong>. For a non-interactive run:</p>
+        <pre class="codeblock">npx @plugin-sdk/cli@next create my-plugin \
+  --platform=wordpress \
+  --channel=wp.org \
+  --yes</pre>
+        <p>The channel decides what ships with the scaffold (see <a href="#channels">Distribution channels</a>). Default is <code>wp.org</code> — the safest baseline for Plugin Check.</p>
+        <p>Once scaffolded:</p>
+        <pre class="codeblock">cd my-plugin
+composer install
+# Activate via wp-admin or wp-env, then visit Settings → My Plugin.</pre>
+        <p>Every scaffolded plugin includes a working settings page, custom-table migration, REST endpoint, lifecycle hooks, PSR-4 autoload, i18n, scoped asset enqueue, the build pipeline, CI workflows, and the agent skills mirror on the CDN. Read the full file tour in <a href="#boilerplate">Boilerplate walkthrough</a>.</p>
+      </section>
 
-        <h3>CDN (fastest)</h3>
-        <p>Add a single <code>&lt;link&gt;</code> tag in your plugin's admin enqueue. Works inside WordPress without any build step.</p>
+      <section id="add-to-existing">
+        <h2>Add to an existing plugin</h2>
+        <p>Already maintaining a WordPress plugin? Pull in the runtime via Composer and add a manifest at the plugin root.</p>
+        <pre class="codeblock">composer require plugin-sdk/wp</pre>
+        <p>Then create <code>plugin-sdk.json</code> next to your main plugin file and boot the runtime once:</p>
+        <pre class="codeblock">&lt;?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use PluginSDK\WP\Plugin;
+
+add_action('plugins_loaded', function () {
+    Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
+        ->boot();
+});</pre>
+        <p>The runtime registers the menu, settings, REST routes, and database migrations declared in the manifest. Your existing handler classes keep doing what they were doing — the SDK doesn't take over the parts you've already built.</p>
+      </section>
+
+      <section id="just-css">
+        <h2>Just the CSS</h2>
+        <p>If you don't want the runtime — say you're polishing an existing plugin's admin UI — drop in the CSS bundle and use real WordPress admin class names.</p>
         <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/latest.css"&gt;</pre>
         <p class="muted">For production, pin to a version:</p>
-        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/v0.1.0/wp-admin.css"&gt;</pre>
-
-        <h3>npm (React / Vite / build pipelines)</h3>
-        <pre class="codeblock">npm install @plugin-sdk/wp-core-css @plugin-sdk/wp-tokens</pre>
-        <pre class="codeblock">// In your entry CSS or JS:
+        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/v0.1.0-rc.1/wp-admin.css"&gt;</pre>
+        <p>Or via npm if you have a build pipeline:</p>
+        <pre class="codeblock">npm install @plugin-sdk/wp-core-css @plugin-sdk/wp-tokens
+# In your entry CSS or JS:
 import '@plugin-sdk/wp-tokens';
 import '@plugin-sdk/wp-core-css';</pre>
-        <p class="muted">React components live in a separate package:</p>
-        <pre class="codeblock">npm install @plugin-sdk/wp-react</pre>
+        <p>Browse the full <a href="/wordpress/components/">component catalog</a> for every primitive (forms, list tables, modals, postboxes, status badges) with copy buttons for HTML, AI prompts, React, and PHP. For this path you own every security check yourself — load the <a href="#skills-reference">security skill</a> when adding handlers.</p>
+      </section>
 
-        <h3>Composer (PHP plugins)</h3>
-        <pre class="codeblock">composer require plugin-sdk/wp</pre>
+      <section id="manifest-overview">
+        <h2><code>plugin-sdk.json</code></h2>
+        <p>The manifest is the single source of truth for your plugin's surface. It's validated against a JSON Schema at boot — anything malformed throws <code>ConfigException</code> with the full validation path. VS Code and JetBrains autocomplete via the <code>$schema</code> URL.</p>
+        <pre class="codeblock">{
+  "$schema": "https://cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json",
+  "platform": "wordpress",
+  "name": "Acme Forms",
+  "slug": "acme-forms",
+  "textDomain": "acme-forms",
+  "version": "0.1.0",
+  "namespace": "Acme\\Forms",
+
+  "settings":  { /* ... */ },
+  "rest":      { /* ... */ },
+  "database":  { /* ... */ }
+}</pre>
+        <div class="callout">
+          <span class="callout-label">Fail fast at boot</span>
+          <p>Validation runs once at <code>plugins_loaded</code>. A typo in <code>settings.page.sections[0].fields[3].type</code> throws on activate with the exact JSON Pointer to the offending node — not at the first user click three hours later.</p>
+        </div>
+      </section>
+
+      <section id="manifest-settings">
+        <h2>Settings page</h2>
+        <p>Declare the settings page structure; the runtime renders it inside <code>options.php</code> (so WP's nonce round-trip protects every save) and runs type-aware sanitisation per field.</p>
+        <pre class="codeblock">"settings": {
+  "page": {
+    "title": "Acme Forms",
+    "capability": "manage_options",
+    "sections": [{
+      "id": "general",
+      "title": "General",
+      "fields": [
+        { "id": "api_key", "label": "API Key", "type": "password", "required": true },
+        { "id": "env", "label": "Environment", "type": "select",
+          "default": "production",
+          "options": [
+            { "value": "production", "label": "Production" },
+            { "value": "staging",    "label": "Staging" }
+          ]
+        }
+      ]
+    }]
+  }
+}</pre>
+        <p>Field types: <code>text</code>, <code>password</code>, <code>email</code>, <code>url</code>, <code>number</code>, <code>checkbox</code>, <code>toggle</code>, <code>select</code>, <code>textarea</code>. Each sanitises according to its type — email/url filter-validate, numbers clamp to <code>min</code>/<code>max</code>, selects whitelist against <code>options</code>, password preserves printables.</p>
+      </section>
+
+      <section id="manifest-rest">
+        <h2>REST routes</h2>
+        <p>Declare REST routes with a JSON Schema for the request body. Each request runs through <code>current_user_can()</code> + your schema before your handler executes. Invalid bodies return <code>WP_Error('rest_invalid_body', ...)</code> with the failing JSON Pointer — your handler never sees malformed data.</p>
+        <pre class="codeblock">"rest": {
+  "namespace": "acme-forms/v1",
+  "routes": [{
+    "path": "/submissions",
+    "method": "POST",
+    "capability": "manage_options",
+    "handler": "Acme\\Forms\\REST\\Submissions::create",
+    "schema": {
+      "type": "object",
+      "required": ["email"],
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "name":  { "type": "string", "maxLength": 200 }
+      },
+      "additionalProperties": false
+    }
+  }]
+}</pre>
+        <p>Wire the handler to the runtime at boot:</p>
+        <pre class="codeblock">use Acme\Forms\REST\Submissions;
+
+Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
+    -&gt;withRestHandler('Acme\\Forms\\REST\\Submissions::create', [Submissions::class, 'create'])
+    -&gt;boot();</pre>
+        <p>The validator covers the Draft 2020-12 subset used in practice: <code>type</code>, <code>required</code>, <code>properties</code>, <code>additionalProperties</code>, <code>enum</code>, <code>format=email|uri</code>, <code>pattern</code>, <code>minLength</code>/<code>maxLength</code>, <code>minimum</code>/<code>maximum</code>, <code>items</code>.</p>
+      </section>
+
+      <section id="manifest-database">
+        <h2>Custom tables</h2>
+        <p>Declare custom tables; the runtime registers an activation hook that runs <code>dbDelta</code> over each definition, gated on a version-stamped option so reactivations are no-ops.</p>
+        <pre class="codeblock">"database": {
+  "tables": [{
+    "name": "submissions",
+    "columns": [
+      { "name": "id", "type": "BIGINT UNSIGNED", "primary": true, "autoIncrement": true },
+      { "name": "email", "type": "VARCHAR(255)", "notNull": true },
+      { "name": "created_at", "type": "DATETIME", "notNull": true, "default": "CURRENT_TIMESTAMP" }
+    ],
+    "indexes": [
+      { "name": "email_idx", "columns": ["email"] }
+    ]
+  }]
+}</pre>
+        <p>The runtime emits <code>dbDelta</code>-compatible SQL with the two-space <code>PRIMARY KEY  (col)</code> quirk baked in (it's the one dbDelta cares about). Table names are prefixed with the WP <code>$wpdb-&gt;prefix</code> automatically.</p>
+      </section>
+
+      <section id="runtime-bootstrap">
+        <h2>Bootstrap</h2>
+        <p>The whole startup is one call.</p>
         <pre class="codeblock">&lt;?php
-use PluginSDK\WP\Assets;
+require_once __DIR__ . '/vendor/autoload.php';
 
-add_action('admin_enqueue_scripts', [Assets::class, 'enqueue_cdn']);</pre>
+use PluginSDK\WP\Plugin;
+use Acme\Forms\REST\Submissions;
+
+add_action('plugins_loaded', function () {
+    Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
+        -&gt;withRestHandler('Acme\\Forms\\REST\\Submissions::create', [Submissions::class, 'create'])
+        -&gt;boot();
+});</pre>
+        <p>What happens after <code>-&gt;boot()</code>:</p>
+        <ol>
+          <li>The manifest is loaded and validated against the JSON Schema. Failures throw <code>ConfigException</code> with the full validation path.</li>
+          <li>If <code>settings.page</code> is declared, an admin menu page + WP Settings API registration are wired. Every field gets type-aware sanitisation.</li>
+          <li>Each route in <code>rest.routes[]</code> is registered with a <code>permission_callback</code> that runs <code>current_user_can()</code> and an <code>args</code>/body validator that compiles to your schema.</li>
+          <li>If <code>database.tables[]</code> is declared, an activation hook runs <code>dbDelta</code> over every table, gated on a version-stamped option so re-activation is a no-op.</li>
+        </ol>
+        <p>Lifecycle hooks (<code>register_activation_hook</code>, <code>register_deactivation_hook</code>) stay at the top level of your main plugin file — they need to be registered before <code>plugins_loaded</code> fires.</p>
       </section>
 
-      <section id="first-component">
-        <h2>Your first component</h2>
-        <p>Once the CSS is loaded, real WordPress admin class names just work. Here's a complete admin page with a heading, a success notice, and a primary button:</p>
-        <pre class="codeblock">&lt;div class="wrap"&gt;
-  &lt;h1 class="wp-heading-inline"&gt;My Plugin&lt;/h1&gt;
-  &lt;a href="?page=add-new" class="page-title-action"&gt;Add New&lt;/a&gt;
-  &lt;hr class="wp-header-end"&gt;
-
-  &lt;div class="notice notice-success is-dismissible"&gt;
-    &lt;p&gt;&lt;strong&gt;Settings saved.&lt;/strong&gt;&lt;/p&gt;
-  &lt;/div&gt;
-
-  &lt;p class="submit"&gt;
-    &lt;button class="button button-primary"&gt;Save Changes&lt;/button&gt;
-  &lt;/p&gt;
-&lt;/div&gt;</pre>
-        <p>That's the whole API. Browse the full <a href="/wordpress/components/">component catalog</a> for every primitive (forms, list tables, modals, postboxes, status badges, …) with copy buttons for HTML, AI prompts, React, and PHP.</p>
+      <section id="runtime-classes">
+        <h2>Public classes</h2>
+        <p>Every class listed below is <code>@api</code> (stable across minor releases per <a href="#stability">STABILITY.md</a>). Internals are tagged <code>@internal</code>.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Class</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>PluginSDK\WP\Plugin</code></td><td>Single-call bootstrap. <code>Plugin::fromManifest($path, __FILE__)-&gt;boot()</code>.</td></tr>
+            <tr><td><code>PluginSDK\WP\Config</code></td><td>Loads + validates the manifest against the embedded JSON Schema. Throws <code>ConfigException</code> on failure.</td></tr>
+            <tr><td><code>PluginSDK\WP\Settings</code></td><td>Settings page builder. Sanitises every field per its type.</td></tr>
+            <tr><td><code>PluginSDK\WP\Settings\Section</code><br><code>PluginSDK\WP\Settings\Field</code></td><td>Sub-builders for page structure.</td></tr>
+            <tr><td><code>PluginSDK\WP\REST</code></td><td>REST route registration. Runs cap check + schema validation before each handler.</td></tr>
+            <tr><td><code>PluginSDK\WP\REST\Route</code><br><code>PluginSDK\WP\REST\Schema</code></td><td>Per-route + per-body validators.</td></tr>
+            <tr><td><code>PluginSDK\WP\Migration</code></td><td><code>dbDelta</code> wrapper. Versioned via an option so reactivations are no-ops.</td></tr>
+            <tr><td><code>PluginSDK\WP\Migration\Table</code></td><td>Single-table builder; produces <code>dbDelta</code>-compatible SQL.</td></tr>
+            <tr><td><code>PluginSDK\WP\Version</code></td><td>Runtime version + compatibility helper. <code>Version::requireAtLeast('0.2.0')</code>.</td></tr>
+            <tr><td><code>PluginSDK\WP\Components</code></td><td>Hand-rolled UI helpers — use these for pages outside the Settings runtime.</td></tr>
+            <tr><td><code>PluginSDK\WP\Assets</code></td><td>Enqueue the CSS bundle. <code>Assets::enqueue_cdn()</code> or <code>enqueue_local()</code>.</td></tr>
+            <tr><td><code>PluginSDK\WP\Html</code></td><td>Escape helpers. <code>Html::esc()</code>, <code>Html::esc_attr_value()</code>, <code>Html::esc_url()</code>.</td></tr>
+          </tbody>
+        </table>
       </section>
 
-      <section id="first-plugin">
-        <h2>Start a new plugin from the boilerplate</h2>
-        <p>The fastest way to a working plugin is to clone the boilerplate, which already wires up the patterns that AI agents and developers commonly get wrong.</p>
-        <pre class="codeblock">gh repo clone artificialpoets/plugin-sdk
-cp -r plugin-sdk/boilerplates/wordpress ~/my-plugin
-cd ~/my-plugin
-composer install</pre>
-        <p>Then rename the <code>WPACS\</code> namespace to your plugin's, set your text domain, activate the plugin. The scaffold includes:</p>
+      <section id="runtime-fluent">
+        <h2>Fluent API</h2>
+        <p>The declarative manifest compiles to the same fluent calls. Use the fluent API directly when the manifest can't express what you need — they compose.</p>
+        <pre class="codeblock">use PluginSDK\WP\Settings;
+use PluginSDK\WP\Settings\Field;
+use PluginSDK\WP\REST;
+use PluginSDK\WP\Migration;
+use PluginSDK\WP\Migration\Table;
+
+(new Settings('acme-forms', 'Acme Forms'))
+    -&gt;capability('manage_options')
+    -&gt;section('general', 'General')
+        -&gt;field('api_key', 'API Key', Field::TYPE_PASSWORD, required: true)
+    -&gt;section('advanced', 'Advanced')
+        -&gt;field('endpoint', 'Endpoint', Field::TYPE_URL);
+
+(new REST('acme-forms/v1'))
+    -&gt;route('/submissions', 'POST')
+        -&gt;capability('manage_options')
+        -&gt;schema([...])
+        -&gt;setHandler([Submissions::class, 'create']);
+
+(new Migration('acme_forms_db_version', '0.1.0', 'acme_'))
+    -&gt;addTable(new Table('submissions', [
+        ['name' =&gt; 'id', 'type' =&gt; 'BIGINT UNSIGNED', 'primary' =&gt; true, 'autoIncrement' =&gt; true],
+        ['name' =&gt; 'email', 'type' =&gt; 'VARCHAR(255)', 'notNull' =&gt; true],
+    ]));</pre>
+      </section>
+
+      <section id="cli-create">
+        <h2><code>plugin-sdk create</code></h2>
+        <p>Scaffold a new plugin from the boilerplate. Interactive by default; pass <code>--yes</code> for non-interactive.</p>
+        <pre class="codeblock">npx @plugin-sdk/cli@next create &lt;name&gt; [flags]</pre>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Flag</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--platform=&lt;id&gt;</code></td><td>Target platform. Currently: <code>wordpress</code> (default).</td></tr>
+            <tr><td><code>--slug=&lt;kebab&gt;</code></td><td>Override derived slug (default: derived from name).</td></tr>
+            <tr><td><code>--namespace=&lt;PSR-4&gt;</code></td><td>Override derived PHP namespace (e.g. <code>Acme\Forms</code>).</td></tr>
+            <tr><td><code>--prefix=&lt;UPPER_&gt;</code></td><td>Override derived constant prefix (e.g. <code>ACME_FORMS_</code>).</td></tr>
+            <tr><td><code>--description="..."</code></td><td>Plugin description.</td></tr>
+            <tr><td><code>--author="Name"</code></td><td>Author display name.</td></tr>
+            <tr><td><code>--author-url=&lt;url&gt;</code></td><td>Author URL.</td></tr>
+            <tr><td><code>--channel=&lt;id&gt;</code></td><td>Distribution channel: <code>wp.org</code> (default), <code>github</code>, or <code>dual</code>. See <a href="#channels">below</a>.</td></tr>
+            <tr><td><code>--out=&lt;dir&gt;</code></td><td>Output directory (default: <code>./&lt;slug&gt;</code>).</td></tr>
+            <tr><td><code>--no-install</code></td><td>Skip <code>composer install</code> after scaffolding.</td></tr>
+            <tr><td><code>--yes</code></td><td>Use derived defaults for every prompt.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="cli-codegen">
+        <h2><code>plugin-sdk codegen</code></h2>
+        <p>Generate a typed TypeScript REST client from your manifest. Useful when the React side talks to the routes declared in <code>rest.routes[]</code> and you want type-checked request bodies without re-declaring schemas.</p>
+        <pre class="codeblock">npx @plugin-sdk/cli@next codegen \
+  --manifest=./plugin-sdk.json \
+  --out=./src/generated/plugin-sdk-client.ts</pre>
+        <p>The output gives you a typed client to call from React:</p>
+        <pre class="codeblock">import { createPluginSDKClient } from './src/generated/plugin-sdk-client';
+
+const client = createPluginSDKClient({
+  baseUrl: window.wpApiSettings.root,
+  nonce:   window.wpApiSettings.nonce,
+});
+
+await client.submissions.create({ email: 'a@b.com' });</pre>
+        <p>Re-run codegen whenever you add or change a route with a body schema.</p>
+      </section>
+
+      <section id="channels">
+        <h2>Distribution channels</h2>
+        <p>Picked at scaffold time via <code>--channel</code>. Decides which workflows and helper scripts ship with the plugin, and how update notifications reach users.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Channel</th><th>Updates from</th><th><code>release.yml</code></th><th><code>readme.txt</code> + submission-prep</th><th>Plugin Update Checker</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>wp.org</code> <small>(default)</small></td>
+              <td>WordPress.org SVN</td>
+              <td>—</td>
+              <td>✓</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><code>github</code></td>
+              <td>GitHub releases (via PUC)</td>
+              <td>✓</td>
+              <td>—</td>
+              <td>always-on</td>
+            </tr>
+            <tr>
+              <td><code>dual</code></td>
+              <td>wp.org + GitHub (early-access opt-in)</td>
+              <td>✓</td>
+              <td>✓</td>
+              <td>marker-gated</td>
+            </tr>
+          </tbody>
+        </table>
+        <p><code>wp.org</code> is the safest baseline for Plugin Check (no extra dependencies that might trip review). Pick <code>github</code> for plugins you don't intend to submit to wp.org (premium, internal company tooling, niche utilities). Pick <code>dual</code> when you want both — a stable channel via wp.org for the general user, plus a GitHub release channel for prerelease / early-access builds your power users opt into via the <code>.use-github-updates</code> marker file.</p>
+      </section>
+
+      <section id="build-pipeline">
+        <h2>Build pipeline</h2>
+        <p>Every scaffolded plugin ships with the tooling to produce a wp.org-clean distribution and self-check it before submission. Two entry points cover most workflows:</p>
+        <pre class="codeblock">npm run build       # bash bin/build.sh   — produce build/&lt;slug&gt;/ + zips
+npm run prep        # bash bin/submission-prep.sh — full pre-submission check
+npm run slug-research # bash bin/slug-research.sh — wp.org slug availability</pre>
+        <p>Under the hood:</p>
         <ul>
-          <li>Secure settings page (capability check + nonce + sanitize/escape)</li>
-          <li>Custom database table with <code>dbDelta</code> migration and a typed repository</li>
-          <li>REST endpoint with <code>permission_callback</code> and schema validation</li>
-          <li>Lifecycle hooks (activation / deactivation / uninstall)</li>
-          <li>PSR-4 autoloading, i18n setup, scoped asset enqueue</li>
+          <li><strong><code>bin/build.sh</code></strong> runs <code>composer install --no-dev</code>, rsyncs the source through <code>.distignore</code>, writes <code>build/&lt;slug&gt;/</code> plus a versioned zip and a "latest" zip. Accepts a mode argument (<code>wporg</code> default, <code>github</code> for dual-channel builds that need the PUC marker).</li>
+          <li><strong><code>phpcs.xml.dist</code></strong> declares the lint ruleset: WordPress Coding Standards + PHPCompatibilityWP, tuned to the boilerplate's prefix variants. <code>composer run lint</code> is the same check CI runs.</li>
+          <li><strong><code>.github/workflows/ci.yml</code></strong> runs PHPCS + Plugin Check (against the built dist, not source) on every push and PR. See <a href="#release-yml">below</a> for the release workflow.</li>
         </ul>
-        <p>Full file-by-file walkthrough below in <a href="#boilerplate">Boilerplate walkthrough</a>.</p>
+      </section>
+
+      <section id="submission-prep">
+        <h2>wp.org submission</h2>
+        <p>For <code>wp.org</code> and <code>dual</code> channels, <code>npm run prep</code> walks the same checks a wp.org volunteer reviewer will run, in order, exiting non-zero on any blocker:</p>
+        <ol>
+          <li>Working tree must be clean (no half-prepared dist).</li>
+          <li>Version triple agrees — plugin header <code>Version:</code>, <code>&lt;PREFIX&gt;_VERSION</code> constant, <code>readme.txt</code> Stable tag.</li>
+          <li><code>composer run check</code> (phpsyntax + phpcs).</li>
+          <li><code>composer test</code> if a test suite is present (<code>--skip-tests</code> bypasses).</li>
+          <li><code>bash bin/build.sh wporg</code> — the dist that gets uploaded.</li>
+          <li>Local Plugin Check (best-effort; skips cleanly if wp-cli isn't installed). CI's Plugin Check is the source of truth.</li>
+        </ol>
+        <p>On success the script prints the SVN dance for first submission and the shorter trunk/tag dance for subsequent releases, with your slug + version substituted in.</p>
+        <p><code>bash bin/slug-research.sh &lt;slug&gt;</code> is the companion: it validates the slug format, scans against ~20 trademark prefixes (wp-, woo-, yoast-, stripe-, etc.), and queries the wp.org plugin info API for availability. Slugs cannot be renamed after wp.org approval.</p>
+        <p>For the full operational walkthrough, agents should load <a href="https://cdn.wp-admincss.com/wordpress/skills/submission-prep.md">skills/submission-prep.md</a>.</p>
+      </section>
+
+      <section id="release-yml">
+        <h2>GitHub release auto-bump</h2>
+        <p>For <code>github</code> and <code>dual</code> channels, every push to <code>main</code> auto-cuts a new GitHub release. The bump level is decided by tokens in the head commit message:</p>
+        <pre class="codeblock">git commit -m "Fix off-by-one in cron schedule"      # → patch bump (default)
+git commit -m "Add CSV export endpoint [minor]"      # → minor bump
+git commit -m "Drop PHP 7.4 support [major]"          # → major bump
+git commit -m "Fix typo in readme [skip-release]"     # → no release</pre>
+        <p>The workflow:</p>
+        <ol>
+          <li>Re-runs the quality gate (<code>composer run phpsyntax</code> + <code>composer run lint</code>) — defends against direct pushes to <code>main</code> that bypassed CI.</li>
+          <li>Reads the current header version. If <code>v&lt;header&gt;</code> tag doesn't exist yet, ships verbatim. If it does, bumps per the commit-message token.</li>
+          <li>Rewrites the version in three places — plugin header <code>Version:</code>, <code>&lt;PREFIX&gt;_VERSION</code> constant, <code>readme.txt</code> Stable tag — and commits the bump back to <code>main</code> with <code>[skip-release]</code> so it never recurses.</li>
+          <li>Builds via <code>bash bin/build.sh github</code> (which writes the <code>.use-github-updates</code> marker for dual-channel installs).</li>
+          <li>Runs Plugin Check on the built dist.</li>
+          <li>Publishes a GitHub release with the versioned zip + an unversioned "latest" zip, <code>--generate-notes</code>, <code>--latest</code>.</li>
+        </ol>
+        <p>For the full walkthrough including failure modes, agents should load <a href="https://cdn.wp-admincss.com/wordpress/skills/release-pipeline.md">skills/release-pipeline.md</a>.</p>
+      </section>
+
+      <section id="puc">
+        <h2>Plugin Update Checker</h2>
+        <p>For <code>github</code> and <code>dual</code> channels, the scaffold includes a Plugin Update Checker (PUC) block in the main plugin file:</p>
+        <pre class="codeblock">/* === PUC:BEGIN === */
+if (
+    file_exists(MYPLUGIN_DIR . '.use-github-updates')
+    && class_exists(\YahnisElsts\PluginUpdateChecker\v5\PucFactory::class)
+) {
+    \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        'https://github.com/your-org/my-plugin/',  // ← edit me
+        MYPLUGIN_FILE,
+        'my-plugin'
+    );
+}
+/* === PUC:END === */</pre>
+        <p>The CLI rewrites this block per channel at scaffold time:</p>
+        <ul>
+          <li><strong><code>wp.org</code></strong> — the entire block is removed, the <code>yahnis-elsts/plugin-update-checker</code> dependency is dropped from <code>composer.json</code>. Updates ship via wp.org SVN.</li>
+          <li><strong><code>github</code></strong> — the <code>file_exists(...)</code> check is replaced with <code>true</code> so PUC always runs. Updates ship via GitHub releases.</li>
+          <li><strong><code>dual</code></strong> — block stays exactly as written; the <code>.use-github-updates</code> marker file (written by <code>bin/build.sh github</code>) decides whether PUC activates. wp.org users get wp.org updates; GitHub release users get GH updates.</li>
+        </ul>
+        <div class="callout">
+          <span class="callout-label">Remember</span>
+          <p>The GitHub URL in the PUC block is a placeholder. Change it to your actual repo URL before the first GitHub release.</p>
+        </div>
+      </section>
+
+      <section id="wp-class-names">
+        <h2>Real WordPress class names</h2>
+        <p>Most "WordPress admin component libraries" invent their own class prefix — <code>.wpac-button--primary</code>, <code>.acme-notice</code>, that sort of thing. The output looks like WP, but doesn't <em>behave</em> like WP and doesn't fit cleanly alongside core admin pages.</p>
+        <p>Plugin SDK uses the actual WordPress admin class names: <code>.button</code>, <code>.notice</code>, <code>.wp-list-table</code>, <code>.postbox</code>, <code>.form-table</code>. The benefits compound:</p>
+        <ul>
+          <li><strong>Your plugin inherits the user's color scheme automatically.</strong> Same way WP core admin does.</li>
+          <li><strong>WordPress-savvy developers can read your markup</strong> without learning a new namespace.</li>
+          <li><strong>Your admin pages look indistinguishable from core WP pages.</strong> Less context-switching for the user.</li>
+        </ul>
+      </section>
+
+      <section id="color-schemes">
+        <h2>Color schemes</h2>
+        <p>WordPress ships nine admin color schemes: Default, Blue, Coffee, Ectoplasm, Midnight, Ocean, Sunrise, Light, Modern. Plugin SDK responds to all of them via the <code>admin-color-*</code> body class WP applies based on the user's profile.</p>
+        <pre class="codeblock">&lt;body class="admin-color-midnight"&gt;
+  &lt;!-- All tokens use Midnight scheme values --&gt;
+&lt;/body&gt;</pre>
+        <p>Inside a WordPress plugin you don't need to do anything — WP sets the body class for you. For previews or design demos, set it yourself; you can also apply it to any ancestor (not just <code>&lt;body&gt;</code>) to isolate the theming to one region.</p>
+      </section>
+
+      <section id="tokens">
+        <h2>Design tokens</h2>
+        <p>Everything routes through CSS custom properties. Full list lives in <code>packages/wp-tokens/src/tokens.css</code>. Most-used:</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Token</th><th>Use</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>--wpadmin-primary</code></td><td>Primary accent (matches the user's WP color scheme)</td></tr>
+            <tr><td><code>--wpadmin-primary-dark</code></td><td>Hover/active state</td></tr>
+            <tr><td><code>--wpadmin-text</code></td><td>Body text</td></tr>
+            <tr><td><code>--wpadmin-text-subtle</code></td><td>Secondary text, captions, metadata</td></tr>
+            <tr><td><code>--wpadmin-surface</code></td><td>Card / panel background</td></tr>
+            <tr><td><code>--wpadmin-surface-alt</code></td><td>Page background</td></tr>
+            <tr><td><code>--wpadmin-border</code></td><td>Borders + dividers</td></tr>
+            <tr><td><code>--wpadmin-radius</code></td><td>Corner radius</td></tr>
+            <tr><td><code>--wpadmin-font</code></td><td>System font stack</td></tr>
+            <tr><td><code>--wpadmin-font-mono</code></td><td>Monospace font stack</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="customize-brand">
+        <h2>Brand customization</h2>
+        <p>Override tokens to skin your plugin while keeping the WP feel. Scope to a wrapper class so the rest of WP admin stays consistent:</p>
+        <pre class="codeblock">.my-plugin-page {
+  --wpadmin-primary: #7c3aed;
+  --wpadmin-primary-dark: #6d28d9;
+  --wpadmin-radius: 8px;
+}</pre>
+        <div class="callout">
+          <span class="callout-label">Pro tip</span>
+          <p>Scope your overrides to your plugin's wrapper element so the rest of WP admin keeps the user's chosen color scheme. WP power users get upset when plugins break their theming.</p>
+        </div>
+      </section>
+
+      <section id="agents-overview">
+        <h2>Building with AI agents</h2>
+        <p>Plugin SDK is designed agent-first. The complete instruction surface is hosted on the CDN so any coding agent (Claude Code, Cursor, Cline, Aider, …) can fetch what it needs without cloning the repo.</p>
+        <ul>
+          <li><strong><code>cdn.wp-admincss.com/wordpress/AGENTS.md</code></strong> — master entry point. Loaded first.</li>
+          <li><strong><code>cdn.wp-admincss.com/wordpress/skills/&lt;name&gt;.md</code></strong> — focused skills for the patterns AI commonly gets wrong (security, database, i18n, publishing, release pipeline, …).</li>
+          <li><strong><code>cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json</code></strong> — manifest validation schema. VS Code / JetBrains autocomplete via the <code>$schema</code> URL.</li>
+        </ul>
+        <p>Legacy aliases (<code>/AGENTS.md</code>, <code>/skills/&lt;name&gt;.md</code>) still work for one release.</p>
+      </section>
+
+      <section id="agents-recipe">
+        <h2>The agent recipe</h2>
+        <p>Point your coding agent at Plugin SDK using a prompt like this:</p>
+        <pre class="codeblock">Read https://cdn.wp-admincss.com/wordpress/AGENTS.md first.
+
+For any state-changing action, load:
+  https://cdn.wp-admincss.com/wordpress/skills/security.md
+
+For database work, load:
+  https://cdn.wp-admincss.com/wordpress/skills/database.md
+
+For data-modeling decisions:
+  https://cdn.wp-admincss.com/wordpress/skills/data-modeling.md
+
+When preparing for a wp.org submission, load:
+  https://cdn.wp-admincss.com/wordpress/skills/submission-prep.md
+
+When setting up the GitHub release pipeline, load:
+  https://cdn.wp-admincss.com/wordpress/skills/release-pipeline.md
+
+When building a plugin admin page:
+  1. Identify the layout from https://wp-admincss.com/wordpress/layouts/
+  2. Identify the components from https://wp-admincss.com/wordpress/components/
+  3. Copy the "AI Prompt" tab from each into your implementation</pre>
+        <p>Most agents can fetch these URLs directly. If yours can't, paste the relevant content into the conversation.</p>
+      </section>
+
+      <section id="skills-reference">
+        <h2>Skills reference</h2>
+        <p>Each skill is a focused Markdown file that an agent fetches on demand when it needs that specific expertise. Load only the skills relevant to the current task — keeping context lean keeps results good.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>Skill</th><th>When to load</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/plugin-manifest.md"><code>plugin-manifest.md</code></a></td>
+              <td>Editing <code>plugin-sdk.json</code>, using the runtime APIs, or deciding declarative vs fluent.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/security.md"><code>security.md</code></a></td>
+              <td>Any state-changing action — capability checks, nonces, sanitize/escape, SQL injection prevention.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/database.md"><code>database.md</code></a></td>
+              <td><code>$wpdb</code> queries, prepared statements, <code>dbDelta</code> migrations, transactions.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/data-modeling.md"><code>data-modeling.md</code></a></td>
+              <td>Decision tree: options vs post-meta vs user-meta vs custom tables vs transients vs CPTs.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/enqueue.md"><code>enqueue.md</code></a></td>
+              <td>The four enqueue hooks, WP built-in script handles, scoping admin assets to your hook suffix.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/plugin-structure.md"><code>plugin-structure.md</code></a></td>
+              <td>PSR-4 layout, lifecycle hooks, naming conventions, file organization.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/i18n.md"><code>i18n.md</code></a></td>
+              <td>Translation functions, text domains, RTL support, JS string translation.</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/publishing.md"><code>publishing.md</code></a></td>
+              <td>Plugin Check rules + slug research + <code>readme.txt</code> format (the conceptual reference).</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/submission-prep.md"><code>submission-prep.md</code></a></td>
+              <td>Operating <code>npm run prep</code> and the wp.org SVN trunk → tag flow (the operational walkthrough).</td>
+            </tr>
+            <tr>
+              <td><a href="https://cdn.wp-admincss.com/wordpress/skills/release-pipeline.md"><code>release-pipeline.md</code></a></td>
+              <td>Operating <code>release.yml</code> — auto-bump, GH releases, Plugin Update Checker, dual-channel updates.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="boilerplate">
+        <h2>Boilerplate walkthrough</h2>
+        <p>Every scaffolded plugin is a complete working WordPress plugin. Every file is a worked example — read them before writing similar code from scratch.</p>
+        <pre class="codeblock">my-plugin/
+├── my-plugin.php              ← Plugin bootstrap (Plugin::fromManifest)
+├── plugin-sdk.json            ← The manifest — settings + REST + database
+├── composer.json              ← PSR-4 autoload + runtime deps + scripts
+├── package.json               ← npm run build / prep / slug-research / lint
+├── readme.txt                 ← wp.org-formatted readme (wp.org + dual)
+├── phpcs.xml.dist             ← WPCS + PHPCompatibilityWP ruleset
+├── .distignore                ← Exclusion list for the rsync-based build
+├── uninstall.php              ← Multisite-aware cleanup
+├── bin/
+│   ├── build.sh               ← Dist builder (wporg + github modes)
+│   ├── phpsyntax.php          ← php -l over every plugin file
+│   ├── submission-prep.sh     ← `npm run prep` — wp.org submission flow
+│   └── slug-research.sh       ← wp.org slug availability + trademark scan
+├── .github/workflows/
+│   ├── ci.yml                 ← Lint + Plugin Check on every push/PR
+│   └── release.yml            ← Auto-bump + GH release (github + dual)
+├── src/
+│   ├── Plugin.php             ← Orchestrator — wires lifecycle hooks
+│   ├── Lifecycle.php          ← Activation, deactivation hooks
+│   ├── Admin/
+│   │   ├── Menu.php           ← register_menu()
+│   │   ├── Assets.php         ← Enqueue Plugin SDK CSS from CDN
+│   │   └── SettingsPage.php   ← Capability + nonce + sanitize/escape demo
+│   ├── Database/
+│   │   ├── Schema.php         ← dbDelta migrations
+│   │   └── EventRepository.php ← $wpdb with prepare() + %i identifier placeholder
+│   └── REST/
+│       └── SettingsController.php ← REST with permission_callback
+└── assets/admin.css           ← Your plugin's brand CSS overrides</pre>
+        <p>Key files to study:</p>
+        <ul>
+          <li><strong><code>plugin-sdk.json</code></strong> — the manifest. Edit this to add settings fields, REST routes, custom tables.</li>
+          <li><strong><code>&lt;slug&gt;.php</code></strong> — the entire bootstrap is the <code>Plugin::fromManifest(...)-&gt;boot()</code> call inside <code>plugins_loaded</code>.</li>
+          <li><strong><code>src/Admin/SettingsPage.php</code></strong> — canonical secure admin page. Capability check before reading state, nonce on the form, sanitize on input, escape on output. Copy verbatim for any hand-rolled settings page.</li>
+          <li><strong><code>src/Database/EventRepository.php</code></strong> — every <code>$wpdb</code> call uses <code>-&gt;prepare()</code>. Custom-table identifiers use the WP 6.2+ <code>%i</code> placeholder so table names get validated by <code>$wpdb-&gt;prepare</code>.</li>
+          <li><strong><code>src/REST/SettingsController.php</code></strong> — REST endpoint with both <code>permission_callback</code> (capability check) and JSON Schema validation on arguments.</li>
+          <li><strong><code>uninstall.php</code></strong> — runs on plugin uninstall. Drops the custom table, deletes options, scoped to be multisite-aware (loops sites if network-active).</li>
+          <li><strong><code>bin/build.sh</code></strong> — same script local builds and CI builds use. Set <code>SKIP_COMPOSER=1</code> to reuse an existing <code>vendor/</code>.</li>
+        </ul>
+      </section>
+
+      <section id="cdn">
+        <h2>CDN endpoints</h2>
+        <p>Everything in the framework is hosted on <code>cdn.wp-admincss.com</code>.</p>
+        <table class="docs-table">
+          <thead>
+            <tr><th>URL</th><th>Content</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cdn.wp-admincss.com/css/latest.css</code></td><td>Rolling latest CSS bundle</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/css/v0.1.0-rc.1/wp-admin.css</code></td><td>Pinned version (production use)</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/wordpress/AGENTS.md</code></td><td>Master agent instructions</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/wordpress/skills/&lt;name&gt;.md</code></td><td>Individual skill files (10 total)</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json</code></td><td>Manifest validation schema</td></tr>
+            <tr><td><code>cdn.wp-admincss.com/wordpress/v0.1.0-rc.1/&lt;path&gt;</code></td><td>Pinned-version mirror of every doc</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          <span class="callout-label">In production</span>
+          <p>Pin to a version. The <code>latest.css</code> rolling endpoint is fine for prototyping but exposes you to breaking changes on framework updates.</p>
+        </div>
+      </section>
+
+      <section id="stability">
+        <h2>Stability contract</h2>
+        <p>Plugin SDK follows <a href="https://semver.org">semver</a>. Pre-1.0 minor releases may introduce breaking changes; see <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/STABILITY.md">STABILITY.md</a> for the public-API contract.</p>
+        <p>Every public PHP symbol carries a <code>@api</code> docblock; internals carry <code>@internal</code>. The runtime <a href="#runtime-classes">classes table above</a> lists exactly what's covered. A drift check fails the build if a new public symbol lacks a tag — adding a public class without thinking about its stability is impossible by construction.</p>
+        <p>The TypeScript packages (<code>@plugin-sdk/wp-react</code>, <code>@plugin-sdk/cli</code>) follow the same rule: anything exported from the root entry point is part of the public API; anything in <code>internal/</code> isn't.</p>
+        <pre class="codeblock">use PluginSDK\WP\Version;
+
+Version::requireAtLeast('0.2.0'); // throws if older
+echo Version::SDK; // "0.1.0-rc.1"</pre>
       </section>
 
       <section id="wp-class-names">
