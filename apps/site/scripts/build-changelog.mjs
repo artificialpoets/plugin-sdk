@@ -23,7 +23,7 @@
 
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync, readFileSync, existsSync, readdirSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
 
 import { Resvg } from '@resvg/resvg-js';
@@ -274,8 +274,17 @@ function wrapAt(text, maxChars) {
 // declaration (including PAGE_STYLES below) has been initialized. JS hoists
 // function declarations but not `const`s, so we have to delay execution.
 async function main() {
-  // Clean + recreate so removed entries don't leave stale files behind.
-  rmSync(CHANGELOG_DIR, { recursive: true, force: true });
+  // Clean stale per-entry pages so removed changelog entries don't
+  // leave dangling files. CHANGELOG_DIR also hosts `index.html` (the
+  // changelog landing — source-owned, not regenerated), so we only
+  // delete per-entry .html files, not the directory itself.
+  if (existsSync(CHANGELOG_DIR)) {
+    for (const file of readdirSync(CHANGELOG_DIR)) {
+      if (file.endsWith('.html') && file !== 'index.html') {
+        rmSync(resolve(CHANGELOG_DIR, file));
+      }
+    }
+  }
   rmSync(OG_DIR, { recursive: true, force: true });
   mkdirSync(CHANGELOG_DIR, { recursive: true });
   mkdirSync(OG_DIR, { recursive: true });

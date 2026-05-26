@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documentation — Plugin SDK</title>
   <meta name="description" content="Get started with Plugin SDK: install via CDN/npm/Composer, core concepts, customization, building with AI agents, and the plugin boilerplate.">
-  <link rel="canonical" href="https://wp-admincss.com/docs.html">
+  <link rel="canonical" href="https://wp-admincss.com/wordpress/docs/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -16,7 +16,7 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:url" content="https://wp-admincss.com/docs.html">
+  <meta property="og:url" content="https://wp-admincss.com/wordpress/docs/">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
@@ -26,7 +26,7 @@
 
   <!-- @include head-icons -->
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -348,7 +348,7 @@ add_action('admin_enqueue_scripts', [Assets::class, 'enqueue_cdn']);</pre>
     &lt;button class="button button-primary"&gt;Save Changes&lt;/button&gt;
   &lt;/p&gt;
 &lt;/div&gt;</pre>
-        <p>That's the whole API. Browse the full <a href="/components.html">component catalog</a> for every primitive (forms, list tables, modals, postboxes, status badges, …) with copy buttons for HTML, AI prompts, React, and PHP.</p>
+        <p>That's the whole API. Browse the full <a href="/wordpress/components/">component catalog</a> for every primitive (forms, list tables, modals, postboxes, status badges, …) with copy buttons for HTML, AI prompts, React, and PHP.</p>
       </section>
 
       <section id="first-plugin">
@@ -451,8 +451,8 @@ For data modeling decisions:
   https://cdn.wp-admincss.com/skills/data-modeling.md
 
 When building a plugin admin page:
-  1. Identify the layout from https://wp-admincss.com/layouts.html
-  2. Identify the components from https://wp-admincss.com/components.html
+  1. Identify the layout from https://wp-admincss.com/wordpress/layouts/
+  2. Identify the components from https://wp-admincss.com/wordpress/components/
   3. Copy the "AI Prompt" tab from each into your implementation</pre>
         <p>Most agents (Claude Code, Cursor, Cline, Aider) can fetch these URLs directly. If yours can't, paste the relevant content into the conversation.</p>
       </section>

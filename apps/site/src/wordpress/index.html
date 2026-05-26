@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordPress — Plugin SDK</title>
+  <meta name="description" content="Plugin SDK for WordPress — the agent-first SDK for WordPress plugin development. Manifest-driven runtime, native admin design, agent-loadable docs.">
+  <link rel="canonical" href="https://wp-admincss.com/wordpress/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Plugin SDK">
+  <meta property="og:title" content="WordPress — Plugin SDK">
+  <meta property="og:description" content="The agent-first SDK for WordPress plugin development.">
+  <meta property="og:image" content="https://wp-admincss.com/og/home.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://wp-admincss.com/wordpress/">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="WordPress — Plugin SDK">
+  <meta name="twitter:description" content="The agent-first SDK for WordPress plugin development.">
+  <meta name="twitter:image" content="https://wp-admincss.com/og/home.png">
+
+  <!-- @include head-icons -->
+
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { font-family: var(--wpadmin-font); color: var(--wpadmin-text); background: var(--wpadmin-surface); line-height: 1.6; margin: 0; }
+    .wp-hub { max-width: 960px; margin: 0 auto; padding: 80px 24px 120px; }
+    .wp-hub__breadcrumb { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--wpadmin-text-subtle); font-weight: 600; margin-bottom: 12px; }
+    .wp-hub h1 { font-size: 40px; letter-spacing: -0.02em; margin: 0 0 16px; color: var(--wpadmin-text); }
+    .wp-hub__lead { font-size: 18px; color: var(--wpadmin-text-subtle); max-width: 640px; margin: 0 0 48px; }
+    .wp-hub__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .wp-hub__card { display: block; padding: 24px; border: 1px solid var(--wpadmin-border); border-radius: 8px; background: var(--wpadmin-surface); color: var(--wpadmin-text); text-decoration: none; transition: border-color .12s, transform .12s; }
+    .wp-hub__card:hover { border-color: var(--wpadmin-primary); transform: translateY(-2px); }
+    .wp-hub__card h3 { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+    .wp-hub__card p { font-size: 13px; color: var(--wpadmin-text-subtle); margin: 0; }
+  </style>
+</head>
+<body>
+  <!-- @include header -->
+
+  <main class="wp-hub">
+    <p class="wp-hub__breadcrumb">Platform</p>
+    <h1>WordPress</h1>
+    <p class="wp-hub__lead">Everything Plugin SDK ships for WordPress plugin development — runtime, scaffold, design system, and the agent docs that load into Cursor / Claude Code / Cline.</p>
+
+    <div class="wp-hub__grid">
+      <a class="wp-hub__card" href="/wordpress/get-started/">
+        <h3>Get started</h3>
+        <p>Scaffold a new plugin, add the runtime to an existing one, or drop in just the CSS.</p>
+      </a>
+      <a class="wp-hub__card" href="/wordpress/components/">
+        <h3>Components</h3>
+        <p>Every WordPress admin primitive with copy buttons for HTML, AI prompt, React, and PHP.</p>
+      </a>
+      <a class="wp-hub__card" href="/wordpress/layouts/">
+        <h3>Layouts</h3>
+        <p>Pre-assembled full admin pages: settings, list tables, dashboards, onboarding.</p>
+      </a>
+      <a class="wp-hub__card" href="/wordpress/docs/">
+        <h3>Docs</h3>
+        <p>The runtime API, the manifest schema, the patterns the SDK enforces.</p>
+      </a>
+      <a class="wp-hub__card" href="/wordpress/skills/">
+        <h3>Agent skills</h3>
+        <p>Focused expertise files — security, database, publishing, release pipeline — loadable by URL.</p>
+      </a>
+      <a class="wp-hub__card" href="/changelog/">
+        <h3>Changelog</h3>
+        <p>What shipped, when, and what's next.</p>
+      </a>
+    </div>
+  </main>
+
+  <!-- @include footer -->
+</body>
+</html>
