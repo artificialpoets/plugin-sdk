@@ -310,10 +310,18 @@ async function main() {
   const today = new Date().toISOString().slice(0, 10);
   const sitemapUrls = [
     { loc: `${SITE_URL}/`,                priority: '1.0', lastmod: today },
-    { loc: `${SITE_URL}/components.html`, priority: '0.9', lastmod: today },
-    { loc: `${SITE_URL}/layouts.html`,    priority: '0.9', lastmod: today },
-    { loc: `${SITE_URL}/docs.html`,       priority: '0.9', lastmod: today },
-    { loc: `${SITE_URL}/changelog.html`,  priority: '0.8', lastmod: entries[0]?.date || today },
+    // Sitemap entries — kept in lockstep with vite.config.js
+    // rollupOptions.input. /wordpress/* mirrors the new directory
+    // namespace introduced when the site was reorganised for
+    // multi-platform extensibility.
+    { loc: `${SITE_URL}/wordpress/`,                priority: '0.9', lastmod: today },
+    { loc: `${SITE_URL}/wordpress/get-started/`,    priority: '0.9', lastmod: today },
+    { loc: `${SITE_URL}/wordpress/components/`,     priority: '0.9', lastmod: today },
+    { loc: `${SITE_URL}/wordpress/layouts/`,        priority: '0.9', lastmod: today },
+    { loc: `${SITE_URL}/wordpress/docs/`,           priority: '0.9', lastmod: today },
+    { loc: `${SITE_URL}/wordpress/skills/`,         priority: '0.8', lastmod: today },
+    { loc: `${SITE_URL}/about/`,                    priority: '0.6', lastmod: today },
+    { loc: `${SITE_URL}/changelog/`,                priority: '0.8', lastmod: entries[0]?.date || today },
     ...entries.map(e => ({
       loc: `${SITE_URL}/changelog/${e.id}.html`,
       priority: '0.6',
@@ -429,7 +437,7 @@ ${PAGE_STYLES}
   <!-- @include header -->
 
   <main class="entry-focus">
-    <p class="back-link"><a href="../changelog.html">← All releases</a></p>
+    <p class="back-link"><a href="/changelog/">← All releases</a></p>
 
     ${renderEntryArticleHtml(entry, {
       permalink: url,

@@ -77,7 +77,7 @@ export const entries = [
       </ul>
 
       <h3>Interactive documentation</h3>
-      <p>The site you're reading. <a href="/components.html">/components</a> — 25+ primitives across 10 categories with HTML / AI Prompt / React / PHP copy tabs and live previews scoped to the docs page. <a href="/layouts.html">/layouts</a> — four full plugin admin templates (Settings, List Table, Dashboard, Onboarding) with the same four-tab recipe. <a href="/docs.html">/docs</a> — install paths, core concepts, customizing, the agent recipe, skills reference, boilerplate walkthrough.</p>
+      <p>The site you're reading. <a href="/wordpress/components/">/components</a> — 25+ primitives across 10 categories with HTML / AI Prompt / React / PHP copy tabs and live previews scoped to the docs page. <a href="/wordpress/layouts/">/layouts</a> — four full plugin admin templates (Settings, List Table, Dashboard, Onboarding) with the same four-tab recipe. <a href="/wordpress/docs/">/docs</a> — install paths, core concepts, customizing, the agent recipe, skills reference, boilerplate walkthrough.</p>
 
       <h3>Open source</h3>
       <p>Apache 2.0 for the framework. GPLv2-or-later for <code>packages/wp-core-css</code> (which bundles WordPress core admin CSS — itself GPL) and the <code>boilerplate</code> (WordPress plugin convention). Apache 2.0 → GPL is one-way compatible, so plugins built from the boilerplate can incorporate every package without conflict. See <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/NOTICE">NOTICE</a> for the full attribution.</p>
@@ -85,7 +85,7 @@ export const entries = [
       <h3>How to get started</h3>
       <p>One line into your plugin admin page:</p>
       <p><code>&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/latest.css"&gt;</code></p>
-      <p>Then use real WordPress admin class names. Or clone the boilerplate. Or point your AI agent at <code>cdn.wp-admincss.com/AGENTS.md</code>. Read <a href="/docs.html">the docs</a> for the full guide.</p>
+      <p>Then use real WordPress admin class names. Or clone the boilerplate. Or point your AI agent at <code>cdn.wp-admincss.com/AGENTS.md</code>. Read <a href="/wordpress/docs/">the docs</a> for the full guide.</p>
 
       <h3>Thanks</h3>
       <p>Built by <a href="https://artificialpoets.com">Artificial Poets</a>. Feedback, bugs, and PRs: <a href="https://github.com/artificialpoets/plugin-sdk/issues">github.com/artificialpoets/plugin-sdk</a>.</p>

@@ -1,0 +1,19 @@
+# Cloudflare Pages redirects file.
+#
+# Preserves the original .html URLs (links shared externally, bookmarks,
+# search-engine indices) after the site reorg into /wordpress/* and
+# /changelog/. Every old URL 301s to its new home so nothing breaks.
+#
+# Syntax: <from>  <to>  <status>
+# 301 = permanent. Search engines update their index to the new URL.
+
+# WordPress platform — primary pages
+/components.html      /wordpress/components/   301
+/components           /wordpress/components/   301
+/layouts.html         /wordpress/layouts/      301
+/layouts              /wordpress/layouts/      301
+/docs.html            /wordpress/docs/         301
+/docs                 /wordpress/docs/         301
+
+# Changelog
+/changelog.html       /changelog/              301

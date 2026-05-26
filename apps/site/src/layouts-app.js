@@ -76,7 +76,7 @@ function renderLayout(id) {
   document.title = `${layout.name} — Layouts — Plugin SDK`;
 
   const componentsList = layout.uses
-    ? `<p class="layout-doc__components"><strong>Uses:</strong> ${layout.uses.map(c => `<a href="components.html#/${c.id}">${c.name}</a>`).join(', ')}</p>`
+    ? `<p class="layout-doc__components"><strong>Uses:</strong> ${layout.uses.map(c => `<a href="/wordpress/components/#/${c.id}">${c.name}</a>`).join(', ')}</p>`
     : '';
 
   const code = layout.code;
