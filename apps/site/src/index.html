@@ -628,6 +628,10 @@
       transform: translateX(2px);
       color: var(--wpadmin-primary);
     }
+    .showcase-cta {
+      text-align: center;
+      margin: 36px 0 0;
+    }
 
     /* ── AI copy flow ───────────────────────────────────────────────────── */
     .copy-flow {
@@ -1664,14 +1668,17 @@
     </p>
   </section>
 
-  <!-- Component showcase -->
+  <!-- Component showcase — live HTML previews. These are real WP-CSS-styled
+       components, not screenshots: every card renders the same markup
+       Plugin SDK emits in your plugin. Click through to /wordpress/components/
+       for the full catalog with HTML / React / PHP / AI-prompt copy buttons. -->
   <section class="showcase">
     <div class="section">
       <div class="section-header centered">
-        <p class="eyebrow">Component library</p>
-        <h2 class="section-title">25+ components. Pure CSS.</h2>
+        <p class="eyebrow">Layer ① — the design system</p>
+        <h2 class="section-title">25+ live components, rendered with real WP class names.</h2>
         <p class="section-lead">
-          Every primitive you need for a polished plugin admin page. Click any tile to see the live preview and copy the code.
+          These tiles are not screenshots — they're real <code>.button</code>, <code>.notice</code>, <code>.wp-admin-statcard</code> markup styled by the same CSS your plugin would load. Inherit the user's WP color scheme automatically. Copy-paste HTML, React, PHP, or an AI prompt for each from the catalog.
         </p>
       </div>
 
@@ -1696,6 +1703,23 @@
           </div>
           <div class="showcase-footer">
             <span class="name">Button</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
+        <a href="/wordpress/components/#/form-table" class="showcase-card">
+          <div class="showcase-preview" style="padding:14px 18px;align-items:stretch">
+            <table class="form-table" style="margin:0;width:100%">
+              <tr>
+                <th scope="row" style="padding:6px 12px 6px 0;font-size:12px;width:90px">API Key</th>
+                <td style="padding:6px 0">
+                  <input type="text" class="regular-text" value="sk-abc1234…" readonly style="font-size:12px;padding:3px 6px;max-width:100%">
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Form Table</span>
             <span class="arrow">→</span>
           </div>
         </a>
@@ -1758,7 +1782,28 @@
           </div>
         </a>
 
+        <a href="/wordpress/components/#/empty-state" class="showcase-card">
+          <div class="showcase-preview" style="padding:14px">
+            <div class="wp-admin-empty" style="padding:14px 8px;width:100%">
+              <div class="wp-admin-empty__icon" style="font-size:22px;margin-bottom:6px">📭</div>
+              <div class="wp-admin-empty__title" style="font-size:13px;font-weight:600;margin-bottom:2px">No events yet</div>
+              <div class="wp-admin-empty__description" style="font-size:11px;color:var(--wpadmin-text-subtle)">Create your first event to get started.</div>
+            </div>
+          </div>
+          <div class="showcase-footer">
+            <span class="name">Empty State</span>
+            <span class="arrow">→</span>
+          </div>
+        </a>
+
       </div>
+
+      <p class="showcase-cta">
+        <a href="/wordpress/components/" class="btn-primary" style="padding:11px 22px">
+          Browse all 25+ components
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </p>
     </div>
   </section>
 
