@@ -1,0 +1,182 @@
+name: Release
+
+# Strategy:
+#   - Every push to `main` cuts a new release (unless [skip-release]).
+#   - First run for a header version (no v* tag yet) ships that version
+#     verbatim — lets maintainers seed an intentional starting version
+#     without a bump. Subsequent runs auto-bump: patch by default,
+#     `[minor]` or `[major]` in the head commit message overrides.
+#   - A commit message containing `[skip-release]` short-circuits the
+#     job. The bump commit pushed back by this workflow always includes
+#     that flag, so it never recurses.
+#   - The actual build is delegated to bin/build.sh so local builds and
+#     CI builds produce byte-identical output.
+#
+# Channel notes:
+#   - For wp.org-only plugins this workflow is omitted by the scaffolder
+#     (wp.org updates ship through SVN trunk, not GH releases).
+#   - For github-only and dual-channel plugins the GH release is the
+#     update source. Dual-channel additionally writes a
+#     .use-github-updates marker into the dist (see bin/build.sh github)
+#     so the Plugin Update Checker block in <slug>.php only activates
+#     on the GitHub-built artefact, leaving the wp.org zip alone.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: "!contains(github.event.head_commit.message, '[skip-release]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+          coverage: none
+
+      # ─── Quality gate (mirror of ci.yml) ──────────────────────────
+      # Belt and braces: we don't trust a green PR to mean main will be
+      # green, because main can also receive direct pushes. Re-run the
+      # same checks here so no release ever ships from a broken main.
+      - name: Install composer dev deps
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHP syntax
+        run: composer run phpsyntax
+
+      - name: PHPCS
+        run: composer run lint
+
+      # ─── Version resolution ───────────────────────────────────────
+
+      - name: Read current header version
+        id: header
+        run: |
+          VER=$(grep -E '^\s*\*\s*Version:' plugin-sdk-starter.php | head -1 \
+                | sed -E 's/.*Version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          if [ -z "$VER" ]; then
+            echo "::error::Could not read Version: from plugin-sdk-starter.php header"
+            exit 1
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "Header version: $VER"
+
+      - name: Decide release version
+        id: target
+        run: |
+          HEADER="${{ steps.header.outputs.version }}"
+          MSG="${{ github.event.head_commit.message }}"
+
+          if git rev-parse "v${HEADER}" >/dev/null 2>&1; then
+            echo "Tag v${HEADER} already exists — bumping."
+            BUMP_FROM_HEADER=1
+          else
+            echo "Tag v${HEADER} does not exist yet — releasing header version verbatim."
+            BUMP_FROM_HEADER=0
+          fi
+
+          if [ "$BUMP_FROM_HEADER" = "0" ]; then
+            NEXT="$HEADER"
+            BUMPED=0
+          else
+            if echo "$MSG" | grep -Eqi '\[major\]'; then
+              LEVEL=major
+            elif echo "$MSG" | grep -Eqi '\[minor\]'; then
+              LEVEL=minor
+            else
+              LEVEL=patch
+            fi
+            IFS='.' read -r MAJ MIN PAT <<< "$HEADER"
+            case "$LEVEL" in
+              major) MAJ=$((MAJ+1)); MIN=0; PAT=0;;
+              minor) MIN=$((MIN+1)); PAT=0;;
+              patch) PAT=$((PAT+1));;
+            esac
+            NEXT="${MAJ}.${MIN}.${PAT}"
+            BUMPED=1
+            echo "Bump level: $LEVEL  →  $NEXT"
+          fi
+
+          echo "version=$NEXT"  >> "$GITHUB_OUTPUT"
+          echo "bumped=$BUMPED" >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite version in header, constant, and readme
+        if: steps.target.outputs.bumped == '1'
+        run: |
+          NEXT="${{ steps.target.outputs.version }}"
+          # Plugin header.
+          sed -i -E "s/^([[:space:]]*\*[[:space:]]*Version:[[:space:]]*).*/\1${NEXT}/" plugin-sdk-starter.php
+          # The PSDK_VERSION constant — the scaffolder rewrites the name
+          # to <PREFIX>_VERSION at scaffold time, so this sed pattern
+          # already targets the right constant for each plugin.
+          sed -i -E "s/(define\([[:space:]]*'PSDK_VERSION',[[:space:]]*)'[^']+'/\1'${NEXT}'/" plugin-sdk-starter.php
+          # readme.txt Stable tag (so wp.org SVN trunk and the
+          # distributed plugin agree on the current version).
+          sed -i -E "s/^(Stable tag:[[:space:]]*).*/\1${NEXT}/" readme.txt
+          echo "--- updated header ---"
+          grep -E "Version:|PSDK_VERSION|Stable tag" plugin-sdk-starter.php readme.txt | head -6
+
+      - name: Commit version bump back to main
+        if: steps.target.outputs.bumped == '1'
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add plugin-sdk-starter.php readme.txt
+          git commit -m "chore(release): v${{ steps.target.outputs.version }} [skip-release]"
+          git push origin HEAD:main
+
+      # ─── Plugin Check (against the same dist that ships) ──────────
+
+      - name: Build dist (used by Plugin Check and the release upload)
+        # `github` mode writes the .use-github-updates marker, which is
+        # a no-op for github-only and wp.org-only channels (no marker
+        # check in their main file) and the activator for dual-channel
+        # (whose PUC block boots only when the marker is present).
+        run: bash bin/build.sh github
+
+      - name: Run Plugin Check on the built dist
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: ./build/plugin-sdk-starter
+          ignore-warnings: true
+
+      # ─── Publish release ──────────────────────────────────────────
+
+      - name: Stage release assets
+        run: |
+          VERSION="${{ steps.target.outputs.version }}"
+          ls -lh build/plugin-sdk-starter.zip "build/plugin-sdk-starter-v${VERSION}.zip"
+
+      - name: Create GitHub release with both zip assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.target.outputs.version }}"
+          TAG="v${VERSION}"
+          # The versioned zip is the canonical asset; the unversioned
+          # zip is a "latest" pointer for convenience (used by README
+          # install instructions and self-hosted update checkers).
+          gh release create "$TAG" \
+            "build/plugin-sdk-starter-v${VERSION}.zip" \
+            "build/plugin-sdk-starter.zip" \
+            --title "$TAG" \
+            --target main \
+            --generate-notes \
+            --latest
