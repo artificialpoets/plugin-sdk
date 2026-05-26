@@ -69,6 +69,47 @@ export async function askConfirm(
   }
 }
 
+/**
+ * Multiple-choice prompt. Shows a numbered list, accepts either the
+ * position (1, 2, …) or the literal value name. Bare Enter selects the
+ * default. Loops on invalid input.
+ */
+export async function askChoice<T extends string>(
+  question: string,
+  choices: ReadonlyArray<{ value: T; label: string; description?: string }>,
+  defaultValue: T,
+): Promise<T> {
+  const interface_ = ensureRl();
+  for (;;) {
+    console.log(`\n${question}`);
+    for (let i = 0; i < choices.length; i++) {
+      const choice = choices[i]!;
+      const marker = choice.value === defaultValue ? c.bold('●') : c.dim('○');
+      const label  = choice.value === defaultValue ? c.bold(choice.label) : choice.label;
+      console.log(`  ${marker} [${i + 1}] ${label}`);
+      if (choice.description) {
+        console.log(`        ${c.dim(choice.description)}`);
+      }
+    }
+    const raw = (await interface_.question(
+      `Pick 1-${choices.length} ${c.dim(`(default: ${defaultValue})`)} `,
+    )).trim();
+
+    if (!raw) return defaultValue;
+
+    const num = Number.parseInt(raw, 10);
+    if (Number.isFinite(num) && num >= 1 && num <= choices.length) {
+      return choices[num - 1]!.value;
+    }
+    // Allow typing the value name directly too — handy for non-interactive
+    // copy-paste from CLI documentation.
+    const byValue = choices.find((c) => c.value === raw);
+    if (byValue) return byValue.value;
+
+    console.log(c.red(`  Pick a number 1-${choices.length} or a value name.`));
+  }
+}
+
 export function closePrompt(): void {
   if (rl) {
     rl.close();

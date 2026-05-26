@@ -33,6 +33,7 @@ const ctx: PluginContext = {
   description: 'Smoke test for the Plugin SDK scaffolder.',
   author: 'Acme QA',
   authorUrl: 'https://example.test',
+  channel: 'wp.org',
 };
 
 describe('scaffolder smoke test — WordPress', () => {

@@ -28,4 +28,24 @@ export interface Platform {
    * (composer install, etc.). Throw on failure.
    */
   postCreate?(outDir: string, ctx: PluginContext): Promise<void>;
+  /**
+   * Per-file emission gate. Receives the original (pre-rename) relative
+   * path and the plugin context. Returns `false` to skip the file
+   * entirely. Default: emit every file.
+   *
+   * Used for channel-conditional output — e.g. `wp.org`-only plugins
+   * don't need `.github/workflows/release.yml` because their release
+   * flow is wp.org SVN, not a GitHub release.
+   */
+  shouldEmit?(relPath: string, ctx: PluginContext): boolean;
+  /**
+   * Pre-substitution content patch. Runs BEFORE the substitution rules
+   * are applied. Returns the (possibly modified) text. Default: pass-through.
+   *
+   * Used for channel-conditional content — e.g. stripping the Plugin
+   * Update Checker block from the main PHP file when the channel is
+   * `wp.org`, or making the marker check unconditional when it's
+   * `github`.
+   */
+  patchFile?(relPath: string, text: string, ctx: PluginContext): string;
 }

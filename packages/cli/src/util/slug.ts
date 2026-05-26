@@ -80,3 +80,16 @@ export function validateConstantPrefix(prefix: string): string | null {
   if (!ALLOWED_CONSTANT_PREFIX.test(prefix)) return 'Constant prefix must be UPPER_SNAKE ending in _, e.g. ACME_FORMS_';
   return null;
 }
+
+import type { DistributionChannel } from '../template.ts';
+
+/** Returns the parsed channel value, or null if the input is not a known channel. */
+export function parseChannel(value: string): DistributionChannel | null {
+  if (value === 'wp.org' || value === 'github' || value === 'dual') return value;
+  return null;
+}
+
+export function validateChannel(value: string): string | null {
+  if (!parseChannel(value)) return "Channel must be one of: wp.org, github, dual";
+  return null;
+}

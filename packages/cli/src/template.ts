@@ -21,6 +21,26 @@
  * patterns are literal strings — no escaping needed by callers.
  */
 
+/**
+ * Distribution channel for the scaffolded plugin. Decides which CI
+ * workflow files are emitted, whether the Plugin Update Checker block
+ * is included in the main PHP file, and whether the PUC composer
+ * dependency lands in composer.json.
+ *
+ * - `wp.org`  — submission to the WordPress.org Plugin Directory.
+ *               Updates ship via wp.org SVN; no GitHub release pipeline,
+ *               no PUC code. The safest baseline for Plugin Check
+ *               (no extra deps that might trip review).
+ * - `github`  — self-hosted via GitHub releases. PUC is always-on so
+ *               the plugin checks the repo's releases page for updates.
+ *               No wp.org submission flow.
+ * - `dual`    — both. Source ships to both channels; PUC is gated on
+ *               a `.use-github-updates` marker that bin/build.sh writes
+ *               only into the GitHub-flavoured dist. The wp.org zip is
+ *               PUC-free; the GH zip auto-updates via PUC.
+ */
+export type DistributionChannel = 'wp.org' | 'github' | 'dual';
+
 export interface PluginContext {
   /** Human-readable name: "Acme Forms" */
   name: string;
@@ -40,6 +60,8 @@ export interface PluginContext {
   author: string;
   /** Author URL — optional, empty string if none */
   authorUrl: string;
+  /** Distribution channel — see DistributionChannel above. */
+  channel: DistributionChannel;
 }
 
 /** Build the list of (from, to) replacements in dependency order. */

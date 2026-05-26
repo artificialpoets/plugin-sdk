@@ -28,13 +28,14 @@ import { resolve } from 'node:path';
 import { exit, argv } from 'node:process';
 import { pathExists } from './util/fs.ts';
 import { c, error, info, step, success } from './util/log.ts';
-import { askConfirm, askText, closePrompt } from './prompts.ts';
+import { askChoice, askConfirm, askText, closePrompt } from './prompts.ts';
 import { getPlatform, listPlatforms } from './platforms/index.ts';
 import {
   deriveConstantPrefix,
   deriveDbVersionOption,
   deriveNamespace,
   deriveSlug,
+  parseChannel,
   validateConstantPrefix,
   validateName,
   validateNamespace,
@@ -42,7 +43,7 @@ import {
 } from './util/slug.ts';
 import { scaffold } from './scaffolder.ts';
 import { codegenCommand } from './codegen/index.ts';
-import type { PluginContext } from './template.ts';
+import type { DistributionChannel, PluginContext } from './template.ts';
 
 interface Flags {
   command: string | null;
@@ -54,6 +55,7 @@ interface Flags {
   description?: string;
   author?: string;
   authorUrl?: string;
+  channel?: string;
   /** Path to plugin-sdk.json (codegen). */
   manifest?: string;
   out?: string;
@@ -93,6 +95,7 @@ function parseArgs(args: string[]): Flags {
         case 'description': out.description = val; break;
         case 'author':      out.author = val; break;
         case 'author-url':  out.authorUrl = val; break;
+        case 'channel':     out.channel = val; break;
         case 'out':         out.out = val; break;
         default:
           error(`Unknown flag: ${arg}`);
@@ -129,6 +132,10 @@ ${c.bold('Flags for `create`')}
   --description="..."      Plugin description
   --author="Name"          Author display name
   --author-url=<url>       Author URL
+  --channel=<id>           Distribution channel: wp.org | github | dual
+                           (default: wp.org). Decides whether release.yml,
+                           readme.txt, submission-prep.sh, and the Plugin
+                           Update Checker block are included.
   --out=<dir>              Output directory (default: ./<slug>)
   --no-install             Skip the platform's post-create hook (e.g.
                            skip 'composer install' on WordPress)
@@ -202,6 +209,43 @@ async function buildContext(flags: Flags): Promise<PluginContext> {
     authorUrl = raw.trim();
   }
 
+  // Distribution channel — see DistributionChannel in template.ts for
+  // the per-value contract. Default is `wp.org`: the safest choice for
+  // Plugin Check and the most common case for new plugins.
+  let channel: DistributionChannel;
+  if (flags.channel !== undefined) {
+    const parsed = parseChannel(flags.channel);
+    if (!parsed) {
+      error(`Invalid --channel value: '${flags.channel}'. Use wp.org, github, or dual.`);
+      exit(1);
+    }
+    channel = parsed;
+  } else if (flags.yes) {
+    channel = 'wp.org';
+  } else {
+    channel = await askChoice<DistributionChannel>(
+      'Distribution channel — where will updates come from?',
+      [
+        {
+          value: 'wp.org',
+          label: 'WordPress.org plugin directory',
+          description: 'Updates via wp.org SVN. No GH release pipeline, no PUC.',
+        },
+        {
+          value: 'github',
+          label: 'Self-hosted via GitHub releases',
+          description: 'Plugin Update Checker pulls updates from your GH repo. No wp.org submission.',
+        },
+        {
+          value: 'dual',
+          label: 'Both — dual-channel',
+          description: 'wp.org for the directory; GH releases for early-access / prerelease builds.',
+        },
+      ],
+      'wp.org',
+    );
+  }
+
   return {
     name: finalName,
     slug,
@@ -212,6 +256,7 @@ async function buildContext(flags: Flags): Promise<PluginContext> {
     description,
     author,
     authorUrl,
+    channel,
   };
 }
 

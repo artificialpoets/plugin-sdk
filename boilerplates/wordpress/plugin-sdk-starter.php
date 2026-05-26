@@ -67,3 +67,35 @@ add_action('plugins_loaded', static function() {
 // Lifecycle hooks at the top level (NOT inside plugins_loaded).
 register_activation_hook(__FILE__,   ['\PluginSDK\Starter\Lifecycle', 'activate']);
 register_deactivation_hook(__FILE__, ['\PluginSDK\Starter\Lifecycle', 'deactivate']);
+
+/* === PUC:BEGIN === */
+/*
+ * Self-hosted update checker — Plugin Update Checker by yahnis-elsts.
+ *
+ * When the plugin is distributed via GitHub releases (instead of, or
+ * alongside, the WordPress.org Plugin Directory), PUC reads update
+ * metadata from the GH release page so subscribers see updates in
+ * their Dashboard. The marker file `.use-github-updates` is written
+ * into the dist by `bin/build.sh github`; wp.org-flavoured dists do
+ * not contain it, so the same source plays nicely with both channels.
+ *
+ * Channel patches at scaffold time:
+ *   - wp.org-only  → the entire PUC:BEGIN/PUC:END block is removed.
+ *   - github-only  → `file_exists(...)` is replaced with `true` so PUC
+ *                    always runs (no marker required).
+ *   - dual         → block stays exactly as written below; the marker
+ *                    file in the dist switches PUC on or off.
+ *
+ * Replace the GitHub URL below with your actual repo when releasing.
+ */
+if (
+    file_exists(PSDK_DIR . '.use-github-updates')
+    && class_exists(\YahnisElsts\PluginUpdateChecker\v5\PucFactory::class)
+) {
+    \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+        'https://github.com/your-org/plugin-sdk-starter/',
+        PSDK_FILE,
+        'plugin-sdk-starter'
+    );
+}
+/* === PUC:END === */

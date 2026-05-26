@@ -12,6 +12,7 @@ const ctx: PluginContext = {
   description: 'Forms plugin for Acme.',
   author: 'Acme Corp',
   authorUrl: 'https://acme.example',
+  channel: 'wp.org',
 };
 
 describe('substitute — PHP namespace', () => {
