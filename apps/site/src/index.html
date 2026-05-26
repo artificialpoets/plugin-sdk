@@ -1729,15 +1729,11 @@
         </a>
 
         <a href="/wordpress/components/#/form-table" class="showcase-card">
-          <div class="showcase-preview" style="padding:14px 18px;align-items:stretch">
-            <table class="form-table" style="margin:0;width:100%">
-              <tr>
-                <th scope="row" style="padding:6px 12px 6px 0;font-size:12px;width:90px">API Key</th>
-                <td style="padding:6px 0">
-                  <input type="text" class="regular-text" value="sk-abc1234…" readonly style="font-size:12px;padding:3px 6px;max-width:100%">
-                </td>
-              </tr>
-            </table>
+          <div class="showcase-preview" style="padding:18px 20px;align-items:center">
+            <div style="display:flex;align-items:center;gap:14px;width:100%">
+              <span style="font-size:12px;font-weight:600;color:var(--wpadmin-text);white-space:nowrap">API Key</span>
+              <input type="text" class="regular-text" value="sk-abc1234…" readonly style="font-size:12px;padding:3px 6px;flex:1;min-width:0">
+            </div>
           </div>
           <div class="showcase-footer">
             <span class="name">Form Table</span>
@@ -1792,9 +1788,14 @@
 
         <a href="/wordpress/components/#/nav-tabs" class="showcase-card">
           <div class="showcase-preview" style="align-items:flex-end;padding-bottom:0">
+            <!-- These are <span>s, not <a>s. Nested anchors aren't valid
+                 HTML — the browser would auto-close the outer .showcase-card
+                 <a> at the first inner <a>, fragmenting the card. The .nav-tab
+                 styling is applied via class, so swapping the element is a
+                 zero-cost visual change. -->
             <nav class="nav-tab-wrapper" style="margin:0;width:100%">
-              <a href="#" class="nav-tab nav-tab-active">General</a>
-              <a href="#" class="nav-tab">Advanced</a>
+              <span class="nav-tab nav-tab-active">General</span>
+              <span class="nav-tab">Advanced</span>
             </nav>
           </div>
           <div class="showcase-footer">
