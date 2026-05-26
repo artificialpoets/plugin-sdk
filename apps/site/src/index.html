@@ -444,6 +444,136 @@
       line-height: 1.6;
     }
 
+    /* ── Three layers — the architectural map of what's in the SDK ────── */
+    .layers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .layer-card {
+      display: flex;
+      flex-direction: column;
+      padding: 28px 26px;
+      background: var(--wpadmin-surface);
+      border: 1px solid var(--wpadmin-border);
+      border-radius: 12px;
+      color: inherit;
+      text-decoration: none;
+      transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .layer-card:hover {
+      border-color: var(--wpadmin-primary);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px -16px rgba(34, 113, 177, .25);
+    }
+    .layer-card__num {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--wpadmin-primary);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .layer-card__title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+      color: var(--wpadmin-text);
+    }
+    .layer-card__tagline {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--wpadmin-primary);
+      margin: 0 0 14px;
+    }
+    .layer-card__desc {
+      font-size: 14px;
+      color: var(--wpadmin-text-subtle);
+      line-height: 1.55;
+      margin: 0 0 16px;
+    }
+    .layer-card__bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 18px;
+    }
+    .layer-card__bullets li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--wpadmin-text);
+      line-height: 1.55;
+      margin-bottom: 6px;
+    }
+    .layer-card__bullets li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--wpadmin-primary);
+      font-weight: 600;
+    }
+    .layer-card__when {
+      font-size: 13px;
+      color: var(--wpadmin-text-subtle);
+      margin: auto 0 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--wpadmin-border);
+    }
+    .layer-card__cta {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--wpadmin-primary);
+    }
+    .layer-card:hover .layer-card__cta { text-decoration: underline; }
+
+    /* Cross-cutting strip — AI agent support that applies across layers */
+    .layers-cross {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 32px;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, rgba(34, 113, 177, .04), rgba(34, 113, 177, .08));
+      border: 1px solid rgba(34, 113, 177, .15);
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .15s, transform .15s;
+    }
+    .layers-cross:hover {
+      border-color: var(--wpadmin-primary);
+      transform: translateY(-2px);
+    }
+    .layers-cross__label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--wpadmin-primary);
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .layers-cross__body { flex: 1; }
+    .layers-cross__body h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      color: var(--wpadmin-text);
+    }
+    .layers-cross__body p {
+      font-size: 14px;
+      color: var(--wpadmin-text-subtle);
+      margin: 0;
+      line-height: 1.55;
+    }
+    .layers-cross__cta {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--wpadmin-primary);
+      flex-shrink: 0;
+    }
+    .layers-cross:hover .layers-cross__cta { text-decoration: underline; }
+
     /* ── Component showcase grid ────────────────────────────────────────── */
     .showcase {
       background: linear-gradient(180deg, var(--wpadmin-surface-alt) 0%, var(--wpadmin-surface) 100%);
@@ -1327,38 +1457,70 @@
     </p>
   </section>
 
-  <!-- What the runtime does -->
+  <!-- Three layers — the SDK's architectural map. Replaces the older
+       "Three concrete surfaces" + "Three rendering surfaces" sections,
+       which described pieces of layers ① and ② in isolation. -->
   <section class="section">
     <div class="section-header centered">
-      <p class="eyebrow">What the runtime gives you</p>
-      <h2 class="section-title">Three concrete surfaces. Wired by the manifest. Hardened by the SDK.</h2>
+      <p class="eyebrow">What's in the SDK</p>
+      <h2 class="section-title">Three layers. Pick what you need.</h2>
       <p class="section-lead">
-        The classes below are part of <code>plugin-sdk/wp</code> (Composer). The manifest compiles to calls into them. You can use the fluent API directly when the manifest can't express what you need.
+        The SDK is modular. A designer can stop at layer one. An existing plugin can add the runtime. A new plugin gets the whole stack — scaffold, runtime, and pipeline — in a single command.
       </p>
     </div>
 
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon">⚙</div>
-        <h3>Settings pages</h3>
-        <p>Declare fields in the manifest. The runtime renders them inside <code>options.php</code> (so the WP nonce round-trip protects every save), runs <strong>type-aware sanitisation</strong> — email/url filter-validated, numbers clamped to min/max, selects whitelisted against options, password preserves printables — and persists the cleaned values as a single WP option.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⇆</div>
-        <h3>REST routes</h3>
-        <p>Declare routes with a JSON Schema for the body. Each request runs through <code>current_user_can()</code>, then your schema. Invalid bodies return <code>WP_Error('rest_invalid_body')</code> with the full path of every failure — <strong>your handler never sees malformed data</strong>. Thrown exceptions wrap into 500s, not white-screen the request.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">⌘</div>
-        <h3>Migrations</h3>
-        <p>Declare tables with columns + indexes. The runtime renders dbDelta-compatible SQL with the <em>exact</em> quirks dbDelta needs (two-space <code>PRIMARY KEY  (col)</code>, <code>KEY</code> not <code>INDEX</code>) and runs it on activate, version-gated via a WP option so reactivations are no-ops.</p>
-      </div>
+    <div class="layers-grid">
+      <a class="layer-card" href="/wordpress/docs/#wp-class-names">
+        <div class="layer-card__num">①</div>
+        <div class="layer-card__title">The design system</div>
+        <p class="layer-card__tagline">Drop-in WordPress styling.</p>
+        <p class="layer-card__desc">Real WP admin class names, all 9 user color schemes, brand-overridable tokens. 25+ components rendered identically by CSS, React, or PHP.</p>
+        <ul class="layer-card__bullets">
+          <li>Zero deps — pure CSS, no JS, no manifest required</li>
+          <li>Auto-responds to the user's WP color scheme</li>
+          <li>50+ CSS tokens, scoped brand overrides per plugin page</li>
+        </ul>
+        <p class="layer-card__when"><strong>Use this alone</strong> when polishing an existing plugin's UI or shipping in your own stack.</p>
+        <span class="layer-card__cta">Read the design-system docs →</span>
+      </a>
+
+      <a class="layer-card" href="/wordpress/docs/#manifest-overview">
+        <div class="layer-card__num">②</div>
+        <div class="layer-card__title">The runtime</div>
+        <p class="layer-card__tagline">Declarative WordPress, secure by construction.</p>
+        <p class="layer-card__desc">Drop a <code>plugin-sdk.json</code>. One <code>Plugin::fromManifest()-&gt;boot()</code> call. Every hook wired with capability checks, nonces, sanitisation, and JSON-Schema validation built in.</p>
+        <ul class="layer-card__bullets">
+          <li>Declare settings, REST routes, and custom tables in one file</li>
+          <li>Cap-check + nonce + sanitize + validate by construction</li>
+          <li>Fluent API as escape hatch when the manifest can't express it</li>
+        </ul>
+        <p class="layer-card__when"><strong>Add this</strong> to a new plugin or an existing one to retire boilerplate plumbing.</p>
+        <span class="layer-card__cta">Read the runtime docs →</span>
+      </a>
+
+      <a class="layer-card" href="/wordpress/docs/#channels">
+        <div class="layer-card__num">③</div>
+        <div class="layer-card__title">The pipeline</div>
+        <p class="layer-card__tagline">Scaffold, build, ship, update.</p>
+        <p class="layer-card__desc">CLI scaffolds a working plugin in 30 seconds. Build pipeline produces a wp.org-clean zip. CI workflows lint + run Plugin Check. Merge to main → versioned GitHub release with auto-bump.</p>
+        <ul class="layer-card__bullets">
+          <li>Three distribution channels: wp.org, GitHub, dual</li>
+          <li>wp.org submission flow + slug research + trademark scan</li>
+          <li>Auto-bump on merge: <code>[major]</code> / <code>[minor]</code> / <code>[skip-release]</code> commit tokens</li>
+        </ul>
+        <p class="layer-card__when"><strong>Use this</strong> when starting a new plugin or shipping continuously.</p>
+        <span class="layer-card__cta">Read the build &amp; ship docs →</span>
+      </a>
     </div>
 
-    <p class="runtimes-footer">
-      → Need fluent control? Same effect from PHP:
-      <code>(new Settings(...))->section(...)->field(...)->register();</code>
-    </p>
+    <a class="layers-cross" href="/wordpress/docs/#agents-overview">
+      <div class="layers-cross__label">Cross-cutting</div>
+      <div class="layers-cross__body">
+        <h3>AI agent support — across every layer.</h3>
+        <p>Every layer ships with agent-loadable docs at <code>cdn.wp-admincss.com/wordpress/</code>. <code>AGENTS.md</code> is the master file; 10 focused skill files cover the patterns each layer enforces. Cursor / Claude Code / Cline / Aider fetch them by URL — no install, no setup.</p>
+      </div>
+      <span class="layers-cross__cta">Browse skills →</span>
+    </a>
   </section>
 
   <!-- Scenarios — common developer journeys, one card per journey -->
@@ -1427,68 +1589,11 @@
     </div>
   </section>
 
-  <!-- Three runtimes — CSS / React / PHP, all rendering the same WP-native markup -->
-  <section class="section">
-    <div class="section-header centered">
-      <p class="eyebrow">Beyond the manifest</p>
-      <h2 class="section-title">Three rendering surfaces. Same WP-native HTML.</h2>
-      <p class="section-lead">
-        For UI the manifest can't express — custom dashboards, list tables, modals — drop down to one of three runtimes. Every package emits identical WordPress-native HTML and inherits the user's color scheme.
-      </p>
-    </div>
+  <!-- The "Three rendering surfaces" section that used to live here was
+       removed as part of the architectural-map consolidation. Its content
+       (CSS / React / PHP triad emitting identical HTML) is captured in the
+       Layer ① card above + the Components catalog at /wordpress/components/. -->
 
-    <div class="runtimes-grid">
-      <div class="runtime-card">
-        <div class="runtime-card__header">
-          <span class="runtime-card__name">CSS</span>
-          <span class="runtime-card__pkg">@plugin-sdk/wp-core-css</span>
-        </div>
-<pre><code><span class="lp-code-comment">&lt;!-- One link, no build step --&gt;</span>
-<span class="punctuation">&lt;</span><span class="green">link</span> <span class="yellow">rel</span>=<span class="value" style="color:#a5d6ff">"stylesheet"</span>
-      <span class="yellow">href</span>=<span class="value" style="color:#a5d6ff">"https://cdn.wp-admincss.com/css/latest.css"</span><span class="punctuation">&gt;</span>
-
-<span class="punctuation">&lt;</span><span class="green">button</span> <span class="yellow">class</span>=<span class="value" style="color:#a5d6ff">"button button-primary"</span><span class="punctuation">&gt;</span>
-  Save Changes
-<span class="punctuation">&lt;/</span><span class="green">button</span><span class="punctuation">&gt;</span></code></pre>
-        <p class="runtime-card__note">Ideal for static admin pages and existing plugins.</p>
-      </div>
-
-      <div class="runtime-card">
-        <div class="runtime-card__header">
-          <span class="runtime-card__name">React</span>
-          <span class="runtime-card__pkg">@plugin-sdk/wp-react</span>
-        </div>
-<pre><code><span class="lp-code-comment">// Typed components, real WP class names</span>
-<span class="keyword">import</span> <span class="punctuation">{</span> <span class="attr">Button</span><span class="punctuation">,</span> <span class="attr">Notice</span> <span class="punctuation">}</span>
-  <span class="keyword">from</span> <span class="value" style="color:#a5d6ff">'@plugin-sdk/wp-react'</span><span class="punctuation">;</span>
-
-<span class="punctuation">&lt;</span><span class="keyword">Button</span> <span class="attr">variant</span>=<span class="value" style="color:#a5d6ff">"primary"</span><span class="punctuation">&gt;</span>
-  <span class="text">Save Changes</span>
-<span class="punctuation">&lt;/</span><span class="keyword">Button</span><span class="punctuation">&gt;</span></code></pre>
-        <p class="runtime-card__note">For modern admin UIs. Pairs with the same CSS bundle.</p>
-      </div>
-
-      <div class="runtime-card">
-        <div class="runtime-card__header">
-          <span class="runtime-card__name">PHP</span>
-          <span class="runtime-card__pkg">plugin-sdk/wp</span>
-        </div>
-<pre><code><span class="lp-code-comment">// Composer-installable render helpers</span>
-<span class="keyword">use</span> <span class="attr">PluginSDK\WP\Components</span><span class="punctuation">;</span>
-
-<span class="keyword">echo</span> <span class="attr">Components</span>::<span class="keyword">button</span><span class="punctuation">(</span>
-  <span class="value" style="color:#a5d6ff">'Save Changes'</span><span class="punctuation">,</span>
-  <span class="punctuation">[</span><span class="value" style="color:#a5d6ff">'variant'</span> <span class="punctuation">=&gt;</span> <span class="value" style="color:#a5d6ff">'primary'</span><span class="punctuation">]</span>
-<span class="punctuation">);</span></code></pre>
-        <p class="runtime-card__note">For server-rendered admin pages in your plugin.</p>
-      </div>
-    </div>
-
-    <p class="runtimes-footer">
-      → All three render the same WP-native HTML:
-      <code>&lt;button class="button button-primary"&gt;Save Changes&lt;/button&gt;</code>
-    </p>
-  </section>
 
   <!-- Security by default — show real boilerplate code -->
   <section class="section security-section">
