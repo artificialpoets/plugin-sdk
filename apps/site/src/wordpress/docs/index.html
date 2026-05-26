@@ -177,7 +177,29 @@
       color: var(--wpadmin-text);
     }
 
-    /* ── Code blocks ─────────────────────────────────────────────────── */
+    /* ── Code blocks ─────────────────────────────────────────────────────
+       Inline JS at the bottom of this file walks every <pre> with a
+       data-lang attribute, wraps it in a .codeblock-wrap, prepends a
+       header bar showing the language name, and tokenises the content
+       so the same colour palette as the landing's copy-flow cards
+       applies — no extra CSS framework, no runtime dependency.            */
+    .codeblock-wrap {
+      margin: 8px 0 18px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0f1115;
+    }
+    .codeblock-header {
+      background: #161a1f;
+      border-bottom: 1px solid #1f2228;
+      padding: 8px 14px;
+      color: #9ba1ab;
+      font-family: var(--wpadmin-font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
     .codeblock {
       background: #0f1115;
       color: #e6e7eb;
@@ -189,6 +211,24 @@
       overflow-x: auto;
       margin: 8px 0 18px;
     }
+    .codeblock-wrap .codeblock {
+      /* Inside the wrapper the wrapper owns the visual border-radius
+         and margin; the inner <pre> is pinned flush to the header
+         above it. */
+      margin: 0;
+      border-radius: 0;
+    }
+
+    /* Token palette — same six colours the landing's copy-flow cards
+       use, so syntax highlighting reads consistently across the site. */
+    .codeblock .keyword     { color: #c990d6; }
+    .codeblock .attr        { color: #79c0ff; }
+    .codeblock .value       { color: #a5d6ff; }
+    .codeblock .punctuation { color: #79c0ff; }
+    .codeblock .yellow      { color: #f0c674; }
+    .codeblock .green       { color: #98c379; }
+    .codeblock .lp-code-comment { color: #6e7d8d; font-style: italic; }
+
     .codeblock + .codeblock-label {
       margin-top: -10px;
     }
@@ -337,15 +377,15 @@
 
         <h2>Scaffold a new plugin</h2>
         <p>The fastest path. One command writes a working WordPress plugin with the manifest, runtime, build pipeline, CI workflows, and reference code already wired up.</p>
-        <pre class="codeblock">npx @plugin-sdk/cli@next create "My Plugin"</pre>
+        <pre class="codeblock" data-lang="bash">npx @plugin-sdk/cli@next create "My Plugin"</pre>
         <p>Interactive prompts ask for slug, namespace, constant prefix, author, and <strong>distribution channel</strong>. For a non-interactive run:</p>
-        <pre class="codeblock">npx @plugin-sdk/cli@next create my-plugin \
+        <pre class="codeblock" data-lang="bash">npx @plugin-sdk/cli@next create my-plugin \
   --platform=wordpress \
   --channel=wp.org \
   --yes</pre>
         <p>The channel decides what ships with the scaffold (see <a href="#channels">Distribution channels</a>). Default is <code>wp.org</code> — the safest baseline for Plugin Check.</p>
         <p>Once scaffolded:</p>
-        <pre class="codeblock">cd my-plugin
+        <pre class="codeblock" data-lang="bash">cd my-plugin
 composer install
 # Activate via wp-admin or wp-env, then visit Settings → My Plugin.</pre>
         <p>Every scaffolded plugin includes a working settings page, custom-table migration, REST endpoint, lifecycle hooks, PSR-4 autoload, i18n, scoped asset enqueue, the build pipeline, CI workflows, and the agent skills mirror on the CDN. Read the full file tour in <a href="#boilerplate">Boilerplate walkthrough</a>.</p>
@@ -354,9 +394,9 @@ composer install
       <section id="add-to-existing">
         <h2>Add to an existing plugin</h2>
         <p>Already maintaining a WordPress plugin? Pull in the runtime via Composer and add a manifest at the plugin root.</p>
-        <pre class="codeblock">composer require plugin-sdk/wp</pre>
+        <pre class="codeblock" data-lang="bash">composer require plugin-sdk/wp</pre>
         <p>Then create <code>plugin-sdk.json</code> next to your main plugin file and boot the runtime once:</p>
-        <pre class="codeblock">&lt;?php
+        <pre class="codeblock" data-lang="php">&lt;?php
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PluginSDK\WP\Plugin;
@@ -371,11 +411,11 @@ add_action('plugins_loaded', function () {
       <section id="just-css">
         <h2>Just the CSS</h2>
         <p>If you don't want the runtime — say you're polishing an existing plugin's admin UI — drop in the CSS bundle and use real WordPress admin class names.</p>
-        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/latest.css"&gt;</pre>
+        <pre class="codeblock" data-lang="html">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/latest.css"&gt;</pre>
         <p class="muted">For production, pin to a version:</p>
-        <pre class="codeblock">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/v0.1.0-rc.1/wp-admin.css"&gt;</pre>
+        <pre class="codeblock" data-lang="html">&lt;link rel="stylesheet" href="https://cdn.wp-admincss.com/css/v0.1.0-rc.1/wp-admin.css"&gt;</pre>
         <p>Or via npm if you have a build pipeline:</p>
-        <pre class="codeblock">npm install @plugin-sdk/wp-core-css @plugin-sdk/wp-tokens
+        <pre class="codeblock" data-lang="bash">npm install @plugin-sdk/wp-core-css @plugin-sdk/wp-tokens
 # In your entry CSS or JS:
 import '@plugin-sdk/wp-tokens';
 import '@plugin-sdk/wp-core-css';</pre>
@@ -385,7 +425,7 @@ import '@plugin-sdk/wp-core-css';</pre>
       <section id="manifest-overview">
         <h2><code>plugin-sdk.json</code></h2>
         <p>The manifest is the single source of truth for your plugin's surface. It's validated against a JSON Schema at boot — anything malformed throws <code>ConfigException</code> with the full validation path. VS Code and JetBrains autocomplete via the <code>$schema</code> URL.</p>
-        <pre class="codeblock">{
+        <pre class="codeblock" data-lang="json">{
   "$schema": "https://cdn.wp-admincss.com/wordpress/plugin-sdk.schema.json",
   "platform": "wordpress",
   "name": "Acme Forms",
@@ -407,7 +447,7 @@ import '@plugin-sdk/wp-core-css';</pre>
       <section id="manifest-settings">
         <h2>Settings page</h2>
         <p>Declare the settings page structure; the runtime renders it inside <code>options.php</code> (so WP's nonce round-trip protects every save) and runs type-aware sanitisation per field.</p>
-        <pre class="codeblock">"settings": {
+        <pre class="codeblock" data-lang="json">"settings": {
   "page": {
     "title": "Acme Forms",
     "capability": "manage_options",
@@ -433,7 +473,7 @@ import '@plugin-sdk/wp-core-css';</pre>
       <section id="manifest-rest">
         <h2>REST routes</h2>
         <p>Declare REST routes with a JSON Schema for the request body. Each request runs through <code>current_user_can()</code> + your schema before your handler executes. Invalid bodies return <code>WP_Error('rest_invalid_body', ...)</code> with the failing JSON Pointer — your handler never sees malformed data.</p>
-        <pre class="codeblock">"rest": {
+        <pre class="codeblock" data-lang="json">"rest": {
   "namespace": "acme-forms/v1",
   "routes": [{
     "path": "/submissions",
@@ -452,7 +492,7 @@ import '@plugin-sdk/wp-core-css';</pre>
   }]
 }</pre>
         <p>Wire the handler to the runtime at boot:</p>
-        <pre class="codeblock">use Acme\Forms\REST\Submissions;
+        <pre class="codeblock" data-lang="php">use Acme\Forms\REST\Submissions;
 
 Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
     -&gt;withRestHandler('Acme\\Forms\\REST\\Submissions::create', [Submissions::class, 'create'])
@@ -463,7 +503,7 @@ Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
       <section id="manifest-database">
         <h2>Custom tables</h2>
         <p>Declare custom tables; the runtime registers an activation hook that runs <code>dbDelta</code> over each definition, gated on a version-stamped option so reactivations are no-ops.</p>
-        <pre class="codeblock">"database": {
+        <pre class="codeblock" data-lang="json">"database": {
   "tables": [{
     "name": "submissions",
     "columns": [
@@ -482,7 +522,7 @@ Plugin::fromManifest(__DIR__ . '/plugin-sdk.json', __FILE__)
       <section id="runtime-bootstrap">
         <h2>Bootstrap</h2>
         <p>The whole startup is one call.</p>
-        <pre class="codeblock">&lt;?php
+        <pre class="codeblock" data-lang="php">&lt;?php
 require_once __DIR__ . '/vendor/autoload.php';
 
 use PluginSDK\WP\Plugin;
@@ -530,7 +570,7 @@ add_action('plugins_loaded', function () {
       <section id="runtime-fluent">
         <h2>Fluent API</h2>
         <p>The declarative manifest compiles to the same fluent calls. Use the fluent API directly when the manifest can't express what you need — they compose.</p>
-        <pre class="codeblock">use PluginSDK\WP\Settings;
+        <pre class="codeblock" data-lang="php">use PluginSDK\WP\Settings;
 use PluginSDK\WP\Settings\Field;
 use PluginSDK\WP\REST;
 use PluginSDK\WP\Migration;
@@ -559,7 +599,7 @@ use PluginSDK\WP\Migration\Table;
       <section id="cli-create">
         <h2><code>plugin-sdk create</code></h2>
         <p>Scaffold a new plugin from the boilerplate. Interactive by default; pass <code>--yes</code> for non-interactive.</p>
-        <pre class="codeblock">npx @plugin-sdk/cli@next create &lt;name&gt; [flags]</pre>
+        <pre class="codeblock" data-lang="bash">npx @plugin-sdk/cli@next create &lt;name&gt; [flags]</pre>
         <table class="docs-table">
           <thead>
             <tr><th>Flag</th><th>Meaning</th></tr>
@@ -583,11 +623,11 @@ use PluginSDK\WP\Migration\Table;
       <section id="cli-codegen">
         <h2><code>plugin-sdk codegen</code></h2>
         <p>Generate a typed TypeScript REST client from your manifest. Useful when the React side talks to the routes declared in <code>rest.routes[]</code> and you want type-checked request bodies without re-declaring schemas.</p>
-        <pre class="codeblock">npx @plugin-sdk/cli@next codegen \
+        <pre class="codeblock" data-lang="bash">npx @plugin-sdk/cli@next codegen \
   --manifest=./plugin-sdk.json \
   --out=./src/generated/plugin-sdk-client.ts</pre>
         <p>The output gives you a typed client to call from React:</p>
-        <pre class="codeblock">import { createPluginSDKClient } from './src/generated/plugin-sdk-client';
+        <pre class="codeblock" data-lang="typescript">import { createPluginSDKClient } from './src/generated/plugin-sdk-client';
 
 const client = createPluginSDKClient({
   baseUrl: window.wpApiSettings.root,
@@ -635,7 +675,7 @@ await client.submissions.create({ email: 'a@b.com' });</pre>
       <section id="build-pipeline">
         <h2>Build pipeline</h2>
         <p>Every scaffolded plugin ships with the tooling to produce a wp.org-clean distribution and self-check it before submission. Two entry points cover most workflows:</p>
-        <pre class="codeblock">npm run build       # bash bin/build.sh   — produce build/&lt;slug&gt;/ + zips
+        <pre class="codeblock" data-lang="bash">npm run build       # bash bin/build.sh   — produce build/&lt;slug&gt;/ + zips
 npm run prep        # bash bin/submission-prep.sh — full pre-submission check
 npm run slug-research # bash bin/slug-research.sh — wp.org slug availability</pre>
         <p>Under the hood:</p>
@@ -665,7 +705,7 @@ npm run slug-research # bash bin/slug-research.sh — wp.org slug availability</
       <section id="release-yml">
         <h2>GitHub release auto-bump</h2>
         <p>For <code>github</code> and <code>dual</code> channels, every push to <code>main</code> auto-cuts a new GitHub release. The bump level is decided by tokens in the head commit message:</p>
-        <pre class="codeblock">git commit -m "Fix off-by-one in cron schedule"      # → patch bump (default)
+        <pre class="codeblock" data-lang="bash">git commit -m "Fix off-by-one in cron schedule"      # → patch bump (default)
 git commit -m "Add CSV export endpoint [minor]"      # → minor bump
 git commit -m "Drop PHP 7.4 support [major]"          # → major bump
 git commit -m "Fix typo in readme [skip-release]"     # → no release</pre>
@@ -684,7 +724,7 @@ git commit -m "Fix typo in readme [skip-release]"     # → no release</pre>
       <section id="puc">
         <h2>Plugin Update Checker</h2>
         <p>For <code>github</code> and <code>dual</code> channels, the scaffold includes a Plugin Update Checker (PUC) block in the main plugin file:</p>
-        <pre class="codeblock">/* === PUC:BEGIN === */
+        <pre class="codeblock" data-lang="php">/* === PUC:BEGIN === */
 if (
     file_exists(MYPLUGIN_DIR . '.use-github-updates')
     && class_exists(\YahnisElsts\PluginUpdateChecker\v5\PucFactory::class)
@@ -722,7 +762,7 @@ if (
       <section id="color-schemes">
         <h2>Color schemes</h2>
         <p>WordPress ships nine admin color schemes: Default, Blue, Coffee, Ectoplasm, Midnight, Ocean, Sunrise, Light, Modern. Plugin SDK responds to all of them via the <code>admin-color-*</code> body class WP applies based on the user's profile.</p>
-        <pre class="codeblock">&lt;body class="admin-color-midnight"&gt;
+        <pre class="codeblock" data-lang="html">&lt;body class="admin-color-midnight"&gt;
   &lt;!-- All tokens use Midnight scheme values --&gt;
 &lt;/body&gt;</pre>
         <p>Inside a WordPress plugin you don't need to do anything — WP sets the body class for you. For previews or design demos, set it yourself; you can also apply it to any ancestor (not just <code>&lt;body&gt;</code>) to isolate the theming to one region.</p>
@@ -753,7 +793,7 @@ if (
       <section id="customize-brand">
         <h2>Brand customization</h2>
         <p>Override tokens to skin your plugin while keeping the WP feel. Scope to a wrapper class so the rest of WP admin stays consistent:</p>
-        <pre class="codeblock">.my-plugin-page {
+        <pre class="codeblock" data-lang="css">.my-plugin-page {
   --wpadmin-primary: #7c3aed;
   --wpadmin-primary-dark: #6d28d9;
   --wpadmin-radius: 8px;
@@ -778,7 +818,7 @@ if (
       <section id="agents-recipe">
         <h2>The agent recipe</h2>
         <p>Point your coding agent at Plugin SDK using a prompt like this:</p>
-        <pre class="codeblock">Read https://cdn.wp-admincss.com/wordpress/AGENTS.md first.
+        <pre class="codeblock" data-lang="text">Read https://cdn.wp-admincss.com/wordpress/AGENTS.md first.
 
 For any state-changing action, load:
   https://cdn.wp-admincss.com/wordpress/skills/security.md
@@ -857,7 +897,7 @@ When building a plugin admin page:
       <section id="boilerplate">
         <h2>Boilerplate walkthrough</h2>
         <p>Every scaffolded plugin is a complete working WordPress plugin. Every file is a worked example — read them before writing similar code from scratch.</p>
-        <pre class="codeblock">my-plugin/
+        <pre class="codeblock" data-lang="text">my-plugin/
 ├── my-plugin.php              ← Plugin bootstrap (Plugin::fromManifest)
 ├── plugin-sdk.json            ← The manifest — settings + REST + database
 ├── composer.json              ← PSR-4 autoload + runtime deps + scripts
@@ -926,7 +966,7 @@ When building a plugin admin page:
         <p>Plugin SDK follows <a href="https://semver.org">semver</a>. Pre-1.0 minor releases may introduce breaking changes; see <a href="https://github.com/artificialpoets/plugin-sdk/blob/main/STABILITY.md">STABILITY.md</a> for the public-API contract.</p>
         <p>Every public PHP symbol carries a <code>@api</code> docblock; internals carry <code>@internal</code>. The runtime <a href="#runtime-classes">classes table above</a> lists exactly what's covered. A drift check fails the build if a new public symbol lacks a tag — adding a public class without thinking about its stability is impossible by construction.</p>
         <p>The TypeScript packages (<code>@plugin-sdk/wp-react</code>, <code>@plugin-sdk/cli</code>) follow the same rule: anything exported from the root entry point is part of the public API; anything in <code>internal/</code> isn't.</p>
-        <pre class="codeblock">use PluginSDK\WP\Version;
+        <pre class="codeblock" data-lang="php">use PluginSDK\WP\Version;
 
 Version::requireAtLeast('0.2.0'); // throws if older
 echo Version::SDK; // "0.1.0-rc.1"</pre>
@@ -939,6 +979,127 @@ echo Version::SDK; // "0.1.0-rc.1"</pre>
   <!-- @include footer -->
 
   <script>
+    /*
+     * Code-block highlighter — runs once at script load.
+     *
+     * For every <pre class="codeblock" data-lang="..."> on the page:
+     *   1. Wrap the <pre> in a .codeblock-wrap div.
+     *   2. Insert a .codeblock-header div above it with the language name.
+     *   3. Tokenise the <pre>'s text content with a small regex-based
+     *      highlighter; emit the same span class names the landing page
+     *      uses (.keyword / .value / .yellow / .green / .punctuation /
+     *      .attr / .lp-code-comment) so colours match across the site.
+     *
+     * The tokeniser protects each matched region with a placeholder
+     * (NUL + index + NUL) before the next regex pass runs — that's
+     * what keeps a "keyword" regex from re-highlighting a keyword
+     * that already lives inside a string literal.
+     */
+    (function () {
+      const LANG_LABEL = {
+        json: 'JSON',
+        php: 'PHP',
+        bash: 'Bash',
+        html: 'HTML',
+        typescript: 'TypeScript',
+        ts: 'TypeScript',
+        css: 'CSS',
+        yaml: 'YAML',
+        text: 'Text',
+      };
+
+      function highlight(code, lang) {
+        const tokens = [];
+        // Placeholder format: NUL + 'T' + index + NUL.
+        // The 'T' letter prefix is load-bearing: it prevents subsequent
+        // regex passes — specifically the JSON \b\d+\b numeric pass —
+        // from matching the digits of the index. Null bytes are
+        // non-word chars, so \b\d+\b WOULD match digits flanked by
+        // them; the 'T' makes the digits part of a word starting with
+        // a letter, which the \b boundary then excludes.
+        const TOK = /\x00T(\d+)\x00/g;
+        const reserve = (html) => {
+          tokens.push(html);
+          return '\x00T' + (tokens.length - 1) + '\x00';
+        };
+
+        const handlers = {
+          json(s) {
+            s = s.replace(/("(?:[^"\\]|\\.)*")(?=\s*:)/g, (m) => reserve('<span class="yellow">' + m + '</span>'));
+            s = s.replace(/("(?:[^"\\]|\\.)*")/g, (m) => reserve('<span class="value">' + m + '</span>'));
+            s = s.replace(/\b(true|false|null)\b/g, (m) => reserve('<span class="keyword">' + m + '</span>'));
+            s = s.replace(/(-?\b\d+(?:\.\d+)?\b)/g, (m) => reserve('<span class="value">' + m + '</span>'));
+            return s;
+          },
+          php(s) {
+            s = s.replace(/(\/\*[\s\S]*?\*\/)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/(\/\/[^\n]*)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")/g, (m) => reserve('<span class="value">' + m + '</span>'));
+            s = s.replace(/\b(use|function|class|extends|implements|new|return|public|private|protected|static|abstract|interface|namespace|echo|true|false|null|if|else|elseif|foreach|for|while|throw|try|catch|require_once|require|include|include_once)\b/g, (m) => reserve('<span class="keyword">' + m + '</span>'));
+            s = s.replace(/\b(__DIR__|__FILE__|__LINE__|__CLASS__|__METHOD__|__FUNCTION__|__NAMESPACE__)\b/g, (m) => reserve('<span class="attr">' + m + '</span>'));
+            return s;
+          },
+          bash(s) {
+            s = s.replace(/(#[^\n]*)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/('(?:[^'])*'|"(?:[^"])*")/g, (m) => reserve('<span class="value">' + m + '</span>'));
+            return s;
+          },
+          html(s) {
+            s = s.replace(/(&lt;!--[\s\S]*?--&gt;)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/(&lt;\/?)([\w-]+)/g, (_, gt, tag) => gt + reserve('<span class="green">' + tag + '</span>'));
+            s = s.replace(/(\s)([\w-]+)(=)/g, (_, sp, attr, eq) => sp + reserve('<span class="yellow">' + attr + '</span>') + eq);
+            s = s.replace(/(=)("[^"]*"|'[^']*')/g, (_, eq, val) => eq + reserve('<span class="value">' + val + '</span>'));
+            return s;
+          },
+          typescript(s) {
+            s = s.replace(/(\/\*[\s\S]*?\*\/)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/(\/\/[^\n]*)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g, (m) => reserve('<span class="value">' + m + '</span>'));
+            s = s.replace(/\b(const|let|var|function|class|import|export|from|return|async|await|new|interface|type|extends|implements|if|else|true|false|null|undefined|as|in|of)\b/g, (m) => reserve('<span class="keyword">' + m + '</span>'));
+            return s;
+          },
+          ts(s) { return handlers.typescript(s); },
+          css(s) {
+            s = s.replace(/(\/\*[\s\S]*?\*\/)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/(--[\w-]+)(?=\s*:)/g, (m) => reserve('<span class="yellow">' + m + '</span>'));
+            s = s.replace(/(:\s*)(#[0-9a-fA-F]+|-?\d+(?:\.\d+)?(?:px|em|rem|%|s|ms)?)/g, (_, prefix, val) => prefix + reserve('<span class="value">' + val + '</span>'));
+            s = s.replace(/(^|\s)(\.[\w-]+|#[\w-]+)/g, (_, sp, sel) => sp + reserve('<span class="green">' + sel + '</span>'));
+            return s;
+          },
+          yaml(s) {
+            s = s.replace(/(#[^\n]*)/g, (m) => reserve('<span class="lp-code-comment">' + m + '</span>'));
+            s = s.replace(/^(\s*)([\w-]+)(:)/gm, (_, sp, key, c) => sp + reserve('<span class="yellow">' + key + '</span>') + c);
+            s = s.replace(/(:\s*)('(?:[^'])*'|"(?:[^"])*")/g, (_, prefix, str) => prefix + reserve('<span class="value">' + str + '</span>'));
+            return s;
+          },
+          text(s) { return s; }
+        };
+
+        let out = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const handler = handlers[lang] || handlers.text;
+        out = handler(out);
+        return out.replace(TOK, (_, idx) => tokens[+idx]);
+      }
+
+      document.querySelectorAll('pre.codeblock[data-lang]').forEach((pre) => {
+        const lang = pre.getAttribute('data-lang');
+        const label = LANG_LABEL[lang] || lang.toUpperCase();
+        // textContent gives us the decoded source (browser un-escapes
+        // &lt;); highlight() then re-escapes before tokenising so the
+        // output HTML is well-formed regardless of input source.
+        const source = pre.textContent;
+        const wrap = document.createElement('div');
+        wrap.className = 'codeblock-wrap';
+        const header = document.createElement('div');
+        header.className = 'codeblock-header';
+        header.textContent = label;
+        wrap.appendChild(header);
+        pre.parentNode.insertBefore(wrap, pre);
+        wrap.appendChild(pre);
+        pre.innerHTML = highlight(source, lang);
+      });
+    })();
+
     // Highlight the sidebar link for the section currently in view.
     // Uses IntersectionObserver — bails on unsupported browsers.
     (function () {
