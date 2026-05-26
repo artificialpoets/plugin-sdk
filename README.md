@@ -60,33 +60,49 @@ Pin to a version in production: `https://cdn.wp-admincss.com/css/v0.1.0/wp-admin
 ### Scaffold a new WordPress plugin
 
 ```bash
-# Coming next release — currently in development
-npx @plugin-sdk/cli create my-plugin --platform=wordpress
+npx @plugin-sdk/cli@next create "My Plugin"
 ```
 
-Until the CLI ships, clone the boilerplate manually:
+Interactive prompts ask for the slug, namespace, constant prefix, author, and **distribution channel**. For a fully non-interactive run:
 
 ```bash
-gh repo clone artificialpoets/plugin-sdk
-cp -r plugin-sdk/boilerplates/wordpress ~/my-plugin
-cd ~/my-plugin
-composer install
-# Rename PLUGIN_SDK → MyPlugin throughout, activate, and you're shipping.
+npx @plugin-sdk/cli@next create my-plugin \
+  --platform=wordpress \
+  --channel=wp.org \
+  --yes
 ```
 
-The boilerplate is a complete working plugin with:
+The channel decides which CI workflows and helper scripts ship with the scaffold:
 
-- Secure settings page (capability + nonce + sanitize + escape)
-- Custom table with `dbDelta` migration and a typed repository
-- REST endpoint with schema validation
-- Lifecycle hooks (activate / deactivate / uninstall)
-- PSR-4 autoloading, i18n setup, scoped asset enqueue
+| `--channel=` | Updates from… | `release.yml`? | `readme.txt` + submission-prep? | PUC code? |
+|---|---|---|---|---|
+| `wp.org` (default) | WordPress.org SVN | no | yes | none |
+| `github` | GitHub releases (Plugin Update Checker) | yes | no | always-on |
+| `dual` | Both — wp.org for the directory, GH for early access | yes | yes | marker-gated |
+
+Every scaffold is a complete working plugin with:
+
+- **Manifest-driven runtime** — `plugin-sdk.json` declares the settings page, REST routes, and custom tables; one `Plugin::fromManifest()` call wires every WordPress hook with capability checks, nonces, sanitisation, and JSON-schema body validation built in.
+- **Build pipeline** — `bin/build.sh` produces a wp.org-clean dist + zip via `rsync` and `.distignore`. `phpcs.xml.dist` + `composer run lint` mirror what wp.org reviewers run.
+- **CI workflows** — `.github/workflows/ci.yml` runs lint + Plugin Check on every push. For `github` / `dual` channels, `.github/workflows/release.yml` auto-bumps the version (commit message tokens `[major]` / `[minor]` / `[skip-release]` control it), pushes the bump back to `main`, builds the dist, runs Plugin Check, and publishes a GitHub release with both zips.
+- **Submission prep** (`wp.org` / `dual`) — `npm run prep` walks the same checks a wp.org reviewer will run and prints the SVN trunk → tag commands for first submission and subsequent releases.
+- **Slug research** — `npm run slug-research` queries the wp.org API + scans for trademark collisions before you commit to a slug (which can't be renamed after wp.org approval).
+- Reference WordPress code — secure settings page, custom-table repository (using the WP 6.2+ `%i` identifier placeholder), REST controller, lifecycle hooks, PSR-4 autoload, i18n setup, scoped asset enqueue. Lint-clean against WPCS + PHPCompatibilityWP on a fresh scaffold.
 
 ## For AI agents
 
-1. **Pick your platform.** WordPress today: `https://cdn.wp-admincss.com/AGENTS.md`. Other platforms coming.
-2. **Load skills as needed.** `security.md` is required for any state-changing action. Available at `https://cdn.wp-admincss.com/skills/<name>.md`.
-3. **Use the boilerplate** at [`boilerplates/wordpress/`](./boilerplates/wordpress) for new plugins.
+1. **Pick your platform.** WordPress today: `https://cdn.wp-admincss.com/wordpress/AGENTS.md`. Other platforms coming.
+2. **Load skills as needed.** Available at `https://cdn.wp-admincss.com/wordpress/skills/<name>.md`. The current set:
+   - `security.md` — required for any state-changing action.
+   - `database.md` / `data-modeling.md` — `$wpdb` patterns + deciding where to store data.
+   - `enqueue.md` — adding admin CSS/JS.
+   - `i18n.md` — translation patterns.
+   - `plugin-manifest.md` — the declarative `plugin-sdk.json` reference.
+   - `plugin-structure.md` — file layout + autoloading.
+   - `publishing.md` — Plugin Check rules + slug research + `readme.txt` format.
+   - `submission-prep.md` — the wp.org submission flow (`npm run prep`, SVN trunk → tag).
+   - `release-pipeline.md` — the GitHub release flow (auto-bump on merge, PUC, dual-channel).
+3. **Scaffold via the CLI** — `npx @plugin-sdk/cli@next create "<name>"` — or use the boilerplate directly at [`boilerplates/wordpress/`](./boilerplates/wordpress).
 4. **Browse the visual catalog** at [wp-admincss.com/components](https://wp-admincss.com/components.html) and [wp-admincss.com/layouts](https://wp-admincss.com/layouts.html).
 
 ## Packages

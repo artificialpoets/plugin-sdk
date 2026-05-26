@@ -4,6 +4,56 @@ Plugin SDK follows [semver](https://semver.org). Pre-1.0 minor releases
 may introduce breaking changes; see [STABILITY.md](./STABILITY.md) for
 the public-API contract.
 
+## [Unreleased]
+
+> Targeting `0.1.0-rc.2`. Adds the release pipeline + wp.org submission
+> pipeline to every scaffolded plugin, plus the `--channel` CLI flag
+> that decides which files ship.
+
+### Added
+
+**Build pipeline (every scaffolded plugin)**
+- `bin/build.sh` — rsync-based dist builder driven by `.distignore`. Reads VERSION from the plugin header, runs `composer install --no-dev`, produces `build/<slug>/` + two zips (latest + versioned). Supports `wporg` (default) and `github` modes — the latter writes a `.use-github-updates` marker for the dual-channel updater.
+- `bin/phpsyntax.php` — `php -l` over every plugin file. Wired as `composer run phpsyntax`.
+- `bin/submission-prep.sh` — one command to go from "feature works" to "ready for wp.org reviewer". Working-tree check → version triple agreement → composer run check → `composer test` (optional) → build → local Plugin Check (best-effort) → SVN dance instructions. `npm run prep`.
+- `bin/slug-research.sh` — wp.org slug-availability + trademark scanner. `npm run slug-research`.
+- `.distignore`, `phpcs.xml.dist`, `package.json`, `readme.txt` — wp.org-conformant project tooling.
+- `composer.json` — dev dependencies (WPCS, PHPCompatibilityWP) + scripts (`test`, `lint`, `lint:fix`, `phpsyntax`, `build`, `check`, `prep`).
+
+**CI workflows (every scaffolded plugin)**
+- `.github/workflows/ci.yml` — lint + Plugin Check on every push/PR. Plugin Check runs against the BUILT dist (not source), so dev-only files don't trip Plugin Check's `file_type` and `application_files` checks.
+- `.github/workflows/release.yml` (github + dual channels) — auto-bump on push to main, version-rewrite-in-three-places (header + constant + readme.txt Stable tag), commit bump back with `[skip-release]`, build with the github marker, Plugin Check, publish GH release with versioned + latest zips.
+
+**CLI**
+- `--channel=<wp.org|github|dual>` flag + interactive prompt (`@plugin-sdk/cli create`). Default: `wp.org`. Decides which workflow files, helper scripts, and update-checker code ship with the scaffold.
+- New `askChoice` helper in prompts.ts. Numbered list, accepts position or value name.
+- New `parseChannel` / `validateChannel` helpers in `util/slug.ts`.
+- `Platform.shouldEmit(rel, ctx)` + `Platform.patchFile(rel, text, ctx)` hooks: scaffolder asks the platform per-file whether to emit and how to rewrite content before substitution.
+- New mustache-style template tokens used by `phpcs.xml.dist`: `{{prefixLower}}`, `{{prefixUpper}}`, `{{namespaceRoot}}`, `{{slug}}`, `{{slugSnake}}`, `{{textDomain}}`.
+- New substitution rule: `plugin_sdk_starter → ${slugSnake}` for option keys, nonces, REST error codes, and JS globals.
+
+**Agent docs**
+- `skills/release-pipeline.md` — walkthrough of `release.yml` with channel diagram, bump tokens, three-place version sync, Plugin Update Checker block, common failure modes.
+- `skills/submission-prep.md` — walkthrough of `submission-prep.sh` with pre-first-submission steps, SVN dance for subsequent releases, and a pre-Submit checklist.
+- Both skills registered in `platforms/wordpress/AGENTS.md`. `skills/publishing.md` gains a cross-link at the top so agents land on the operational skill when the task is "prepare submission" and stay on `publishing.md` when the task is "understand the rules".
+
+**Boilerplate**
+- `plugin-sdk-starter.php` gains a Plugin Update Checker block (with the `.use-github-updates` marker check + `class_exists` guard + placeholder GH URL + comments explaining each channel's patch).
+- `composer.json` gains `yahnis-elsts/plugin-update-checker: ^5.0`. Stripped at scaffold time for `wp.org`-only plugins.
+- Boilerplate `src/` cleaned up: stripped legacy `wpacs_*` strings (option keys, nonces, REST namespace, custom table name, JS global); switched custom-table queries to use WP 6.2+ `%i` identifier placeholder; added documented `phpcs:ignore` lines for legitimate direct $wpdb usage and the SDK Components helpers (which escape internally); proper `wp_unslash` + `sanitize_*` flow on every $_SERVER / $_GET / $_POST read. `composer run lint` passes 0/0 on every channel after this.
+
+**SDK CI**
+- `.github/workflows/plugin-check.yml` now runs `bash bin/build.sh` inside the scaffold before pointing Plugin Check at `build/plugin-check-subject/` — matches the wp-components reference and the wp.org reviewer's actual view.
+
+### Verified
+
+End-to-end on each of the three channels (`/tmp/_scaffold_<channel>`):
+- `wp.org`: composer install (9 packages, no PUC dep) → `composer run lint` 10/10 → `bash bin/build.sh wporg` → dist with no marker.
+- `github`: composer install (10 packages, includes PUC) → `composer run lint` 10/10 → `bash bin/build.sh github` writes the marker → PUC always-on in source.
+- `dual`: composer install (10 packages, includes PUC) → `composer run lint` 10/10 → `bash bin/build.sh github` writes the marker; `bash bin/build.sh wporg` does not.
+
+CLI test count: 109 → 128 (passing). New `channels.test.ts` covers every gate × channel combination, plus the `parseChannel` + content-patch behaviour.
+
 ## [0.1.0-rc.1] — Developer Preview
 
 > First public release. Tagged as a release candidate so adopters know
