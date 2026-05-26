@@ -270,6 +270,8 @@ Each file is self-contained. Load the one relevant to the task at hand — don't
 | [`skills/plugin-structure.md`](./skills/plugin-structure.md) | New plugin scaffolding, file layout, autoloading. |
 | [`skills/i18n.md`](./skills/i18n.md) | Any user-facing string. |
 | [`skills/publishing.md`](./skills/publishing.md) | Picking a slug, running Plugin Check, writing `readme.txt`, submitting to WordPress.org. |
+| [`skills/submission-prep.md`](./skills/submission-prep.md) | Operating `bin/submission-prep.sh` and the wp.org SVN trunk → tag flow. Load when shipping to the WP.org directory. |
+| [`skills/release-pipeline.md`](./skills/release-pipeline.md) | Operating `.github/workflows/release.yml` — auto-bump, GH releases, Plugin Update Checker, dual-channel updates. Load when shipping via GitHub releases. |
 
 CDN-hosted versions are mirrored at `https://cdn.wp-admincss.com/wordpress/skills/<file>.md`.
 

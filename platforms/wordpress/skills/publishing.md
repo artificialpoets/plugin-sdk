@@ -1,6 +1,6 @@
 # Publishing — Plugin Check, slug research, WP.org submission
 
-> Load this skill when: preparing a plugin for release, picking a plugin name, writing `readme.txt`, or submitting to the WordPress.org Plugin Directory.
+> Load this skill when: preparing a plugin for release, picking a plugin name, writing `readme.txt`, or submitting to the WordPress.org Plugin Directory. This is the **reference** for the wp.org submission flow — what to know, what the rules are. For the operational scripts that automate this flow, see [`skills/submission-prep.md`](./submission-prep.md). For the GitHub release pipeline, see [`skills/release-pipeline.md`](./release-pipeline.md).
 > CDN: `https://cdn.wp-admincss.com/wordpress/skills/publishing.md`
 
 A plugin isn't done when the feature works. Two checks must pass before you ship:
@@ -9,6 +9,15 @@ A plugin isn't done when the feature works. Two checks must pass before you ship
 2. **Slug research** verifies the plugin name + slug aren't already taken on WordPress.org (and aren't reserved / trademarked).
 
 Both should run *before* the user calls a release "done" — definitely before submitting to the WP.org Plugin Directory.
+
+If the plugin was scaffolded by `npx @plugin-sdk/cli create`, both checks have one-command entry points already wired:
+
+```bash
+npm run prep              # full pre-submission check (composer + lint + build + local Plugin Check)
+npm run slug-research     # is your slug available + not trademarked?
+```
+
+See [`skills/submission-prep.md`](./submission-prep.md) for the operational walkthrough. This skill is the conceptual reference that explains *why* those checks exist and what each one catches.
 
 ## Plugin SDK already runs Plugin Check in CI
 
