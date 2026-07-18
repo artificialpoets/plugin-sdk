@@ -69,7 +69,7 @@ A first-time wp.org submission has three things this script can't do for you, al
    bash bin/slug-research.sh
    ```
 
-   Exit 0 = available, exit 1 = taken or trademark conflict. Slugs cannot be renamed after wp.org approval — pick wisely.
+   Exit 0 = available, exit 1 = taken or trademark conflict. Slugs cannot be renamed after wp.org approval — and during review, the wp.org team **will rename overly generic slugs for you** (observed: `components` → `<org>-reusable-components-cdn`). Pick a distinctive, org-prefixed slug so the name you launch with is one you chose.
 
 2. **`readme.txt`** — the scaffolded boilerplate ships a template with placeholders. Edit the `Contributors:`, `Tags:`, `Description`, `FAQ`, and `Screenshots` sections to match your plugin. The version triple (header + constant + Stable tag) is already in sync from the scaffold; the script will keep them in sync on every bump. The full readme.txt format reference is in [`skills/publishing.md`](./publishing.md).
 
@@ -84,6 +84,61 @@ Then upload `build/<slug>.zip` to wordpress.org/plugins/developers/add/ and wait
 - **Trademark issues** — the slug or display name uses a protected term you don't own.
 
 The `bin/slug-research.sh` script catches the trademark issue ahead of time. The first three are policy decisions; Plugin Check doesn't flag them, the reviewer will.
+
+---
+
+## 2b. What the automated first-pass review actually does
+
+The notes below come from a real wp.org review cycle (2026). wp.org's first pass
+is now **automated — "a combination of algorithms and AI"** (their words; their
+AI-generated annotations are marked with ✨ in review emails). A human volunteer
+only sees your plugin after the automated pass approves it. Practical
+consequences:
+
+**The reviewer may rename your slug and display name.** In the observed review,
+a plugin submitted as `components` was renamed by the team to
+`artificial-poets-reusable-components-cdn` before review even began, and the
+display name was changed to match. Generic single-word slugs get prefixed with
+your org name. Don't burn goodwill fighting this — pick a distinctive,
+org-prefixed slug from the start (`bin/slug-research.sh` warns about generic
+slugs).
+
+**The AI reads data flow, not just syntax.** It flagged
+`permission_callback => '__return_true'` on endpoints whose *inline comments*
+said "Intentionally public" — because the served data had been fetched from an
+authenticated upstream. Static-analysis-safe is not review-safe; see the
+"`__return_true` is audited by data flow" section of
+[`skills/security.md`](./security.md).
+
+**It inspects your `sanitize_callback` implementations.** A custom boolean
+sanitizer built on a raw cast was flagged as "too loose because a raw cast makes
+arbitrary non-empty strings true" with the instruction to use strict 0/1
+normalization or `rest_sanitize_boolean()`. Every sanitize callback you write
+should be a WP core sanitizer or provably strict.
+
+**Their checklist is a contract.** The review email requires you to affirm that
+you:
+
+1. Fixed **all instances** of each issue class — "the Plugins Team may not share
+   all cases of the same issue." The examples in the email are samples, not an
+   exhaustive list. Grep your whole codebase for each flagged pattern.
+2. Tested the updated plugin **on a clean WordPress installation with
+   `WP_DEBUG` set to `true`** — they explicitly say not to skip this.
+3. Uploaded the corrected version via "Add your plugin" — the team always
+   reviews the latest upload, and you can keep updating during review.
+4. Replied to the email **concisely** — share clarifications and context, but
+   don't enumerate every change ("the team will review the entire plugin again
+   and that is not necessary at all").
+
+**False positives happen and are appealable.** The automated system
+acknowledges it can be wrong. If a finding is genuinely mistaken, reply with a
+clear, concise explanation and a specific example. Don't silently ignore a
+finding — unaddressed findings read as oversight and fail the resubmission.
+
+The `npm run prep` script's reviewer-flag scan greps for the patterns above
+(loose boolean sanitizers, `__return_true` routes, `register_setting` without a
+`sanitize_callback`) before you submit, so you hit these findings locally
+instead of in a review cycle that costs a week.
 
 ---
 

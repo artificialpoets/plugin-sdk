@@ -72,11 +72,15 @@ final class SettingsController {
     }
 
     public function update_settings(WP_REST_Request $request): WP_REST_Response|WP_Error {
-        // Args are already sanitized by sanitize_callback.
+        // Args are already sanitized by sanitize_callback / type coercion.
+        // The boolean still goes through rest_sanitize_boolean() rather than
+        // a raw (bool) cast — wp.org's automated review flags loose boolean
+        // casts, and strict normalization here is defence in depth if the
+        // args schema ever drifts.
         $sanitized = [
             'api_key'       => (string) $request->get_param('api_key'),
             'mode'          => (string) $request->get_param('mode'),
-            'notifications' => (bool)   $request->get_param('notifications'),
+            'notifications' => rest_sanitize_boolean($request->get_param('notifications')),
         ];
 
         $saved = update_option('plugin_sdk_starter_settings', $sanitized);

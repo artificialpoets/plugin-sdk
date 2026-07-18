@@ -186,6 +186,43 @@ fetch(myPluginData.restUrl + 'settings', {
 });
 ```
 
+### Public endpoints: `__return_true` is audited by data flow, not by comments
+
+Using `permission_callback => '__return_true'` is legitimate **only** for
+genuinely public data. wp.org's automated review traces where the data a public
+endpoint serves *comes from* — and an inline comment saying "intentionally
+public" does not satisfy it. Verbatim findings from a real review, where three
+passthrough endpoints re-served content the plugin had fetched from a remote
+host using stored Application Password credentials:
+
+> Public `permission_callback` allows unauthenticated access to single remote
+> components even when the receiver authenticates to the Host with saved
+> credentials. […] Public `permission_callback` makes the raw passthrough
+> endpoint openly serve content retrieved from an authenticated Host, bypassing
+> the Host-side access restriction.
+
+The rule the reviewer is enforcing: **if your endpoint re-serves data that was
+obtained with stored credentials, exposing it publicly bypasses the upstream's
+access control** — the endpoint must gate access at least as strictly as the
+upstream did.
+
+Before writing `__return_true`, walk this decision:
+
+1. **Is the data intrinsically public?** (published posts, public metadata,
+   plugin's own public stats) → `__return_true` is fine; keep it.
+2. **Did any of the data reach this plugin through an authenticated channel?**
+   (Application Passwords, API keys, OAuth tokens stored in options) → the
+   endpoint **must** carry a real `permission_callback`, or mirror the
+   upstream's auth (e.g. accept the same Application Password), or only expose
+   the subset that the upstream serves publicly.
+3. **Unsure?** Default to `current_user_can(...)` and loosen later with a
+   documented justification — reviewers accept a too-strict endpoint; they
+   reject a too-loose one.
+
+The Plugin SDK runtime mirrors this: a manifest route with no `capability`
+field registers as public. Only omit `capability` for routes serving
+intrinsically public data.
+
 ### Nonce lifetimes
 
 Nonces are valid for ~24 hours by default. They are **NOT** unique per-request — they're tied to (action, user_id, session). Long-lived admin pages may need to refresh them with `wp_create_nonce()` periodically.
@@ -210,9 +247,44 @@ Nonces are valid for ~24 hours by default. They are **NOT** unique per-request �
 | HTML content (custom allowed tags) | `wp_kses($input, $allowed_html)` |
 | Integer | `(int)` cast or `absint()` (forces positive) |
 | Float | `(float)` cast |
-| Boolean | `(bool)` cast (or `wp_validate_boolean()` for `"true"/"false"` strings) |
+| Boolean | `rest_sanitize_boolean()` — **never a raw `(bool)` cast** (see below) |
 | Hex color | `sanitize_hex_color()` |
 | One of a set | Validate against an `in_array()` allow-list |
+
+#### Booleans: strict normalization is required, raw casts get flagged
+
+wp.org's automated first-pass review flags custom boolean sanitizers built on raw
+casts — `(bool) $value`, `!empty($value)`, or truthiness checks. The reviewer's
+reasoning: a raw cast makes **arbitrary non-empty strings** truthy (`"false"` →
+`true`, `"no"` → `true`, `"<script>"` → `true`), so the callback isn't actually
+sanitizing. Verbatim finding from a real review:
+
+> Boolean sanitization is too loose because a raw cast makes arbitrary non-empty
+> strings true; use strict 0/1 normalization or `rest_sanitize_boolean()`.
+
+```php
+// ❌ Flagged by the automated reviewer — arbitrary strings become true
+register_setting('my_group', 'my_flag', [
+    'type'              => 'boolean',
+    'sanitize_callback' => fn($v) => (bool) $v,
+]);
+
+// ❌ Also flagged — !empty() is the same loose cast
+$sanitized['notifications'] = !empty($input['notifications']);
+
+// ✅ Passes review — rest_sanitize_boolean() maps "1"/"true"/"yes"/"on"
+//    (case-insensitively) to true and EVERYTHING else to false
+register_setting('my_group', 'my_flag', [
+    'type'              => 'boolean',
+    'sanitize_callback' => 'rest_sanitize_boolean',
+]);
+$sanitized['notifications'] = rest_sanitize_boolean($input['notifications'] ?? false);
+```
+
+The Plugin SDK runtime's `Field::TYPE_CHECKBOX` / `TYPE_TOGGLE` sanitization
+already applies strict whitelist normalization — manifest-declared booleans pass
+this check automatically. The rule above is for booleans you handle outside the
+manifest.
 
 ```php
 $mode = $_POST['mode'] ?? '';

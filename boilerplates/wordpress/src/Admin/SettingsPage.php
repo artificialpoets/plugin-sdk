@@ -126,7 +126,11 @@ final class SettingsPage {
             'mode'          => in_array( ( $raw['mode'] ?? '' ), array( 'production', 'sandbox' ), true )
                                 ? (string) $raw['mode']
                                 : 'production',
-            'notifications' => ! empty( $raw['notifications'] ),
+            // rest_sanitize_boolean(), NOT a raw cast: wp.org's automated
+            // review flags loose boolean sanitization ("a raw cast makes
+            // arbitrary non-empty strings true"). This maps "1"/"true"/
+            // "yes"/"on" to true and everything else to false.
+            'notifications' => rest_sanitize_boolean( $raw['notifications'] ?? false ),
         );
 
         // 2d. Save.

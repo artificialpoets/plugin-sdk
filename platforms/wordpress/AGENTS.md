@@ -420,6 +420,45 @@ add_action('admin_enqueue_scripts', function() {
 });
 ```
 
+```php
+// ❌ NEVER — boolean sanitize_callback built on a raw cast. wp.org's automated
+//    review flags this: "a raw cast makes arbitrary non-empty strings true."
+register_setting('my_group', 'my_flag', [
+    'type'              => 'boolean',
+    'sanitize_callback' => fn($v) => (bool) $v,   // "false" → true, "no" → true
+]);
+$opts['enabled'] = !empty($_POST['enabled']);      // same loose-cast problem
+
+// ✅ ALWAYS — rest_sanitize_boolean(): strict whitelist normalization
+register_setting('my_group', 'my_flag', [
+    'type'              => 'boolean',
+    'sanitize_callback' => 'rest_sanitize_boolean',
+]);
+$opts['enabled'] = rest_sanitize_boolean(wp_unslash($_POST['enabled'] ?? false));
+```
+
+```php
+// ❌ NEVER — '__return_true' on an endpoint that re-serves data obtained with
+//    stored credentials (API keys, Application Passwords, OAuth tokens).
+//    wp.org's automated review traces data flow and flags this EVEN when a
+//    comment says "intentionally public" — a public passthrough of
+//    credentialed data bypasses the upstream's access control.
+register_rest_route('my-plugin/v1', '/remote-data', [
+    'methods'  => 'GET',
+    'callback' => 'my_fetch_from_authenticated_upstream',
+    // Intentionally public ← the comment does not help; the data flow fails review
+    'permission_callback' => '__return_true',
+]);
+
+// ✅ ALWAYS — reserve '__return_true' for intrinsically public data; anything
+//    that flowed through an authenticated channel keeps a real capability check
+register_rest_route('my-plugin/v1', '/remote-data', [
+    'methods'  => 'GET',
+    'callback' => 'my_fetch_from_authenticated_upstream',
+    'permission_callback' => fn() => current_user_can('manage_options'),
+]);
+```
+
 ```jsx
 // ❌ NEVER — invent prefixed classes that don't exist in WP
 <button className="wpac-button wpac-button-primary">Save</button>

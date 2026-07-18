@@ -132,7 +132,73 @@ else
     warn "  on every push; merging green there means wp.org-ready."
 fi
 
-# ─── 7. Final summary ──────────────────────────────────────────────────
+# ─── 7. Reviewer-flag scan ─────────────────────────────────────────────
+# Greps the source for patterns wp.org's AUTOMATED first-pass review is
+# known to flag (observed in real review cycles). These are warnings,
+# not failures — each has legitimate uses — but every hit costs a
+# review round-trip (~1 week) if the reviewer's AI disagrees with you.
+
+step "Scanning for patterns the wp.org automated reviewer flags"
+
+SCAN_DIRS=("src" ".")
+REVIEW_WARNINGS=0
+
+# 7a. __return_true permission callbacks. The automated reviewer traces
+#     the DATA FLOW of public endpoints: if the served data was fetched
+#     with stored credentials (API keys, Application Passwords), a
+#     public passthrough bypasses the upstream's access control — and
+#     an "intentionally public" comment does not satisfy the check.
+PUBLIC_ROUTES=$(grep -rn "__return_true" --include="*.php" src/ "${SLUG}.php" 2>/dev/null || true)
+if [[ -n "${PUBLIC_ROUTES}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "Found permission_callback => '__return_true' — audit each one:"
+    echo "${PUBLIC_ROUTES}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  OK only for intrinsically public data. If the endpoint re-serves"
+    warn "  anything fetched with stored credentials, the reviewer WILL flag"
+    warn "  it (even with an 'intentionally public' comment). See"
+    warn "  skills/security.md → 'Public endpoints: __return_true is audited"
+    warn "  by data flow'."
+fi
+
+# 7b. Loose boolean sanitization. The reviewer flags raw casts in
+#     sanitize callbacks: "(bool)", "!empty(", "boolval(" — arbitrary
+#     non-empty strings become true. rest_sanitize_boolean() passes.
+LOOSE_BOOLS=$(grep -rnE "sanitize_callback[^)]*\((bool)\)|'sanitize_callback'[^,]*=>[^,]*\(bool\)|=> *! *empty\(" --include="*.php" src/ "${SLUG}.php" 2>/dev/null || true)
+if [[ -n "${LOOSE_BOOLS}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "Possible loose boolean sanitization (raw cast / !empty):"
+    echo "${LOOSE_BOOLS}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  The automated reviewer flags raw boolean casts as 'too loose'."
+    warn "  Use rest_sanitize_boolean() instead. See skills/security.md."
+fi
+
+# 7c. register_setting without a sanitize_callback. Every setting must
+#     name its sanitizer explicitly — the reviewer checks for this.
+UNSANITIZED_SETTINGS=$(grep -rn "register_setting" --include="*.php" src/ "${SLUG}.php" 2>/dev/null \
+    | grep -v "sanitize_callback" || true)
+if [[ -n "${UNSANITIZED_SETTINGS}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "register_setting() call(s) with no sanitize_callback on the same line:"
+    echo "${UNSANITIZED_SETTINGS}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  If the callback is declared on a following line this is a false"
+    warn "  positive — but verify each one names a proper sanitizer."
+fi
+
+if [[ "${REVIEW_WARNINGS}" == "0" ]]; then
+    pass "no known reviewer-flag patterns found"
+else
+    warn "Reviewer-flag patterns found (see above). Each unaddressed hit"
+    warn "risks a ~1-week automated-review round-trip. Fix or prepare a"
+    warn "concise justification for the review reply."
+fi
+
+# ─── 8. Final summary ──────────────────────────────────────────────────
 
 cat <<EOF
 

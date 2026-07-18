@@ -53,6 +53,28 @@ EOF
 fi
 pass "format looks valid"
 
+# ─── 1b. Generic-slug advisory ─────────────────────────────────────────
+# Observed in real reviews: the wp.org team renames overly generic slugs
+# during review (e.g. a plugin submitted as "components" was renamed to
+# "<org>-reusable-components-cdn" before review began). A single generic
+# word is unlikely to survive; a distinctive org-prefixed slug is.
+
+if [[ ! "${SLUG}" == *-* ]]; then
+    warn "Slug '${SLUG}' is a single generic word."
+    cat <<EOF
+
+    The wp.org team renames generic slugs during review — a plugin
+    submitted as "components" was renamed by the reviewers to an
+    org-prefixed form before review even began. The renamed slug is
+    what you keep forever. Pick your own distinctive slug instead of
+    letting the team pick one for you:
+
+        '${SLUG}'            ← likely renamed by the review team
+        'your-org-${SLUG}'   ← distinctive, survives review
+
+EOF
+fi
+
 # ─── 2. Trademark / protected-term scan ────────────────────────────────
 
 step "Scanning for trademark and protected-term collisions"
