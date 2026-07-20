@@ -133,4 +133,23 @@ describe('validateConstantPrefix', () => {
   it('accepts digits after the first char', () => {
     assert.equal(validateConstantPrefix('ACME_V2_'), null);
   });
+  // wp.org rejects short (< 4 char) prefixes: "don't try to use two- or
+  // three-letter prefixes anymore."
+  it('rejects 2- and 3-character prefixes', () => {
+    assert.ok(validateConstantPrefix('AC_'), 'AC_ (2 chars) should be rejected');
+    assert.ok(validateConstantPrefix('PCS_'), 'PCS_ (3 chars) should be rejected');
+    assert.equal(validateConstantPrefix('ACME_'), null, 'ACME_ (4 chars) is fine');
+    assert.equal(validateConstantPrefix('PLCHK_'), null);
+  });
+  it('counts alphanumerics, not underscores, toward the 4-char minimum', () => {
+    // 'A_B_' has only 2 alphanumerics → too short
+    assert.ok(validateConstantPrefix('A_B_'));
+    // 'AB12_' has 4 alphanumerics → fine
+    assert.equal(validateConstantPrefix('AB12_'), null);
+  });
+  it('rejects WordPress-reserved prefixes', () => {
+    assert.ok(validateConstantPrefix('WP_'), 'WP_ is reserved for core');
+    assert.ok(validateConstantPrefix('WORDPRESS_'), 'WORDPRESS_ is reserved');
+    assert.ok(validateConstantPrefix('WP_FOO_'), 'anything starting WP_ is reserved');
+  });
 });

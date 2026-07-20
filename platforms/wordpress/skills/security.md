@@ -223,6 +223,37 @@ The Plugin SDK runtime mirrors this: a manifest route with no `capability`
 field registers as public. Only omit `capability` for routes serving
 intrinsically public data.
 
+#### `is_user_logged_in()` is not a capability check
+
+A real `permission_callback` is necessary but not sufficient — it also has to
+enforce a capability **appropriate to the data's sensitivity**. In a follow-up
+review round, a plugin whose callback returned `is_user_logged_in()` (or fell
+back to it when Application Passwords were configured) was still flagged:
+
+> `permission_callback` resolves to `permissions_check()`, which makes the
+> proxied endpoint fully public for public hosts and only requires
+> `is_user_logged_in()` when Application Passwords are used, letting any
+> logged-in user access potentially non-public proxied data instead of
+> enforcing a stronger capability.
+
+The rule: **"any logged-in user" is not an authorization boundary for
+non-public data.** A subscriber-level user is logged in. If the endpoint
+exposes admin-configured or credential-proxied data, the callback must check a
+capability that matches — `manage_options` for settings-grade data,
+`edit_posts` for author-grade, a custom capability for anything bespoke.
+
+```php
+// ❌ Flagged — logged-in is not the same as authorized
+'permission_callback' => 'is_user_logged_in',
+'permission_callback' => fn() => is_user_logged_in(),
+
+// ✅ Gate on a capability that matches the data's sensitivity
+'permission_callback' => fn() => current_user_can('manage_options'),
+```
+
+In the manifest, set the route's `capability` to the matching capability —
+never rely on "the user is authenticated" as the whole check.
+
 ### Nonce lifetimes
 
 Nonces are valid for ~24 hours by default. They are **NOT** unique per-request — they're tied to (action, user_id, session). Long-lived admin pages may need to refresh them with `wp_create_nonce()` periodically.

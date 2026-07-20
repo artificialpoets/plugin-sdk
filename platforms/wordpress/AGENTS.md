@@ -459,6 +459,33 @@ register_rest_route('my-plugin/v1', '/remote-data', [
 ]);
 ```
 
+```php
+// ❌ NEVER — is_user_logged_in() as the permission_callback for non-public data.
+//    wp.org flags this: any logged-in user (even a subscriber) is not an
+//    authorization boundary for admin-configured or credential-proxied data.
+'permission_callback' => 'is_user_logged_in',
+
+// ✅ ALWAYS — gate on a capability matching the data's sensitivity
+'permission_callback' => fn() => current_user_can('manage_options'),
+```
+
+```php
+// ❌ NEVER — a global name with a short (<4 char) or reserved prefix. wp.org
+//    rejects 2-3 char prefixes and wp_/_/__ (reserved for core). Also NEVER
+//    declare a non-resolving Plugin URI / Author URI in the header — the
+//    reviewer fetches them and fails the plugin if they don't resolve.
+define('PC_VERSION', '1.0.0');          // 2-char prefix → rejected
+add_menu_page(..., 'settings', ...);    // generic unprefixed menu slug → rejected
+// * Plugin URI: https://not-registered-yet.example   ← dead URL → rejected
+
+// ✅ ALWAYS — a ≥4-char plugin-unique prefix, prefixed menu slugs, and only
+//    URLs that actually resolve (omit Plugin URI / Author URI if you have none)
+define('MYPLUGIN_VERSION', '1.0.0');
+add_menu_page(..., 'my-plugin', ...);
+// The SDK boilerplate does this by construction: full-slug prefixes everywhere,
+// and it omits Plugin URI / Author URI until you supply a live homepage.
+```
+
 ```jsx
 // ❌ NEVER — invent prefixed classes that don't exist in WP
 <button className="wpac-button wpac-button-primary">Save</button>

@@ -45,6 +45,14 @@ the public-API contract.
 **SDK CI**
 - `.github/workflows/plugin-check.yml` now runs `bash bin/build.sh` inside the scaffold before pointing Plugin Check at `build/plugin-check-subject/` — matches the wp-components reference and the wp.org reviewer's actual view.
 
+**Hardened against real wp.org review findings** (from two live review cycles of a plugin built on the SDK):
+- **Boolean sanitization** — the runtime already normalises strictly; the boilerplate + `security.md` now use `rest_sanitize_boolean()` everywhere instead of raw `(bool)` casts / `!empty()`, which the automated reviewer flags as "too loose."
+- **`permission_callback` rigor** — `security.md` + `AGENTS.md` now teach that `__return_true` is audited by data flow (a public passthrough of credential-fetched data is rejected even with an "intentionally public" comment) and that `is_user_logged_in()` is not a capability check (any subscriber is logged in). Manifest routes gate on `capability`.
+- **Prefix rules** — `validateConstantPrefix` now hard-blocks prefixes shorter than 4 characters and WordPress-reserved prefixes (`WP_`, `_`, `__`) at scaffold time; the CLI re-validates the `--prefix`/`--yes` paths, not just the interactive prompt. `phpcs.xml.dist` stops excluding `PrefixAllGlobals.ShortPrefixPassed` so short prefixes surface in `composer run lint`. `publishing.md` documents the ≥4-char / no-reserved / no-`if(!function_exists)` / prefixed-menu-slug rules.
+- **Header URLs** — the boilerplate omits `Plugin URI` / `Author URI` by default (wp.org fetches declared URLs and rejects dead links); `publishing.md` explains why.
+- **`bin/submission-prep.sh` reviewer-flag scan** — greps the plugin source for the six patterns the reviewer is known to flag (`__return_true`, loose boolean casts, `register_setting` without `sanitize_callback`, `is_user_logged_in` callbacks, non-resolving header URLs via a live curl check, `function_exists`/`class_exists` self-wraps) so they surface locally instead of in a ~1-week review round-trip. `bin/slug-research.sh` warns on generic single-word slugs (the review team renames them).
+- **Submission-prep / slug-research skills** — document the automated first-pass review's actual behaviour: AI-annotated findings, generic-slug renaming, data-flow tracing, sanitizer inspection, and the reviewer's resubmission checklist.
+
 ### Verified
 
 End-to-end on each of the three channels (`/tmp/_scaffold_<channel>`):

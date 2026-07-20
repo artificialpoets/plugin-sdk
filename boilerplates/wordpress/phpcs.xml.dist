@@ -65,15 +65,20 @@
             </property>
         </properties>
         <!--
-            Soften two sub-rules that produce noise in well-prefixed code:
-            - ShortPrefixPassed: short prefixes (<4 chars) trigger a
-              warning we don't care about — the slug is the authoritative
-              prefix, length doesn't matter.
-            - NonPrefixedConstantFound / FunctionFound / VariableFound:
-              flagged for callable scope (inside namespace-scoped code) —
-              the namespace already provides isolation.
+            NOTE: ShortPrefixPassed is deliberately NOT excluded. wp.org's
+            review team enforces a 4-character-minimum prefix ("don't try to
+            use two- or three-letter prefixes anymore"), so we want PHPCS to
+            surface a short prefix locally rather than let it reach review.
+            The CLI scaffolder also hard-blocks short prefixes at scaffold
+            time (see validateConstantPrefix in packages/cli/src/util/slug.ts).
+
+            NonPrefixedConstantFound / FunctionFound / VariableFound stay
+            excluded: they fire for names inside namespace-scoped code, where
+            the PHP namespace already provides collision isolation. wp.org's
+            concern is GLOBAL-scope names (menu slugs, option keys, hook
+            names, global functions) — the boilerplate prefixes all of those
+            with the full slug, so those are covered without these sub-rules.
         -->
-        <exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound"/>
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound"/>
         <exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>

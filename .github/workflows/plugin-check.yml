@@ -46,7 +46,7 @@ jobs:
             --platform=wordpress \
             --slug=plugin-check-subject \
             --namespace='PluginCheck\Subject' \
-            --prefix='PCS_' \
+            --prefix='PLCHK_' \
             --yes \
             --no-install \
             --out=${{ github.workspace }}/_scaffold

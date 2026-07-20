@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name:       Plugin SDK Starter
- * Plugin URI:        https://wp-admincss.com/boilerplate
  * Description:       Greenfield plugin scaffold using Plugin SDK. Rename this file + composer.json + namespace + plugin-sdk.json to start your own plugin.
  * Version:           0.1.0
  * Requires at least: 6.4
@@ -11,6 +10,12 @@
  * License URI:       https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * Text Domain:       plugin-sdk-starter
  * Domain Path:       /languages
+ *
+ * The Plugin/Author homepage headers are intentionally omitted. wp.org's
+ * review fetches any URL declared here and fails the plugin if it does not
+ * resolve, so shipping a placeholder or dead link is worse than shipping
+ * none. Add the "Plugin URI" and "Author URI" header fields yourself once
+ * you have a live homepage that resolves.
  */
 
 declare(strict_types=1);

@@ -190,6 +190,58 @@ if [[ -n "${UNSANITIZED_SETTINGS}" ]]; then
     warn "  positive — but verify each one names a proper sanitizer."
 fi
 
+# 7d. is_user_logged_in() as a permission_callback. "Any logged-in user"
+#     is not an authorization boundary for non-public data — the reviewer
+#     flags it and wants a capability check matching the data sensitivity.
+LOGGED_IN_ONLY=$(grep -rnE "permission_callback['\"]?[^,]*is_user_logged_in" --include="*.php" src/ "${SLUG}.php" 2>/dev/null || true)
+if [[ -n "${LOGGED_IN_ONLY}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "permission_callback resolving to is_user_logged_in():"
+    echo "${LOGGED_IN_ONLY}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  A subscriber is logged in. For non-public data, gate on a"
+    warn "  capability (current_user_can('manage_options')) instead. See"
+    warn "  skills/security.md → 'is_user_logged_in() is not a capability check'."
+fi
+
+# 7e. Non-resolving header URLs. The reviewer fetches Plugin URI /
+#     Author URI and fails the plugin if they don't resolve. This is a
+#     best-effort HTTP check (skipped offline); the safe default is to
+#     omit these headers until you have a live homepage.
+HEADER_URLS=$(grep -iE "^\s*\*\s*(Plugin URI|Author URI):" "${SLUG}.php" 2>/dev/null \
+    | sed -E 's/.*URI:[[:space:]]*//' | tr -d '\r' || true)
+if [[ -n "${HEADER_URLS}" ]]; then
+    while IFS= read -r url; do
+        [[ -z "${url}" ]] && continue
+        if command -v curl >/dev/null 2>&1; then
+            if ! curl -sSfL --max-time 8 -o /dev/null "${url}" 2>/dev/null; then
+                REVIEW_WARNINGS=1
+                warn "Header URL does not resolve: ${url}"
+                warn "  wp.org fetches Plugin URI / Author URI and rejects dead"
+                warn "  links. Fix the URL or remove the header line entirely."
+            fi
+        else
+            warn "Header declares a URL (${url}) — verify it resolves; curl"
+            warn "  not available to check automatically."
+        fi
+    done <<< "${HEADER_URLS}"
+fi
+
+# 7f. if (!function_exists(...)) / if (!class_exists(...)) wrapping your
+#     OWN code. If another plugin defines the name and loads first, your
+#     version silently never loads. Reserve these for shared libraries.
+EXISTS_GUARDS=$(grep -rnE "if\s*\(\s*!\s*(function_exists|class_exists)\s*\(" --include="*.php" src/ "${SLUG}.php" 2>/dev/null || true)
+if [[ -n "${EXISTS_GUARDS}" ]]; then
+    warn "function_exists/class_exists guard(s) found:"
+    echo "${EXISTS_GUARDS}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  Fine for genuinely shared libraries; a code-smell around your"
+    warn "  own plugin's names (a name collision makes YOUR code silently"
+    warn "  not load). Verify each is a library guard, not a self-wrap."
+fi
+
 if [[ "${REVIEW_WARNINGS}" == "0" ]]; then
     pass "no known reviewer-flag patterns found"
 else

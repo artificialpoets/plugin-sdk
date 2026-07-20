@@ -76,8 +76,25 @@ export function validateNamespace(ns: string): string | null {
   return null;
 }
 
+/**
+ * wp.org rejects short and reserved prefixes. From a real review:
+ * "The prefix should be at least four (4) characters long (don't try to
+ * use two- or three-letter prefixes anymore) […] avoid the use of __,
+ * wp_, or _ as a prefix." We enforce this at scaffold time so a plugin
+ * can never be generated with a prefix the reviewer will reject.
+ */
+const RESERVED_PREFIXES = new Set(['WP', 'WORDPRESS', 'WP_', '_', '__']);
+
 export function validateConstantPrefix(prefix: string): string | null {
   if (!ALLOWED_CONSTANT_PREFIX.test(prefix)) return 'Constant prefix must be UPPER_SNAKE ending in _, e.g. ACME_FORMS_';
+  // Count the alphanumeric core (underscores don't count toward length).
+  const core = prefix.replace(/_/g, '');
+  if (core.length < 4) {
+    return 'Constant prefix must have at least 4 letters/digits — wp.org rejects 2- and 3-character prefixes, e.g. use ACME_ not AC_';
+  }
+  if (RESERVED_PREFIXES.has(prefix.replace(/_+$/, '').toUpperCase()) || prefix.toUpperCase().startsWith('WP_')) {
+    return 'Constant prefix cannot be a WordPress-reserved prefix (WP_, WORDPRESS_, _, __) — pick one unique to your plugin';
+  }
   return null;
 }
 

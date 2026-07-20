@@ -199,6 +199,47 @@ update_option('my_plugin_settings');  ← snake_case prefix
 
 Inconsistency is a Plugin Check finding (`text_domain_mismatch`) and a real source of bugs.
 
+### Prefix rules the reviewer enforces (verbatim from a real review)
+
+Every global-scope name your plugin defines — functions, classes, `define()`d
+constants, option keys, `add_shortcode` tags, `register_setting` groups, global
+variables, `wp_ajax_*` action hooks, namespaces, **and admin menu slugs** — must
+carry a prefix that is unique to your plugin. The review team's exact
+requirements:
+
+- **At least 4 characters.** "Don't try to use two- or three-letter prefixes
+  anymore." wp.org hosts ~100,000 plugins; short prefixes collide. `acme_` is
+  fine; `ac_` and `pc_` are rejected.
+- **Not a reserved prefix.** Never use `wp_`, `_` (single underscore), or `__`
+  (double underscore) as a prefix for your own names — those belong to
+  WordPress core. (Core translation functions `__()` and `_n()` are fine; the
+  rule is about names *you* define.)
+- **Prefix your menu slugs too.** `add_menu_page(..., 'components', ...)` was
+  flagged because `components` is a generic, unprefixed slug. Use
+  `add_menu_page(..., 'my-plugin', ...)` — the full plugin slug.
+- **Don't wrap everything in `if (!function_exists('NAME'))`.** It sounds safe
+  but has a fatal flaw: if another plugin defines the same name and loads first,
+  your version silently never loads and your plugin breaks. Reserve
+  `function_exists`/`class_exists` guards for genuinely shared libraries.
+
+Plugin SDK handles all of this by construction: the CLI hard-blocks prefixes
+shorter than 4 characters and reserved prefixes at scaffold time
+(`validateConstantPrefix`), the scaffolded boilerplate prefixes every option
+key / nonce / table / menu slug / REST namespace with the full slug, and
+`phpcs.xml.dist` leaves `PrefixAllGlobals.ShortPrefixPassed` enabled so a short
+prefix surfaces in `composer run lint` before it reaches review. If you're
+hand-rolling a plugin instead of scaffolding, apply the four rules above
+yourself.
+
+### Every URL in the plugin header must resolve
+
+wp.org's review fetches the `Plugin URI` and `Author URI` from your header and
+rejects the plugin if either fails to resolve (a real review flagged
+`Plugin URI: https://wp-components.com` with "Could not resolve host"). Both
+fields are **optional** — if you don't have a live homepage yet, omit them
+entirely rather than shipping a placeholder or a dead link. The scaffolded
+boilerplate omits both by default for exactly this reason.
+
 ---
 
 ## 3. `readme.txt` — the WP.org plugin page format

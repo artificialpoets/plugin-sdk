@@ -185,6 +185,27 @@ async function buildContext(flags: Flags): Promise<PluginContext> {
       ? defaultPrefix
       : await askText('Constant prefix', { defaultValue: defaultPrefix, validate: validateConstantPrefix });
 
+  // The interactive path validates via askText's loop, but the --prefix
+  // flag and --yes (derived-default) paths bypass it. Re-validate here so
+  // a plugin can never be scaffolded with a prefix wp.org rejects — a
+  // too-short prefix from a short plugin name in --yes mode, or a bad
+  // --prefix value, fails loudly at scaffold time instead of at review.
+  const prefixError = validateConstantPrefix(constantPrefix);
+  if (prefixError) {
+    error(`${prefixError}${flags.yes ? ' — pass an explicit --prefix (e.g. --prefix=ACME_)' : ''}`);
+    exit(1);
+  }
+  const nsError = validateNamespace(namespace);
+  if (nsError) {
+    error(nsError);
+    exit(1);
+  }
+  const slugError = validateSlug(slug);
+  if (slugError) {
+    error(slugError);
+    exit(1);
+  }
+
   const description: string = flags.description
     ? flags.description
     : flags.yes
