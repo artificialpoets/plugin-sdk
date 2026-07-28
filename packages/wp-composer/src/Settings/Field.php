@@ -31,6 +31,22 @@ final class Field
     public const TYPE_SELECT   = 'select';
     /** @api */
     public const TYPE_PASSWORD = 'password';
+    /**
+     * Comma-separated list — renders as a text input, stores an array of
+     * trimmed, de-duplicated strings.
+     *
+     * @api
+     */
+    public const TYPE_LIST = 'list';
+    /**
+     * A table of rows, one select per row: the field's `rows` map (key →
+     * row label) plus any keys already present in the stored value each
+     * get a dropdown of the field's options. Stores an assoc array of
+     * key → selected option value.
+     *
+     * @api
+     */
+    public const TYPE_KEYED_SELECT = 'keyedSelect';
 
     public string $id;
     public string $label;
@@ -45,11 +61,19 @@ final class Field
     public ?float $min;
     public ?float $max;
     public ?float $step;
+    /** Sibling field id controlling this field's visibility; null = always shown. */
+    public ?string $showIfField;
+    /** @var mixed Value the controller must hold for this field to show. */
+    public $showIfEquals;
+    /** @var array<string, string> Static row map for keyedSelect (key → label). */
+    public array $rows;
 
     /**
      * @api
      * @param mixed                                                    $default
      * @param array<int, string|array{value: string|int, label: string}> $options
+     * @param mixed                                                    $showIfEquals
+     * @param array<string, string>                                    $rows
      */
     public function __construct(
         string $id,
@@ -62,19 +86,25 @@ final class Field
         array $options = [],
         ?float $min = null,
         ?float $max = null,
-        ?float $step = null
+        ?float $step = null,
+        ?string $showIfField = null,
+        $showIfEquals = true,
+        array $rows = []
     ) {
-        $this->id          = $id;
-        $this->label       = $label;
-        $this->type        = $type;
-        $this->description = $description;
-        $this->placeholder = $placeholder;
-        $this->required    = $required;
-        $this->default     = $default;
-        $this->options     = self::normalizeOptions($options);
-        $this->min         = $min;
-        $this->max         = $max;
-        $this->step        = $step;
+        $this->id           = $id;
+        $this->label        = $label;
+        $this->type         = $type;
+        $this->description  = $description;
+        $this->placeholder  = $placeholder;
+        $this->required     = $required;
+        $this->default      = $default;
+        $this->options      = self::normalizeOptions($options);
+        $this->min          = $min;
+        $this->max          = $max;
+        $this->step         = $step;
+        $this->showIfField  = $showIfField;
+        $this->showIfEquals = $showIfEquals;
+        $this->rows         = $rows;
     }
 
     /**
@@ -128,6 +158,12 @@ final class Field
             case self::TYPE_TEXTAREA:
                 return is_string($value) ? self::stripTags($value, multiline: true) : '';
 
+            case self::TYPE_LIST:
+                return self::toList($value);
+
+            case self::TYPE_KEYED_SELECT:
+                return $this->toKeyedMap($value);
+
             case self::TYPE_PASSWORD:
                 // Passwords aren't HTML-stripped — they may contain any char.
                 // We only trim and reject control characters.
@@ -150,7 +186,7 @@ final class Field
     public function validate($value): ?string
     {
         if ($this->required) {
-            if ($value === null || $value === '' || $value === false) {
+            if ($value === null || $value === '' || $value === false || $value === []) {
                 return sprintf('Field "%s" is required', $this->label);
             }
         }
@@ -179,7 +215,7 @@ final class Field
      */
     public function toArray(): array
     {
-        return [
+        $out = [
             'id'          => $this->id,
             'label'       => $this->label,
             'type'        => $this->type,
@@ -192,6 +228,15 @@ final class Field
             'max'         => $this->max,
             'step'        => $this->step,
         ];
+        // Additive keys appear only when used, so pre-existing manifests
+        // round-trip byte-identically.
+        if ($this->showIfField !== null) {
+            $out['showIf'] = ['field' => $this->showIfField, 'equals' => $this->showIfEquals];
+        }
+        if ($this->rows !== []) {
+            $out['rows'] = $this->rows;
+        }
+        return $out;
     }
 
     /**
@@ -237,6 +282,56 @@ final class Field
             $s = preg_replace('/\n{3,}/u', "\n\n", $s) ?? $s;
         }
         return trim($s);
+    }
+
+    /**
+     * Comma-separated string (or already-array) → clean string list:
+     * tags stripped, trimmed, empties dropped, case-insensitive dedupe.
+     *
+     * @internal
+     * @param mixed $v
+     * @return array<int, string>
+     */
+    private static function toList($v): array
+    {
+        $pieces = is_array($v) ? $v : explode(',', is_string($v) ? $v : '');
+        $seen = [];
+        $out = [];
+        foreach ($pieces as $piece) {
+            if (!is_scalar($piece)) continue;
+            $item = trim(strip_tags((string) $piece));
+            if ($item === '' || strlen($item) > 200) continue;
+            $key = strtolower($item);
+            if (isset($seen[$key])) continue;
+            $seen[$key] = true;
+            $out[] = $item;
+        }
+        return $out;
+    }
+
+    /**
+     * Assoc submission → clean key/value map: keys trimmed + tag-
+     * stripped, values must be one of the field's options.
+     *
+     * @internal
+     * @param mixed $v
+     * @return array<string, string|int>
+     */
+    private function toKeyedMap($v): array
+    {
+        if (!is_array($v)) return [];
+        $out = [];
+        foreach ($v as $key => $value) {
+            $key = trim(strip_tags((string) $key));
+            if ($key === '' || strlen($key) > 200) continue;
+            foreach ($this->options as $opt) {
+                if ((string) $opt['value'] === (string) $value) {
+                    $out[$key] = $opt['value'];
+                    break;
+                }
+            }
+        }
+        return $out;
     }
 
     /**

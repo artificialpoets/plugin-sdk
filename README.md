@@ -241,9 +241,10 @@ wrangler pages deploy cdn --project-name=wp-admincss-cdn --branch=main
 
 Split license:
 
-- **Apache 2.0** — repo root, `packages/cli/`, `packages/wp-tokens/`, `packages/wp-react/`, `packages/wp-composer/`, `apps/site/`, `platforms/wordpress/AGENTS.md`, and `platforms/wordpress/skills/`. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+- **Apache 2.0** — repo root, `packages/cli/`, `apps/site/`, `platforms/wordpress/AGENTS.md`, and `platforms/wordpress/skills/`. These are tools and docs — never distributed inside a plugin. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+- **Apache 2.0 OR GPLv2-or-later (your choice)** — `packages/wp-composer/`, `packages/wp-tokens/`, `packages/wp-react/`. These get vendored INSIDE distributed plugins, so they are dual-licensed: pick GPLv2-or-later when shipping to the WordPress.org directory, Apache 2.0 anywhere that suits you better. Each package carries `LICENSE` (Apache) and `LICENSE-GPL2`.
 - **GPLv2-or-later** — `packages/wp-core-css/` (bundles WordPress core admin CSS, which is GPL) and `boilerplates/wordpress/` (WordPress plugin scaffold). See `packages/wp-core-css/LICENSE`, `packages/wp-core-css/NOTICE`, and `boilerplates/wordpress/LICENSE`.
 
-Apache 2.0 → GPLv2-or-later is one-way compatible, so plugins built from the boilerplate can incorporate the Apache-licensed framework packages without conflict.
+Why the dual license: Apache 2.0 is GPLv3-compatible but **not** GPLv2-compatible, and the WordPress.org directory requires GPLv2-or-later compatibility for everything a plugin ships. Under the dual license a plugin author simply elects the GPL branch for the vendored packages and the whole zip is cleanly GPLv2-or-later.
 
 Built by [Artificial Poets](https://artificialpoets.com).

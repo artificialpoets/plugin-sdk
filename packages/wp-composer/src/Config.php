@@ -153,6 +153,10 @@ final class Config
     public function hasRest(): bool { return isset($this->data['rest']); }
     /** @api */
     public function hasDatabase(): bool { return isset($this->data['database']); }
+    /** @api */
+    public function hasRoutes(): bool { return isset($this->data['routes']); }
+    /** @api */
+    public function hasUninstall(): bool { return isset($this->data['uninstall']); }
 
     /** @api */
     public function buildSettings(): ?Settings
@@ -170,6 +174,36 @@ final class Config
         /** @var array<string, mixed> $rest */
         $rest = $this->data['rest'];
         return REST::fromArray($rest);
+    }
+
+    /** @api */
+    public function buildRoutes(): ?Routes
+    {
+        if (!$this->hasRoutes()) return null;
+        return Routes::fromArray(['routes' => $this->data['routes']], $this->slug());
+    }
+
+    /**
+     * The `uninstall` manifest fragment: which options (and whether the
+     * plugin's tables) should be removed on delete. Read by the
+     * scaffolded uninstall.php without booting the SDK.
+     *
+     * @api
+     * @return array{options: array<int, string>, dropTables: bool}
+     */
+    public function uninstall(): array
+    {
+        $raw = is_array($this->data['uninstall'] ?? null) ? $this->data['uninstall'] : [];
+        $options = [];
+        foreach ((array) ($raw['options'] ?? []) as $option) {
+            if (is_string($option) && $option !== '') {
+                $options[] = $option;
+            }
+        }
+        return [
+            'options'    => $options,
+            'dropTables' => (bool) ($raw['dropTables'] ?? false),
+        ];
     }
 
     /** @api */

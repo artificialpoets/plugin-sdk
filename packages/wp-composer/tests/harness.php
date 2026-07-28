@@ -85,6 +85,7 @@ function psdk_run_tests(): int
         _psdk_reset_calls();
         $GLOBALS['_PSDK_USER_CAN'] = true;
         $GLOBALS['_PSDK_OPTIONS']  = [];
+        $GLOBALS['_PSDK_FILTERS']  = [];
 
         try {
             ($test['fn'])();

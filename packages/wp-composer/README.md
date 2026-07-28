@@ -256,4 +256,4 @@ Tests run against WP-function stubs that capture invocations, so the runtime can
 
 ## License
 
-Apache 2.0. See the [LICENSE](../../LICENSE) at the repo root.
+Dual-licensed: **Apache 2.0 OR GPL-2.0-or-later**, your choice. Plugins headed for the WordPress.org directory should elect the GPL branch (the directory requires GPLv2-or-later compatibility for everything in the zip; Apache 2.0 alone is only GPLv3-compatible). See [LICENSE](./LICENSE) (Apache) and [LICENSE-GPL2](./LICENSE-GPL2) in this package.

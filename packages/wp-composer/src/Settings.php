@@ -38,12 +38,22 @@ final class Settings
     /** @api */
     public const PARENT_TOP_LEVEL = 'top-level';
 
+    /**
+     * Core settings screens fields can attach to instead of creating an
+     * own page. The value doubles as the screen's Settings-API page id
+     * AND its option group (they coincide in core).
+     *
+     * @api
+     */
+    public const CORE_SCREENS = ['general', 'writing', 'reading', 'discussion', 'media'];
+
     private string $slug;
     private string $title;
     private string $menuTitle;
     private string $parent       = self::PARENT_OPTIONS;
     private string $menuIcon     = '';
     private string $capability   = 'manage_options';
+    private ?string $attach      = null;
     private string $optionGroup;
     /** @var array<int, Section> */
     private array $sections = [];
@@ -66,6 +76,27 @@ final class Settings
     public function capability(string $cap): self { $this->capability = $cap; return $this; }
     /** @api */
     public function parent(string $parent): self { $this->parent = $parent; return $this; }
+
+    /**
+     * Attach the fields to a CORE settings screen (see CORE_SCREENS)
+     * instead of creating a page: no menu item, fields in a section with
+     * id 'default' render inside the core screen's own table (e.g. right
+     * under "Search engine visibility" on the Reading screen), other
+     * sections render below it. The option still stores as one array
+     * under the settings slug — a single autoloaded row.
+     *
+     * @api
+     */
+    public function attach(string $coreScreen): self
+    {
+        if (!in_array($coreScreen, self::CORE_SCREENS, true)) {
+            throw new \InvalidArgumentException(
+                "Unknown core screen '$coreScreen' — one of: " . implode(', ', self::CORE_SCREENS)
+            );
+        }
+        $this->attach = $coreScreen;
+        return $this;
+    }
     /** @api */
     public function menuTitle(string $title): self { $this->menuTitle = $title; return $this; }
     /** @api */
@@ -153,7 +184,9 @@ final class Settings
     /** @api */
     public function getParent(): string { return $this->parent; }
     /** @api */
-    public function getOptionGroup(): string { return $this->optionGroup; }
+    public function getAttach(): ?string { return $this->attach; }
+    /** @api */
+    public function getOptionGroup(): string { return $this->attach ?? $this->optionGroup; }
     /**
      * @api
      * @return array<int, Section>
@@ -181,6 +214,7 @@ final class Settings
 
         $settings = new self($slug, $title);
         $settings->capability($cap);
+        if (isset($data['attach']))      $settings->attach((string) $data['attach']);
         if (isset($data['menuTitle']))   $settings->menuTitle((string) $data['menuTitle']);
         if (isset($data['parent']))      $settings->parent((string) $data['parent']);
         if (isset($data['menuIcon']))    $settings->menuIcon((string) $data['menuIcon']);
@@ -205,7 +239,7 @@ final class Settings
      */
     public function toArray(): array
     {
-        return [
+        $out = [
             'slug'        => $this->slug,
             'title'       => $this->title,
             'menuTitle'   => $this->menuTitle,
@@ -215,6 +249,10 @@ final class Settings
             'optionGroup' => $this->optionGroup,
             'sections'    => array_map(static fn(Section $s) => $s->toArray(), $this->sections),
         ];
+        if ($this->attach !== null) {
+            $out['attach'] = $this->attach;
+        }
+        return $out;
     }
 
     /* ── WP-facing hooks ────────────────────────────────────────────── */
@@ -222,6 +260,9 @@ final class Settings
     /** @internal */
     private function registerMenu(): void
     {
+        if ($this->attach !== null) {
+            return; // attached to a core screen — no menu item.
+        }
         $cb = [$this, 'renderPage'];
 
         if ($this->parent === self::PARENT_TOP_LEVEL) {
@@ -235,19 +276,35 @@ final class Settings
     private function registerSettings(): void
     {
         $optionName = $this->slug;
-        \register_setting($this->optionGroup, $optionName, [
+        // Attached mode: the option joins the CORE screen's group so the
+        // native form saves it — core group ids equal the page ids.
+        $group = $this->attach ?? $this->optionGroup;
+        $page  = $this->attach ?? $this->slug;
+
+        \register_setting($group, $optionName, [
             'type' => 'object',
             'sanitize_callback' => [$this, 'sanitize'],
         ]);
 
+        $needsShowIfScript = false;
+
         foreach ($this->sections as $section) {
-            \add_settings_section($section->id, $section->title, function () use ($section) {
-                if ($section->description !== '') {
-                    echo '<p>' . \esc_html($section->description) . '</p>';
-                }
-            }, $this->slug);
+            // On a core screen, a section with id 'default' means "the
+            // screen's own table" — core already registered it; adding it
+            // again would duplicate the heading.
+            $isCoreDefault = $this->attach !== null && $section->id === 'default';
+            if (!$isCoreDefault) {
+                \add_settings_section($section->id, $section->title, function () use ($section) {
+                    if ($section->description !== '') {
+                        echo '<p>' . \esc_html($section->description) . '</p>';
+                    }
+                }, $page);
+            }
 
             foreach ($section->fields as $field) {
+                if ($field->showIfField !== null) {
+                    $needsShowIfScript = true;
+                }
                 \add_settings_field(
                     $field->id,
                     $field->label,
@@ -256,10 +313,16 @@ final class Settings
                         $value  = is_array($stored) ? ($stored[$field->id] ?? $field->default) : $field->default;
                         echo Renderer::field($field, $optionName . '[' . $field->id . ']', $value);
                     },
-                    $this->slug,
+                    $page,
                     $section->id
                 );
             }
+        }
+
+        if ($needsShowIfScript && function_exists('add_action')) {
+            add_action('admin_print_footer_scripts', static function (): void {
+                echo Renderer::showIfScript();
+            });
         }
     }
 

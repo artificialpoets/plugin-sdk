@@ -27,23 +27,87 @@ final class Renderer
     {
         switch ($field->type) {
             case Field::TYPE_TEXTAREA:
-                return self::renderTextarea($field, $name, $value);
+                $html = self::renderTextarea($field, $name, $value);
+                break;
             case Field::TYPE_CHECKBOX:
-                return self::renderCheckbox($field, $name, $value);
+                $html = self::renderCheckbox($field, $name, $value);
+                break;
             case Field::TYPE_SELECT:
-                return self::renderSelect($field, $name, $value);
+                $html = self::renderSelect($field, $name, $value);
+                break;
             case Field::TYPE_NUMBER:
-                return self::renderInput($field, $name, $value, 'number');
+                $html = self::renderInput($field, $name, $value, 'number');
+                break;
             case Field::TYPE_EMAIL:
-                return self::renderInput($field, $name, $value, 'email');
+                $html = self::renderInput($field, $name, $value, 'email');
+                break;
             case Field::TYPE_URL:
-                return self::renderInput($field, $name, $value, 'url');
+                $html = self::renderInput($field, $name, $value, 'url');
+                break;
             case Field::TYPE_PASSWORD:
-                return self::renderInput($field, $name, $value, 'password');
+                $html = self::renderInput($field, $name, $value, 'password');
+                break;
+            case Field::TYPE_LIST:
+                $html = self::renderList($field, $name, $value);
+                break;
+            case Field::TYPE_KEYED_SELECT:
+                $html = self::renderKeyedSelect($field, $name, $value);
+                break;
             case Field::TYPE_TEXT:
             default:
-                return self::renderInput($field, $name, $value, 'text');
+                $html = self::renderInput($field, $name, $value, 'text');
         }
+
+        // Conditional visibility rides a data-attribute marker; the
+        // one-per-page script (showIfScript) toggles the enclosing row.
+        if ($field->showIfField !== null) {
+            $equals = is_bool($field->showIfEquals)
+                ? ($field->showIfEquals ? '1' : '')
+                : (string) $field->showIfEquals;
+            $html = '<span class="psdk-show-if" data-psdk-controller="'
+                . self::escAttr($field->showIfField)
+                . '" data-psdk-equals="' . self::escAttr($equals) . '">'
+                . $html
+                . '</span>';
+        }
+
+        return $html;
+    }
+
+    /**
+     * The tiny vanilla script that powers showIf: for every marker,
+     * find the controller input in the same option (sibling name),
+     * toggle the marker's table row (fallback: the marker) on change.
+     * Emitted once per admin page by Settings when any field uses
+     * showIf.
+     */
+    public static function showIfScript(): string
+    {
+        return <<<'HTML'
+<script>
+(function () {
+    function controllerValue(el) {
+        if (!el) return '';
+        if (el.type === 'checkbox') return el.checked ? '1' : '';
+        return String(el.value);
+    }
+    document.querySelectorAll('.psdk-show-if').forEach(function (marker) {
+        var input = marker.querySelector('[name]');
+        if (!input) return;
+        var base = input.getAttribute('name').replace(/\[[^\]]*\]$/, '');
+        var controller = document.querySelector('[name="' + base + '[' + marker.dataset.psdkController + ']"]');
+        if (!controller) return;
+        var row = marker.closest('tr') || marker;
+        function sync() {
+            row.style.display = controllerValue(controller) === marker.dataset.psdkEquals ? '' : 'none';
+        }
+        controller.addEventListener('change', sync);
+        controller.addEventListener('input', sync);
+        sync();
+    });
+})();
+</script>
+HTML;
     }
 
     /**
@@ -104,6 +168,63 @@ final class Renderer
         }
         return '<select ' . self::serializeAttrs($attrs) . '>' . $opts . '</select>'
             . self::descriptionHtml($f);
+    }
+
+    /**
+     * type='list': a comma-separated text input backed by an array value.
+     *
+     * @param mixed $value
+     */
+    private static function renderList(Field $f, string $name, $value): string
+    {
+        $attrs = self::baseAttrs($f, $name, 'text');
+        $attrs['value'] = is_array($value) ? implode(', ', array_map('strval', $value)) : self::stringify($value);
+        if ($f->placeholder !== '') $attrs['placeholder'] = $f->placeholder;
+        return '<input ' . self::serializeAttrs($attrs) . '>' . self::descriptionHtml($f);
+    }
+
+    /**
+     * type='keyedSelect': one dropdown per row. Rows = the field's
+     * static `rows` map plus any keys already present in the stored
+     * value (so dynamically added keys keep their configured policy).
+     * Markup uses core's own table classes (widefat/striped) so it
+     * inherits the native admin styling — the wp-core-css philosophy.
+     *
+     * @param mixed $value
+     */
+    private static function renderKeyedSelect(Field $f, string $name, $value): string
+    {
+        $stored = is_array($value) ? $value : [];
+        $rows = $f->rows;
+        foreach (array_keys($stored) as $key) {
+            if (!isset($rows[$key])) {
+                $rows[(string) $key] = (string) $key;
+            }
+        }
+
+        if ($rows === []) {
+            return '<p class="description">' . self::escHtml($f->placeholder !== '' ? $f->placeholder : 'No rows yet.') . '</p>'
+                . self::descriptionHtml($f);
+        }
+
+        $html = '<table class="widefat striped psdk-keyed-select"><tbody>';
+        foreach ($rows as $key => $label) {
+            $key = (string) $key;
+            $current = isset($stored[$key]) ? (string) $stored[$key] : self::stringify($f->default);
+            $opts = '';
+            foreach ($f->options as $opt) {
+                $selected = ((string) $opt['value']) === $current ? ' selected' : '';
+                $opts .= '<option value="' . self::escAttr((string) $opt['value']) . '"' . $selected . '>'
+                    . self::escHtml((string) $opt['label']) . '</option>';
+            }
+            $rowName = $name . '[' . $key . ']';
+            $html .= '<tr><td><code>' . self::escHtml((string) $label) . '</code></td>'
+                . '<td><select name="' . self::escAttr($rowName) . '" aria-label="'
+                . self::escAttr((string) $label) . '">' . $opts . '</select></td></tr>';
+        }
+        $html .= '</tbody></table>';
+
+        return $html . self::descriptionHtml($f);
     }
 
     /**

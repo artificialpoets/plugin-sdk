@@ -83,6 +83,7 @@ final class Section
             if (!is_array($fieldData)) {
                 throw new \InvalidArgumentException('Each field must be an object');
             }
+            $showIf = is_array($fieldData['showIf'] ?? null) ? $fieldData['showIf'] : null;
             $section->addField(new Field(
                 (string) ($fieldData['id']    ?? ''),
                 (string) ($fieldData['label'] ?? ''),
@@ -94,7 +95,10 @@ final class Section
                 is_array($fieldData['options'] ?? null) ? $fieldData['options'] : [],
                 isset($fieldData['min'])  ? (float) $fieldData['min']  : null,
                 isset($fieldData['max'])  ? (float) $fieldData['max']  : null,
-                isset($fieldData['step']) ? (float) $fieldData['step'] : null
+                isset($fieldData['step']) ? (float) $fieldData['step'] : null,
+                $showIf !== null && isset($showIf['field']) ? (string) $showIf['field'] : null,
+                $showIf['equals'] ?? true,
+                is_array($fieldData['rows'] ?? null) ? $fieldData['rows'] : []
             ));
         }
         return $section;

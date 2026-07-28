@@ -94,6 +94,54 @@ if (!function_exists('register_activation_hook')) {
     }
 }
 
+if (!function_exists('apply_filters')) {
+    /**
+     * Records the call; a test can intercept a hook by putting a
+     * callable into $GLOBALS['_PSDK_FILTERS'][$hook], which receives
+     * ($value, ...$args) and returns the filtered value.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    function apply_filters(string $hook, $value, ...$args)
+    {
+        _psdk_record('apply_filters', compact('hook', 'value', 'args'));
+        $interceptor = $GLOBALS['_PSDK_FILTERS'][$hook] ?? null;
+        if (is_callable($interceptor)) {
+            return $interceptor($value, ...$args);
+        }
+        return $value;
+    }
+}
+
+if (!function_exists('do_action')) {
+    function do_action(string $hook, ...$args): void
+    {
+        _psdk_record('do_action', compact('hook', 'args'));
+    }
+}
+
+if (!function_exists('add_rewrite_rule')) {
+    function add_rewrite_rule(string $regex, string $query, string $after = 'bottom'): void
+    {
+        _psdk_record('add_rewrite_rule', compact('regex', 'query', 'after'));
+    }
+}
+
+if (!function_exists('flush_rewrite_rules')) {
+    function flush_rewrite_rules(bool $hard = true): void
+    {
+        _psdk_record('flush_rewrite_rules', compact('hard'));
+    }
+}
+
+if (!function_exists('status_header')) {
+    function status_header(int $code): void
+    {
+        _psdk_record('status_header', compact('code'));
+    }
+}
+
 if (!function_exists('current_user_can')) {
     function current_user_can(string $capability): bool
     {

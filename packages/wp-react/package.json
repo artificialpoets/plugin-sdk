@@ -2,7 +2,7 @@
   "name": "@plugin-sdk/wp-react",
   "version": "0.1.0-rc.1",
   "description": "Plugin SDK \u2014 React components for WordPress admin. Renders real WP class names. Pair with @plugin-sdk/wp-core-css.",
-  "license": "Apache-2.0",
+  "license": "(Apache-2.0 OR GPL-2.0-or-later)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

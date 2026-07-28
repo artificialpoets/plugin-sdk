@@ -85,8 +85,23 @@ If any field violates the schema, `Plugin::fromManifest()` throws `\PluginSDK\WP
 | `checkbox` | coerced to bool | `'1'`/`'on'`/`'yes'`/`true` → `true`; null/missing → `false`. |
 | `select` | whitelist against `options[].value` | Returns `default` if value not in the list. |
 | `password` | preserve all printable chars | Tags NOT stripped (passwords may contain anything). |
+| `list` | comma-split, trim, strip tags, dedupe | Renders one text input ("MyBot, OtherBot"); stores an **array** of strings. |
+| `keyedSelect` | keys trimmed/tag-stripped; values whitelisted against `options[].value` | A table with one dropdown per row. Rows come from the field's `rows` map (key → label) **plus any keys already in the stored value**, so dynamically added keys keep their setting. Stores an assoc array. |
+
+### Conditional visibility — `showIf`
+
+Any field can hide behind a sibling field in the same settings option:
+
+```json
+{ "id": "mode", "label": "Mode", "type": "select", "options": ["a", "b"],
+  "showIf": { "field": "enabled", "equals": true } }
+```
+
+The row is visible only while the controller field holds the value. Checkbox controllers compare against `true`/`false`; everything else compares strings. The runtime ships the (tiny, dependency-free) toggle script automatically — no JS to write.
 
 The Settings runtime saves the sanitised array as a single WP option whose key = `slug`. Read it with `get_option('acme-forms')`.
+
+**Performance guarantee worth knowing:** because everything stores under ONE option row and WordPress autoloads options by default, reading your settings on the front end costs **zero additional SQL queries** — the value rides the `alloptions` cache loaded once per request. Never split SDK settings into per-field options; you'd trade this guarantee away for nothing.
 
 Validation errors (e.g. a required field left empty) accumulate on `$settings->getErrors()` for surfacing as admin notices.
 
@@ -103,6 +118,33 @@ The `parent` field controls placement:
 | `"plugins.php"` | Plugins → Acme Forms |
 | `"users.php"` | Users → Acme Forms |
 | `"top-level"` | Its own top-level menu. Provide `menuIcon` (dashicon name) if you want a non-default icon. |
+
+### Attaching to a CORE settings screen — `attach`
+
+Small plugins often shouldn't add a page at all. Set `attach` to put your fields on one of WordPress's own Settings screens instead:
+
+```json
+"settings": {
+  "page": {
+    "title": "Agents visibility",
+    "capability": "manage_options",
+    "attach": "reading",
+    "sections": [{
+      "id": "default",
+      "title": "Agents visibility",
+      "fields": [
+        { "id": "enabled", "label": "Agents visibility", "type": "checkbox", "default": false }
+      ]
+    }]
+  }
+}
+```
+
+Rules:
+
+- `attach` is one of `general` · `writing` · `reading` · `discussion` · `media`. No menu item is added; `parent`, `menuTitle`, and `menuIcon` are ignored.
+- Fields in a section with id **`default`** render inside the core screen's own table — on `reading` that places them directly under "Search engine visibility". Other sections render below the core table with their own headings.
+- Storage is unchanged: one option named after the settings slug, saved by the native core form (the option joins the core screen's settings group). Sanitisation still runs through every field.
 
 ---
 
@@ -212,6 +254,71 @@ On plugin activation:
 | `default` | String, number, bool, or one of the literals `CURRENT_TIMESTAMP`, `NULL`, `NOW()`. Strings are SQL-quoted automatically; literals stay unquoted. |
 
 Table names are prefixed at runtime: the final name = `$wpdb->prefix + plugin_prefix + table.name`. The plugin prefix is whatever you pass as the third argument to `Config::buildMigration($prefix)`; the SDK boilerplate uses `'plugin_sdk_'` by default — change it to something plugin-specific like `'acme_'`.
+
+---
+
+## `routes` — virtual documents
+
+Serve a URL pattern yourself — `llms.txt`, a Markdown rendition, a manifest, a feed — with no template and no physical file:
+
+```json
+"routes": [
+  {
+    "pattern": "^llms\\.txt$",
+    "queryVar": "acme_forms_llms",
+    "handler": "Acme\\Forms\\Routes\\Llms::serve",
+    "contentType": "text/plain; charset=utf-8",
+    "cache": "public, max-age=3600"
+  },
+  {
+    "pattern": "^(.+)\\.md$",
+    "queryVar": "acme_forms_md",
+    "handler": "Acme\\Forms\\Routes\\Markdown::serve",
+    "contentType": "text/markdown; charset=utf-8"
+  }
+]
+```
+
+What the runtime wires for you (the battle-tested serving pattern):
+
+- `add_rewrite_rule` on `init`, the query var whitelisted via `query_vars`.
+- Interception at **`parse_request` priority 0** — before the main query, any template, or other frontend interceptors.
+- **Self-healing rewrites**: when the plugin updates without a reactivation and the stored rules predate it, one automatic flush repairs them.
+- **Activation priming**: rules are registered and flushed on activation, so the first request after activating already resolves.
+
+The handler receives the matched value (`$matches[1]` for patterns with a capture group, `'1'` for static patterns) and returns:
+
+```php
+final class Markdown {
+    /** @return string|array|null */
+    public static function serve(string $path) {
+        $post = /* resolve $path */;
+        if (!$post) {
+            return null; // → clean 404, core renders its template
+        }
+        return "# " . get_the_title($post) . "\n\n…";
+        // or fine-grained: ['body' => …, 'status' => 200,
+        //                   'contentType' => …, 'headers' => [ … ]]
+    }
+}
+```
+
+Register the handler at boot exactly like REST handlers: `->withRouteHandler('Acme\\Forms\\Routes\\Markdown::serve', [Markdown::class, 'serve'])`.
+
+Two rules of the road: keep patterns anchored (`^…$`) so you never shadow real content, and remember `.md`/`.txt` URLs only resolve under pretty permalinks (check `get_option('permalink_structure')` before advertising them).
+
+---
+
+## `uninstall` — declare what deletion removes
+
+```json
+"uninstall": {
+  "options": ["acme-forms", "acme_forms_db_version"],
+  "dropTables": true
+}
+```
+
+The scaffolded `uninstall.php` reads this fragment straight from `plugin-sdk.json` (no SDK boot — uninstall runs standalone) and deletes the listed options; with `dropTables: true` it also drops the tables declared under `database.tables`. Declaring cleanup in the manifest keeps `uninstall.php` in sync as the plugin grows — a wp.org review expectation.
 
 ---
 

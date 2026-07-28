@@ -2,7 +2,7 @@
   "name": "plugin-sdk/wp",
   "description": "Plugin SDK — WordPress runtime: declarative manifest loader, fluent Settings API, REST routes with JSON-schema validation, dbDelta migrations, plus admin-UI render helpers.",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": ["Apache-2.0", "GPL-2.0-or-later"],
   "keywords": ["plugin-sdk", "wordpress", "wp-admin", "plugin", "rest", "settings"],
   "authors": [
     {

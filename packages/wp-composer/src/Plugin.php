@@ -30,6 +30,9 @@ final class Plugin
      *  manifest "handler": "Foo::bar" entries to actual code. */
     /** @var array<string, callable> */
     private array $handlerRegistry = [];
+    /** @var array<string, Module> */
+    private array $modules = [];
+    private ?SiteConfig $siteConfig = null;
 
     private function __construct(Config $config, string $pluginFile)
     {
@@ -70,8 +73,48 @@ final class Plugin
         return $this;
     }
 
+    /**
+     * Register a real callable for a manifest route "handler" string.
+     * Same registry semantics as {@see withRestHandler}.
+     *
+     * @api
+     * @param callable $callable
+     */
+    public function withRouteHandler(string $ref, $callable): self
+    {
+        return $this->withRestHandler($ref, $callable);
+    }
+
+    /**
+     * Register a code module under a public key. Modules boot after the
+     * manifest surfaces, filtered through `{slug_snake}_modules` and
+     * gated on `modules.{key}.enabled` when a SiteConfig is attached.
+     *
+     * @api
+     */
+    public function withModule(string $key, Module $module): self
+    {
+        $this->modules[$key] = $module;
+        return $this;
+    }
+
+    /**
+     * Attach a {@see SiteConfig} — module enable toggles and anything
+     * the plugin's own code wants to read cascade-aware.
+     *
+     * @api
+     */
+    public function withSiteConfig(SiteConfig $siteConfig): self
+    {
+        $this->siteConfig = $siteConfig;
+        return $this;
+    }
+
     /** @api */
     public function config(): Config { return $this->config; }
+
+    /** @api */
+    public function siteConfig(): ?SiteConfig { return $this->siteConfig; }
 
     /**
      * Wire up every WP hook the manifest declares. Idempotent — safe to
@@ -104,6 +147,29 @@ final class Plugin
             if ($migration !== null) {
                 \register_activation_hook($this->pluginFile, [$migration, 'run']);
             }
+        }
+        if ($this->config->hasRoutes()) {
+            $routes = $this->config->buildRoutes();
+            if ($routes !== null) {
+                foreach ($routes->getRoutes() as $route) {
+                    if (is_string($route->handler) && isset($this->handlerRegistry[$route->handler])) {
+                        $route->setHandler($this->handlerRegistry[$route->handler]);
+                    }
+                }
+                $routes->register();
+                if (function_exists('register_activation_hook')) {
+                    // Prime + flush so the first request after activation
+                    // already resolves the virtual URLs.
+                    \register_activation_hook($this->pluginFile, [$routes, 'prime']);
+                }
+            }
+        }
+        if ($this->modules !== []) {
+            $registry = new Modules($this->config->slug(), $this->siteConfig);
+            foreach ($this->modules as $key => $module) {
+                $registry->add($key, $module);
+            }
+            $registry->register();
         }
     }
 }

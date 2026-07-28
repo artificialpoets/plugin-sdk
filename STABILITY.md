@@ -46,17 +46,22 @@ Internal:
 ### `plugin-sdk/wp` (Composer)
 
 Public (full PSR-4 surface under `PluginSDK\WP\`):
-- `Plugin` — `fromManifest()`, `fromArray()`, `withRestHandler()`, `boot()`, `config()`
-- `Config` — `fromFile()`, `fromArray()`, `validate()`, `platform()`, `name()`, `slug()`, `version()`, `namespacePhp()`, `textDomain()`, `hasSettings()`, `hasRest()`, `hasDatabase()`, `buildSettings()`, `buildRest()`, `buildMigration()`, `toArray()`
+- `Plugin` — `fromManifest()`, `fromArray()`, `withRestHandler()`, `withRouteHandler()`, `withModule()`, `withSiteConfig()`, `boot()`, `config()`, `siteConfig()`
+- `Config` — `fromFile()`, `fromArray()`, `validate()`, `platform()`, `name()`, `slug()`, `version()`, `namespacePhp()`, `textDomain()`, `hasSettings()`, `hasRest()`, `hasDatabase()`, `hasRoutes()`, `hasUninstall()`, `buildSettings()`, `buildRest()`, `buildMigration()`, `buildRoutes()`, `uninstall()`, `toArray()`
 - `ConfigException`
-- `Settings` — all fluent + `fromArray()` + `register()` + `sanitize()` + `getErrors()` + getters
+- `Settings` — all fluent (incl. `attach()`) + `CORE_SCREENS` + `fromArray()` + `register()` + `sanitize()` + `getErrors()` + getters
 - `Settings\Section` — fluent + `fromArray()` + `addField()` + `toArray()`
-- `Settings\Field` — constructor + `TYPE_*` constants + `sanitize()` + `validate()` + `toArray()`
+- `Settings\Field` — constructor + `TYPE_*` constants (incl. `TYPE_LIST`, `TYPE_KEYED_SELECT`) + `showIf`/`rows` properties + `sanitize()` + `validate()` + `toArray()`
 - `REST` — fluent + `fromArray()` + `register()` + `getNamespace()` + `getRoutes()` + `validateRouteBody()` + `addRoute()`
 - `REST\Route` — constructor + `setHandler()` + `capability()` + `schema()` + `authorize()` + `validateBody()` + `fromArray()` + `toArray()`
 - `REST\Schema` — constructor + `validate()`
 - `Migration` — constructor + `addTable()` + `toSqlStatements()` + `run()` + `fromArray()` + getters
 - `Migration\Table` — constructor + `toSql()` + `fromArray()`
+- `Routes` — fluent + `fromArray()` + `register()` + `registerRules()` + `prime()` + `maybeFlushRewrites()` + `rewriteTarget()` + `queryVars()` + `maybeServe()` + `dispatch()` + `normalizeResponse()` + `resolveHandler()` + `getRoutes()` + `addRoute()` + `toArray()`
+- `Routes\Route` — constructor + `setHandler()` + `contentType()` + `cache()` + `fromArray()` + `toArray()`
+- `Module` — the module interface (`register()`)
+- `Modules` — constructor + `add()` + `register()` + `all()` + `registered()`
+- `SiteConfig` — constructor + `get()` + `toArray()` + the cascade order (defaults → constants → project file → filter)
 - `Components`, `Components\*` — the render helpers (signatures stable across minors)
 - `Assets`, `Html`
 

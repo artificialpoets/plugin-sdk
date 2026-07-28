@@ -12,6 +12,31 @@ the public-API contract.
 
 ### Added
 
+**Runtime — virtual routes (`plugin-sdk/wp`)**
+- New top-level `routes` manifest section + `Routes` / `Routes\Route` runtime: serve URL patterns yourself (llms.txt, `.md` renditions, manifests, feeds). Wires the full battle-tested pattern — rewrite rule on init, whitelisted query var, `parse_request`@0 interception, self-healing rewrite flush after updates, activation priming, clean-404 fallthrough. Handlers return a string, a `{body, status?, contentType?, headers?}` array, or null. `Plugin::withRouteHandler()` mirrors REST handler registration. Extracted from the pattern proven in wp-headless (`LlmsTxt`) and wp2md.
+
+**Runtime — core-screen settings (`attach`)**
+- `settings.page.attach: "general"|"writing"|"reading"|"discussion"|"media"` puts fields on a CORE Settings screen instead of creating a page (no menu item; fields in the `default` section join the core table — e.g. directly under "Search engine visibility" on Reading; other sections render below). Storage unchanged: one autoloaded option, saved by the native form. Small plugins stop shipping whole pages for two checkboxes.
+
+**Runtime — module registry + site config**
+- `Module` interface + `Modules` keyed registry (filterable via `{slug_snake}_modules`, per-module `modules.{key}.enabled` toggles, `{slug_snake}_modules_booted` action) and `SiteConfig` (defaults → wp-config constants → `wp-content/{slug}/{slug}.config.php` project file → `{slug_snake}_config` filter cascade, dot-notation reads). The extension architecture both production plugins (wp-headless, wp2md) independently converged on, now first-class. `Plugin::withModule()` / `withSiteConfig()` integrate with manifest boot.
+
+**Settings fields**
+- `showIf` conditional visibility on any field (sibling-controlled row toggling; dependency-free script shipped automatically).
+- `type: "list"` — comma-separated input storing a clean string array.
+- `type: "keyedSelect"` — a native `widefat striped` table with one dropdown per row; rows = the field's `rows` map plus keys already stored, so dynamically added keys keep their setting.
+
+**Uninstall manifest**
+- Top-level `uninstall` section (`options`, `dropTables`) + `Config::uninstall()`; the boilerplate's `uninstall.php` now reads it standalone (no SDK boot) so cleanup stays in sync with the manifest as the plugin grows.
+
+**Integration smoke tier (boilerplate)**
+- `.wp-env.json` + `bin/smoke.sh`: activation, settings round-trip, and virtual-route resolution against a real WordPress — the layer PHPCS/Plugin Check can't see.
+
+### Changed
+
+**Licensing — wp.org compatibility**
+- `plugin-sdk/wp`, `@plugin-sdk/wp-tokens`, and `@plugin-sdk/wp-react` are now dual-licensed **Apache-2.0 OR GPL-2.0-or-later** (each package ships `LICENSE-GPL2`). Apache-2.0 alone is GPLv3-compatible but NOT GPLv2-compatible, and the wp.org directory requires GPLv2-or-later compatibility for everything a plugin ships — plugins simply elect the GPL branch. README licensing sections rewritten accordingly (the previous "one-way compatible" note had it backwards).
+
 **Build pipeline (every scaffolded plugin)**
 - `bin/build.sh` — rsync-based dist builder driven by `.distignore`. Reads VERSION from the plugin header, runs `composer install --no-dev`, produces `build/<slug>/` + two zips (latest + versioned). Supports `wporg` (default) and `github` modes — the latter writes a `.use-github-updates` marker for the dual-channel updater.
 - `bin/phpsyntax.php` — `php -l` over every plugin file. Wired as `composer run phpsyntax`.

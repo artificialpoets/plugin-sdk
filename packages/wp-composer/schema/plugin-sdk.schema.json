@@ -77,6 +77,29 @@
           "items": { "$ref": "#/$defs/Table" }
         }
       }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Optional virtual routes — URL patterns the plugin serves itself (llms.txt, a .md rendition, a manifest). The runtime registers the rewrite rule, whitelists the query var, intercepts at parse_request priority 0, self-heals rewrites after updates, and primes + flushes rules on activation.",
+      "items": { "$ref": "#/$defs/VirtualRoute" }
+    },
+    "uninstall": {
+      "type": "object",
+      "description": "Optional uninstall declaration. The scaffolded uninstall.php reads this fragment directly (no SDK boot) and removes the listed options — and the plugin's database tables when dropTables is true.",
+      "additionalProperties": false,
+      "properties": {
+        "options": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Option names to delete on uninstall."
+        },
+        "dropTables": {
+          "type": "boolean",
+          "default": false,
+          "description": "Drop the tables declared under database.tables."
+        }
+      }
     }
   },
 
@@ -99,11 +122,16 @@
         },
         "title": { "type": "string", "minLength": 1 },
         "menuTitle": { "type": "string" },
+        "attach": {
+          "type": "string",
+          "enum": ["general", "writing", "reading", "discussion", "media"],
+          "description": "Attach the fields to a CORE settings screen instead of creating a page. Fields in a section with id 'default' render inside the core screen's own table (e.g. right under Search engine visibility on 'reading'); other sections render below it. When set, parent/menuTitle/menuIcon are ignored and no menu item is added — the right choice for small plugins that would otherwise add a whole page for two checkboxes."
+        },
         "parent": {
           "type": "string",
           "enum": ["options-general.php", "tools.php", "edit.php", "themes.php", "plugins.php", "users.php", "top-level"],
           "default": "options-general.php",
-          "description": "Where the page lives in the WP admin menu. 'top-level' creates a top-level menu item."
+          "description": "Where the page lives in the WP admin menu. 'top-level' creates a top-level menu item. Ignored when attach is set."
         },
         "menuIcon": {
           "type": "string",
@@ -148,7 +176,22 @@
         "description": { "type": "string", "description": "Help text shown below the field." },
         "type": {
           "type": "string",
-          "enum": ["text", "textarea", "email", "url", "number", "checkbox", "select", "password"]
+          "enum": ["text", "textarea", "email", "url", "number", "checkbox", "select", "password", "list", "keyedSelect"]
+        },
+        "showIf": {
+          "type": "object",
+          "required": ["field"],
+          "additionalProperties": false,
+          "description": "Conditional visibility: the field's row is shown only while a sibling field (same section option) has the given value. Checkbox controllers compare against true/false; everything else compares string values.",
+          "properties": {
+            "field": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+            "equals": { "type": ["string", "number", "boolean"], "default": true }
+          }
+        },
+        "rows": {
+          "type": "object",
+          "description": "For type='keyedSelect' only: static row map of key → row label. Rows already present in the stored value render too, so dynamic keys (added by code via the option) survive.",
+          "additionalProperties": { "type": "string" }
         },
         "default": {
           "description": "Default value. Type must match the field type."
@@ -157,7 +200,7 @@
         "placeholder": { "type": "string" },
         "options": {
           "type": "array",
-          "description": "For type='select' only. Each option is either a string or { value, label }.",
+          "description": "For type='select' and type='keyedSelect'. Each option is either a string or { value, label }.",
           "items": {
             "oneOf": [
               { "type": "string" },
