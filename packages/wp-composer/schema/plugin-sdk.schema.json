@@ -7,6 +7,10 @@
   "required": ["platform", "name", "slug", "textDomain"],
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Editor-tooling schema reference. Ignored by the runtime."
+    },
     "platform": {
       "type": "string",
       "const": "wordpress",
