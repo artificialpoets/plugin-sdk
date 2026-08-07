@@ -10,7 +10,7 @@ Every plugin scaffolded by `npx @plugin-sdk/cli create` ships with two CI workfl
 
 This skill teaches what the release workflow does, how to control it, and how to debug it when it doesn't do what you wanted.
 
-For the wp.org submission flow (different mental model, different tools), load [`skills/submission-prep.md`](./submission-prep.md) instead. For the underlying Plugin Check rules and naming conventions, [`skills/publishing.md`](./publishing.md).
+For the wp.org submission flow (different mental model, different tools), load [`skills/submission-prep.md`](./submission-prep.md) instead. For the underlying Plugin Check rules and naming conventions, [`skills/publishing.md`](./publishing.md). To publish to the wp.org SVN repo automatically from this same release job — CI wiring, secrets, and readme/assets updates without a version bump — load [`skills/wporg-svn-deploy.md`](./wporg-svn-deploy.md).
 
 ---
 
