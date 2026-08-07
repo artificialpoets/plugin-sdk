@@ -231,14 +231,46 @@ prefix surfaces in `composer run lint` before it reaches review. If you're
 hand-rolling a plugin instead of scaffolding, apply the four rules above
 yourself.
 
-### Every URL in the plugin header must resolve
+### Plugin header URLs
 
-wp.org's review fetches the `Plugin URI` and `Author URI` from your header and
-rejects the plugin if either fails to resolve (a real review flagged
-`Plugin URI: https://wp-components.com` with "Could not resolve host"). Both
-fields are **optional** — if you don't have a live homepage yet, omit them
-entirely rather than shipping a placeholder or a dead link. The scaffolded
-boilerplate omits both by default for exactly this reason.
+Two separate review findings govern `Plugin URI` and `Author URI`. Both fields
+are **optional**, and the two rules together mean it is often correct to ship
+neither.
+
+**1. Every URL you declare must resolve.** wp.org's review fetches both headers
+and rejects the plugin if either fails (a real review flagged
+`Plugin URI: https://wp-components.com` with "Could not resolve host"). If you
+don't have a live homepage yet, omit the field rather than shipping a
+placeholder or a dead link.
+
+**2. The two must not be the same URL.** Verbatim from a later review:
+
+> Your plugin and author URIs are the same. Your plugin headers in the main
+> plugin file headers have the same value for both the plugin and author URI
+> (Uniform Resource Identifier). A plugin URI is a webpage that provides
+> details about this specific plugin. An author URI is a webpage that provides
+> information about the author of the plugin. Those two must be different. You
+> are not required to provide both, so pick the one that best applies to your
+> situation.
+
+**These two rules interact, and that is the trap.** The obvious fix for a dead
+`Plugin URI` is to repoint it at your author homepage — which resolves, clearing
+rule 1, and immediately violates rule 2. Declare `Plugin URI` only when a page
+about *that specific plugin* actually exists.
+
+**Watch for soft-404s when you verify.** Many marketing sites return HTTP 200
+with the homepage for any unknown path, so a plugin page you never built will
+look live to `curl`. Compare the response against a deliberately nonsense URL on
+the same host — identical byte count and `<title>` means it's a catch-all, and
+that URL is not a real page:
+
+```bash
+curl -sL https://example.com/my-plugin | wc -c
+curl -sL https://example.com/definitely-not-real-xyz123 | wc -c   # same? soft-404
+```
+
+The scaffolded boilerplate omits both headers by default for exactly these
+reasons, and `bin/submission-prep.sh` checks both rules (steps 7e and 7e-2).
 
 ---
 

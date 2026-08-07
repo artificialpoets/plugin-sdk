@@ -11,11 +11,17 @@
  * Text Domain:       plugin-sdk-starter
  * Domain Path:       /languages
  *
- * The Plugin/Author homepage headers are intentionally omitted. wp.org's
- * review fetches any URL declared here and fails the plugin if it does not
- * resolve, so shipping a placeholder or dead link is worse than shipping
- * none. Add the "Plugin URI" and "Author URI" header fields yourself once
- * you have a live homepage that resolves.
+ * The Plugin/Author homepage headers are intentionally omitted. Two wp.org
+ * review rules govern them, and together they mean shipping neither is often
+ * correct:
+ *   1. Any URL declared here is fetched by the reviewer, and a dead link
+ *      fails the plugin — a placeholder is worse than nothing.
+ *   2. "Plugin URI" and "Author URI" must not be the same URL. Repointing a
+ *      dead Plugin URI at your author homepage satisfies rule 1 and breaks
+ *      rule 2.
+ * Add "Author URI" once you have a live homepage; add "Plugin URI" only when
+ * a page about THIS specific plugin exists. Beware marketing sites that
+ * return 200 for unknown paths — that page may be a soft-404.
  */
 
 declare(strict_types=1);

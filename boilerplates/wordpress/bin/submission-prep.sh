@@ -228,6 +228,25 @@ if [[ -n "${HEADER_URLS}" ]]; then
     done <<< "${HEADER_URLS}"
 fi
 
+# 7e-2. Plugin URI and Author URI must not carry the same value. A real
+#       review (2026) failed a plugin with: "Your plugin and author URIs
+#       are the same ... Those two must be different. You are not required
+#       to provide both, so pick the one that best applies." A Plugin URI
+#       is a page about THIS plugin; an Author URI is a page about the
+#       author. Note the interaction with 7e: pointing a dead Plugin URI
+#       at your homepage to make it resolve trips THIS check instead.
+PLUGIN_URI=$(grep -iE "^\s*\*\s*Plugin URI:" "${SLUG}.php" 2>/dev/null \
+    | head -1 | sed -E 's/.*URI:[[:space:]]*//' | tr -d '\r' || true)
+AUTHOR_URI=$(grep -iE "^\s*\*\s*Author URI:" "${SLUG}.php" 2>/dev/null \
+    | head -1 | sed -E 's/.*URI:[[:space:]]*//' | tr -d '\r' || true)
+if [[ -n "${PLUGIN_URI}" && "${PLUGIN_URI%/}" == "${AUTHOR_URI%/}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "Plugin URI and Author URI are identical: ${PLUGIN_URI}"
+    warn "  wp.org rejects this outright. Neither header is required —"
+    warn "  delete whichever one you can't point at a distinct, live page."
+    warn "  See skills/publishing.md → 'Plugin header URLs'."
+fi
+
 # 7f. if (!function_exists(...)) / if (!class_exists(...)) wrapping your
 #     OWN code. If another plugin defines the name and loads first, your
 #     version silently never loads. Reserve these for shared libraries.

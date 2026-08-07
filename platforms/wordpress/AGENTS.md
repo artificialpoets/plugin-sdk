@@ -272,6 +272,7 @@ Each file is self-contained. Load the one relevant to the task at hand — don't
 | [`skills/publishing.md`](./skills/publishing.md) | Picking a slug, running Plugin Check, writing `readme.txt`, submitting to WordPress.org. |
 | [`skills/submission-prep.md`](./skills/submission-prep.md) | Operating `bin/submission-prep.sh` and the wp.org SVN trunk → tag flow. Load when shipping to the WP.org directory. |
 | [`skills/release-pipeline.md`](./skills/release-pipeline.md) | Operating `.github/workflows/release.yml` — auto-bump, GH releases, Plugin Update Checker, dual-channel updates. Load when shipping via GitHub releases. |
+| [`skills/wporg-svn-deploy.md`](./skills/wporg-svn-deploy.md) | Automating deploys to the WordPress.org SVN repo from GitHub — CI wiring, SVN secrets, readme/assets-only updates (no version bump). Load when syncing a GitHub repo to the plugin directory. |
 
 CDN-hosted versions are mirrored at `https://cdn.wp-admincss.com/wordpress/skills/<file>.md`.
 
@@ -478,10 +479,19 @@ define('PC_VERSION', '1.0.0');          // 2-char prefix → rejected
 add_menu_page(..., 'settings', ...);    // generic unprefixed menu slug → rejected
 // * Plugin URI: https://not-registered-yet.example   ← dead URL → rejected
 
-// ✅ ALWAYS — a ≥4-char plugin-unique prefix, prefixed menu slugs, and only
-//    URLs that actually resolve (omit Plugin URI / Author URI if you have none)
+// ❌ NEVER — the same URL in both header fields. wp.org: "Those two must be
+//    different. You are not required to provide both." This is the trap that
+//    catches you when you "fix" a dead Plugin URI by repointing it at the
+//    author homepage — it now resolves, and now it's a duplicate.
+// * Plugin URI: https://example.com     ← identical to Author URI → rejected
+// * Author URI: https://example.com
+
+// ✅ ALWAYS — a ≥4-char plugin-unique prefix, prefixed menu slugs, and header
+//    URLs that both resolve AND differ. Declare Plugin URI only when a page
+//    about THAT plugin exists; otherwise ship Author URI alone (or neither).
 define('MYPLUGIN_VERSION', '1.0.0');
 add_menu_page(..., 'my-plugin', ...);
+// * Author URI: https://example.com     ← one field, live, unambiguous
 // The SDK boilerplate does this by construction: full-slug prefixes everywhere,
 // and it omits Plugin URI / Author URI until you supply a live homepage.
 ```
