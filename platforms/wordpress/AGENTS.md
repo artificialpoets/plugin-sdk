@@ -411,6 +411,24 @@ echo '<h1>Hello ' . esc_html($name) . '</h1>';
 ```
 
 ```php
+// ❌ NEVER — a <script> or <style> tag emitted from PHP. wp.org pends the
+//    submission and quotes the file:line at you. An admin render callback
+//    is NOT an exception — it's the spot that actually gets flagged.
+function render_field() {
+    echo '<p style="margin-top:0">…</p>';    // style="" → flagged next round
+    echo '<script>document.getElementById("x").hidden = true;</script>';
+}
+
+// ✅ ALWAYS — enqueue on the narrowest hook, scoped to the one screen.
+//    A `false` src registers a handle when the payload is inline-only.
+add_action('admin_enqueue_scripts', function ($hook) {
+    if ('options-reading.php' !== $hook) { return; }
+    wp_enqueue_style('myplugin-admin', plugins_url('assets/admin.css', MYPLUGIN_FILE), [], MYPLUGIN_VERSION);
+    wp_enqueue_script('myplugin-admin', plugins_url('assets/admin.js', MYPLUGIN_FILE), [], MYPLUGIN_VERSION, true);
+});
+```
+
+```php
 // ❌ NEVER — adding admin scripts via wp_head
 add_action('wp_head', 'my_plugin_styles');
 

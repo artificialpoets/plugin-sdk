@@ -5,6 +5,49 @@
 
 WordPress has one correct way to add assets: register and enqueue them on the right hook. Don't echo `<link>` or `<script>` tags directly — you lose deduplication, dependency resolution, and version cache-busting, and you'll conflict with other plugins.
 
+## This is a review blocker, not a style preference
+
+wp.org fails plugins over it, with the offending file and line number quoted
+back at you. From a real review (2026), flagging a single `<script>` tag inside
+a settings-page render method:
+
+> 🔴 **Use wp_enqueue commands** — Because of performance and compatibility,
+> please make use of the built in functions for including static and dynamic JS
+> and/or CSS. **Identify JS and CSS outputs:** Look for any `<script>` or
+> `<style>` HTML tags in your plugin. In the majority of cases you could
+> enqueue them.
+
+The reviewer's own mapping — there is a function for every case, so "it's only
+three lines of JS" is never a reason to inline:
+
+| Type of code | Functions |
+|---|---|
+| Static JS | `wp_register_script()`, `wp_enqueue_script()` |
+| Inline JS | `wp_add_inline_script()` |
+| Static CSS | `wp_register_style()`, `wp_enqueue_style()` |
+| Inline CSS | `wp_add_inline_style()` |
+
+**The trap is where the tag lives.** "Don't echo tags in templates" reads as a
+rule about front-end templates, so a `<script>` block sitting at the bottom of
+an `add_settings_field()` render callback doesn't feel like it counts. It
+counts. Any PHP that emits a `<script>` or `<style>` tag is in scope, including
+admin-page renderers, metaboxes, and `wp_footer` callbacks.
+
+**`style=""` attributes are the same smell.** The reviewer's grep looks for
+`<style>` tags, so a page styled entirely with inline `style` attributes can
+pass the automated pass and still get flagged by the human on the next round.
+If a render method is carrying more than a token attribute or two, enqueue a
+stylesheet and use classes.
+
+For a small progressive-enhancement script with no static file, `false` is a
+legal `src` — register the handle, then attach the code:
+
+```php
+wp_register_script( 'my-plugin-admin', false, array(), MY_PLUGIN_VERSION, true );
+wp_enqueue_script( 'my-plugin-admin' );
+wp_add_inline_script( 'my-plugin-admin', $js );
+```
+
 ## The four hooks
 
 | Hook | When it fires | Use for |
@@ -317,7 +360,8 @@ add_action('admin_enqueue_scripts', function($hook) {
 
 ## Common AI mistakes
 
-- **Echoing `<link>` or `<script>` tags directly** in templates instead of enqueuing.
+- **Echoing `<link>`, `<script>` or `<style>` tags directly** — in templates *or* in an admin render callback, which is the spot that actually gets flagged in review.
+- **Styling a settings screen with `style=""` attributes** instead of an enqueued stylesheet.
 - **Enqueuing without a version string** — breaks cache invalidation on updates.
 - **Enqueuing on the wrong hook** — `wp_head` or `admin_head` instead of the enqueue hooks.
 - **Unconditional enqueue** — loading plugin JS on every admin page when only one page needs it.

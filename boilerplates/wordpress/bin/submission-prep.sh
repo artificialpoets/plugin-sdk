@@ -247,6 +247,33 @@ if [[ -n "${PLUGIN_URI}" && "${PLUGIN_URI%/}" == "${AUTHOR_URI%/}" ]]; then
     warn "  See skills/publishing.md → 'Plugin header URLs'."
 fi
 
+# 7g. Inline <script> / <style> tags emitted from PHP. wp.org quotes the
+#     file and line back at you ("Use wp_enqueue commands") and pends the
+#     submission. Every case has a function: wp_enqueue_script/style for
+#     files, wp_add_inline_script/style for code. A `false` src registers
+#     a handle for inline-only payloads.
+INLINE_TAGS=$(grep -rnE "<(script|style)[ >]" --include="*.php" src/ "${SLUG}.php" 2>/dev/null || true)
+if [[ -n "${INLINE_TAGS}" ]]; then
+    REVIEW_WARNINGS=1
+    warn "Inline <script>/<style> tag(s) emitted from PHP:"
+    echo "${INLINE_TAGS}" | while IFS= read -r line; do
+        echo "      ${line}"
+    done
+    warn "  Admin render callbacks count too — that is the spot reviewers"
+    warn "  actually flag. See skills/enqueue.md → 'This is a review"
+    warn "  blocker, not a style preference'."
+fi
+
+# 7h. style="" attributes in PHP output. Not what the automated pass
+#     greps for, but the same finding one round later from the human.
+#     A couple is fine; a settings screen built out of them is not.
+INLINE_STYLE_ATTRS=$(grep -rnoE 'style="[^"]+"' --include="*.php" src/ "${SLUG}.php" 2>/dev/null | wc -l | tr -d ' ')
+if [[ "${INLINE_STYLE_ATTRS}" -gt 3 ]]; then
+    warn "${INLINE_STYLE_ATTRS} inline style=\"\" attributes in PHP output."
+    warn "  Past a handful this reads as a stylesheet that was never"
+    warn "  written. Enqueue one and use classes."
+fi
+
 # 7f. if (!function_exists(...)) / if (!class_exists(...)) wrapping your
 #     OWN code. If another plugin defines the name and loads first, your
 #     version silently never loads. Reserve these for shared libraries.
