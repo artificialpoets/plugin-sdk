@@ -247,6 +247,25 @@ if [[ -n "${PLUGIN_URI}" && "${PLUGIN_URI%/}" == "${AUTHOR_URI%/}" ]]; then
     warn "  See skills/publishing.md → 'Plugin header URLs'."
 fi
 
+# 7i. readme.txt "Tested up to" vs the CURRENT core release. wp.org's
+#     automated scan hard-FAILS on a stale value
+#     (ERROR: outdated_tested_upto_header, "Tested up to: 7.0 < 7.1") and
+#     says the plugin will not appear in directory searches. Unique among
+#     these checks: it goes stale on its own the day core ships, so a
+#     submission that passed last week fails today. Best-effort — skips
+#     cleanly offline.
+TESTED_UPTO=$(grep -E '^Tested up to:' readme.txt 2>/dev/null | sed -E 's/.*:[[:space:]]*//' | tr -d '[:space:]')
+if [[ -n "${TESTED_UPTO}" ]] && command -v curl >/dev/null 2>&1; then
+    CORE_LATEST=$(curl -sf --max-time 10 https://api.wordpress.org/core/stable-check/1.0/ 2>/dev/null \
+        | tr ',' '\n' | grep '"latest"' | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
+    if [[ -n "${CORE_LATEST}" && "${TESTED_UPTO}" != "${CORE_LATEST}" ]]; then
+        REVIEW_WARNINGS=1
+        warn "readme.txt 'Tested up to: ${TESTED_UPTO}' != current core ${CORE_LATEST}"
+        warn "  wp.org fails the submission scan on this and drops the plugin"
+        warn "  out of directory search. Test against ${CORE_LATEST}, then bump."
+    fi
+fi
+
 # 7g. Inline <script> / <style> tags emitted from PHP. wp.org quotes the
 #     file and line back at you ("Use wp_enqueue commands") and pends the
 #     submission. Every case has a function: wp_enqueue_script/style for

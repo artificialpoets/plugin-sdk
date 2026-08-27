@@ -337,7 +337,7 @@ First public release.
 - **Contributors** — WP.org usernames, comma-separated. The plugin owner + collaborators.
 - **Tags** — up to 5 lowercase tags, comma-separated. Used for browse/search.
 - **Requires at least** — minimum WordPress version. Bump only when you actually use a newer API.
-- **Tested up to** — the WordPress version you've tested against. **Update this on every WordPress release.** Out-of-date "Tested up to" makes your plugin look abandoned.
+- **Tested up to** — the WordPress version you've tested against. **This is a hard failure, not a cosmetic one.** The automated submission scan returns `ERROR: outdated_tested_upto_header` the moment this trails the current release ("Tested up to: 7.0 < 7.1"), and wp.org states the plugin will not appear in directory searches until it matches. It is the one readme field that goes stale on its own schedule — the day core ships, a submission that passed yesterday fails. Re-check it immediately before every upload, and bump it within ~2 weeks of each core release once live.
 - **Requires PHP** — minimum PHP version. Match the `composer.json` requirement.
 - **Stable tag** — the version that should be served from the directory. Match this to the version in your main plugin header.
 - **License** — SPDX identifier. Use `GPLv2 or later` (the WordPress ecosystem convention; required for WP.org).
@@ -418,7 +418,7 @@ fi
 
 ### Post-approval maintenance
 
-- **Update "Tested up to"** within ~2 weeks of every WP release. Plugins without recent updates are downranked.
+- **Update "Tested up to"** within ~2 weeks of every WP release — stale values drop the plugin out of directory search (see the field reference above). Plugins without recent updates are also downranked.
 - **Respond to support-forum posts** at `wordpress.org/support/plugin/<your-slug>` within a reasonable window.
 - **Patch reported vulnerabilities** quickly — the WP.org security team will reach out via email if researchers file a CVE.
 
@@ -430,7 +430,8 @@ fi
 - [ ] All `__()` / `_e()` calls use the literal text domain
 - [ ] Slug verified unique on WordPress.org (only relevant for first release)
 - [ ] Version is bumped + matches across header, constant, and `readme.txt`
-- [ ] `readme.txt` "Tested up to" reflects the latest WP version actually tested
+- [ ] `readme.txt` "Tested up to" equals the **current** core release — check
+      `https://api.wordpress.org/core/stable-check/1.0/` at upload time, not from memory
 - [ ] Changelog entry written
 - [ ] `uninstall.php` cleans up the data the new version writes
 - [ ] No `error_log()` / `var_dump()` / `console.log()` debug calls left in
